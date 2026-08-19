@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <langversion>latest</langversion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <DependencyDll Include="..\deps\*.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="@(DependencyDll)">
+      <HintPath>%(DependencyDll.Identity)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="CopyToBepInEx" AfterTargets="Build">
+    <PropertyGroup>
+      <BepInExPluginsDir>C:\Program Files (x86)\Steam\steamapps\common\Baldi's Basics Plus\BepInEx\plugins</BepInExPluginsDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(BepInExPluginsDir)" Condition="!Exists('$(BepInExPluginsDir)')" />
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BepInExPluginsDir)" SkipUnchangedFiles="false" />
+
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFolder="$(BepInExPluginsDir)" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" SkipUnchangedFiles="false" />
+  </Target>
+
+</Project>
