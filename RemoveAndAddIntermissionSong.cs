@@ -410,15 +410,34 @@ namespace NullscapeinBB
             if (__instance is PitstopGameManager)
             {
                 NullscapeInBB.Instance.Intermissions.Clear();
+                var extraNPCIntermission = 0;
+                var extraCurseIntermission = 0;
+                extraNPCIntermission += NullscapeInBB.GreaterCurseCount(GreaterCurses.TwiceMoreNpcs);
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 50)
+                {
+                    extraNPCIntermission += 1;
+                    extraCurseIntermission += 1;
+                }
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 150)
+                {
+                    extraNPCIntermission += 1;
+                    extraCurseIntermission += 1;
+                }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
                 {
-                    for (int i = 0; i < 1 + NullscapeInBB.GreaterCurseCount(GreaterCurses.TwiceMoreNpcs); i++)
+                    for (int i = 0; i < 1 + extraNPCIntermission; i++)
                     {
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Enemy);
                     }
                 }
-                
-                if ((NullscapeInBB.Instance.FloorCounter+1 ) % 3 == 0) NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Curse);
+
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 3 == 0)
+                {
+                    for (int i = 0; i < 1 + extraCurseIntermission; i++)
+                    {
+                        NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Curse);
+                    }
+                }
                 if ((NullscapeInBB.Instance.FloorCounter+1 ) % 5 == 0)
                 {
                     if ((NullscapeInBB.Instance.FloorCounter+1 ) < 30)
