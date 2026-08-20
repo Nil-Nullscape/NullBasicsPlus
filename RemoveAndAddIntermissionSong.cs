@@ -121,7 +121,7 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.5f);
+            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
         }
          static void OnCollectIntermissionGreaterCurses(GameObject[] pickups, Pickup currpck,GreaterCurseItem ei)
         {
@@ -136,7 +136,7 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.5f);
+            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
         }
   
         static void OnCollectIntermissionCurses(GameObject[] pickups, Pickup currpck,CurseItem ei)
@@ -153,7 +153,7 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.5f);
+            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
         }
         
         public static void CreatePickupsEnemy(ItemObject i1, ItemObject i2, ItemObject i3)
@@ -177,9 +177,56 @@ namespace NullscapeinBB
                 PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
                 PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
                 PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+            var Reroll = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
+            Reroll.GetComponent<Pickup>().showDescription = true;
+            if (NullscapeInBB.Instance.freeRerolls > 0)
+            {
+                NullscapeInBB.Instance.RerollItem.descKey = $"desc_reroll_free{NullscapeInBB.Instance.freeRerolls}";
 
-                // Add a small 3D text label above the middle pedestal indicating the intermission type
-                GameObject label = new GameObject("IntermissionLabel_Enemy");
+            }
+            else
+            {
+                NullscapeInBB.Instance.RerollItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_reroll")} {NullscapeInBB.Instance.rerollPrice} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_reroll2")}";
+            }
+            Reroll.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.RerollItem);
+
+            if (NullscapeInBB.Instance.freeRerolls > 0)
+            {
+                Reroll.GetComponent<Pickup>().free = true;
+                
+            }
+            else
+            {
+                Reroll.GetComponent<Pickup>().free = false;
+                Reroll.GetComponent<Pickup>().price = NullscapeInBB.Instance.rerollPrice;
+                
+            }
+            Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+
+                if (NullscapeInBB.Instance.freeRerolls >0)
+                {
+                    NullscapeInBB.Instance.freeRerolls -= 1;
+                }
+                else
+                {
+                    NullscapeInBB.Instance.rerollPrice += 500;
+                }
+                Object.Destroy(PickUp1);
+                Object.Destroy(PickUp2);
+                Object.Destroy(PickUp3);
+                Object.Destroy(Reroll);
+                NullscapeInBB.delay(() =>
+                {
+                    var random3 = NullscapeInBB.Instance.PickThreeEnemies();
+                    CreatePickupsEnemy(NullscapeInBB.Instance.AllEnemiesItems[random3[0].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[1].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[2].Enemy]);
+                }, 0.5f);
+
+            };
+            Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Reroll.transform.localPosition = new Vector3(360, 5, 57.5f);
+            // Add a small 3D text label above the middle pedestal indicating the intermission type
+            GameObject label = new GameObject("IntermissionLabel_Enemy");
                 var tm = label.AddComponent<TextMeshPro>();
                 tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Enemy")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Enemy")}";
                     tm.fontSize = 8f;
@@ -196,13 +243,13 @@ namespace NullscapeinBB
 
                 // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
                 PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem1);
+                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem1);
                 };
                 PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem2);
+                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem2);
                 };
                 PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem3);
+                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem3);
                 };
             ;
         }
@@ -215,21 +262,63 @@ namespace NullscapeinBB
                 var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
                 PickUp2.GetComponent<Pickup>().showDescription = true;
                 PickUp2.GetComponent<Pickup>().AssignItem(i2);
-                var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
-                PickUp3.GetComponent<Pickup>().showDescription = true;
-                PickUp3.GetComponent<Pickup>().AssignItem(i3);
-                CurseItem enemItem1 = ((CurseItem)i1.item);
+            var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
+            PickUp3.GetComponent<Pickup>().showDescription = true;
+            PickUp3.GetComponent<Pickup>().AssignItem(i3);
+            var Reroll = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
+            Reroll.GetComponent<Pickup>().showDescription = true;
+            if (NullscapeInBB.Instance.freeRerolls > 0)
+            {
+                NullscapeInBB.Instance.RerollItem.descKey = $"desc_reroll_free{NullscapeInBB.Instance.freeRerolls}";
+
+            }
+            else
+            {
+                NullscapeInBB.Instance.RerollItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_reroll")} {NullscapeInBB.Instance.rerollPrice} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_reroll2")}";
+            }
+            Reroll.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.RerollItem);
+
+            if (NullscapeInBB.Instance.freeRerolls > 0) {
+                Reroll.GetComponent<Pickup>().free = true;
+                
+            } else {
+                Reroll.GetComponent<Pickup>().free = false;
+                Reroll.GetComponent<Pickup>().price = NullscapeInBB.Instance.rerollPrice;
+            }
+            Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                
+                if (NullscapeInBB.Instance.freeRerolls > 0) {
+                    NullscapeInBB.Instance.freeRerolls -= 1;
+                } else {
+                    NullscapeInBB.Instance.rerollPrice += 500;
+                }
+                Object.Destroy(PickUp1);
+                Object.Destroy(PickUp2);
+                Object.Destroy(PickUp3);
+                Object.Destroy(Reroll);
+                NullscapeInBB.delay(() =>
+                {
+                    var random3 = NullscapeInBB.Instance.PickThreeCurses();
+                    CreatePickupsCurses(NullscapeInBB.Instance.AllCursesItems[random3[0].curse], NullscapeInBB.Instance.AllCursesItems[random3[1].curse], NullscapeInBB.Instance.AllCursesItems[random3[2].curse]);
+                },0.5f);
+                
+            };
+            
+            CurseItem enemItem1 = ((CurseItem)i1.item);
                 CurseItem enemItem2 = ((CurseItem)i2.item);
                 CurseItem enemItem3 = ((CurseItem)i3.item);
                 PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
                 PickUp1.transform.localPosition = new Vector3(335, 5, 60);
                 PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
                 PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
-                PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+            PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+            Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Reroll.transform.localPosition = new Vector3(360, 5, 57.5f);
 
-                // Add a small 3D text label above the middle pedestal indicating the intermission type
-                GameObject label = new GameObject("IntermissionLabel_Curse");
+            // Add a small 3D text label above the middle pedestal indicating the intermission type
+            GameObject label = new GameObject("IntermissionLabel_Curse");
                 var tm = label.AddComponent<TextMeshPro>();
                 tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Curse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Curse")}";
                     tm.fontSize = 8f;
@@ -245,13 +334,13 @@ namespace NullscapeinBB
         
                 // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
                 PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem1);
+                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem1);
                 };
                 PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem2);
+                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem2);
                 };
                 PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem3);
+                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label,Reroll }, pckup,enemItem3);
                 };
             ;
         }
@@ -278,9 +367,9 @@ namespace NullscapeinBB
                 PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
                 PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
                 PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
-
-                // Add a small 3D text label above the middle pedestal indicating the intermission type
-                GameObject label = new GameObject("IntermissionLabel_GreaterCurse");
+           
+            // Add a small 3D text label above the middle pedestal indicating the intermission type
+            GameObject label = new GameObject("IntermissionLabel_GreaterCurse");
                 var tm = label.AddComponent<TextMeshPro>();
                 tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_GreaterCurse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_GreaterCurse")}";
                     tm.fontSize = 8f;
@@ -321,7 +410,14 @@ namespace NullscapeinBB
             if (__instance is PitstopGameManager)
             {
                 NullscapeInBB.Instance.Intermissions.Clear();
-                if ((NullscapeInBB.Instance.FloorCounter+1 ) % 2 == 0) NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Enemy);
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
+                {
+                    for (int i = 0; i < 1 + NullscapeInBB.GreaterCurseCount(GreaterCurses.TwiceMoreNpcs); i++)
+                    {
+                        NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Enemy);
+                    }
+                }
+                
                 if ((NullscapeInBB.Instance.FloorCounter+1 ) % 3 == 0) NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Curse);
                 if ((NullscapeInBB.Instance.FloorCounter+1 ) % 5 == 0)
                 {

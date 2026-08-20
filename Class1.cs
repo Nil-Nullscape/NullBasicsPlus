@@ -61,15 +61,18 @@ namespace NullscapeinBB
         BalloonBuster,
         MatchMachine,
         AngrierBaldi,
-        OneMinutePomp
-
+        OneMinutePomp,
+        OneMoreProblem
     }
 
     public enum GreaterCurses
     {
         OmniscientBaldi,
         Maintenance,
-        TimedActivities
+        TimedActivities,
+        HarderPlaytime,
+        NoMorePraise,
+        TwiceMoreNpcs
     }
 
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
@@ -100,6 +103,8 @@ namespace NullscapeinBB
         public IntVector2 levelsize;
         public int plotcount;
         public int mapprice;
+        public int freeRerolls = 3;
+        public int rerollPrice = 500;
         public int itembudget;
         public int facultycount;
         public int fakecount;
@@ -110,7 +115,7 @@ namespace NullscapeinBB
         public Dictionary<Character, ItemObject> AllEnemiesItems = new Dictionary<Character, ItemObject>();
         public Dictionary<Curses, ItemObject> AllCursesItems = new Dictionary<Curses, ItemObject>();
         public Dictionary<Curses, CurseData> AllCurses = new Dictionary<Curses, CurseData>();
-
+        public ItemObject RerollItem;
         public List<StructureWithParameters> ForcedStructureDefault;
         public List<StructureWithParameters> ForcedStructures;
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
@@ -131,6 +136,60 @@ namespace NullscapeinBB
                 yield return new WaitForEndOfFrame();
 
             }
+            yield return "Making all items for curses and stuff";
+            yield return "Making all Items";
+            foreach (EnemyData enemy in AllEnemies.Values)
+            {
+                if (enemy.NPCToUse != null)
+                {
+                    var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{enemy.NPCToUse.name}", $"desc_{enemy.NPCToUse.name}")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
+                    .SetEnum($"itmenemy_{enemy.NPCToUse.name}")
+                    .SetItemComponent<EnemItem>()
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .Build();
+                    ((EnemItem)ie.item).Enemy = enemy.Enemy;
+                    AllEnemiesItems.Add(enemy.Enemy, ie);
+                }
+            }
+            foreach (Curses curse in Enum.GetValues(typeof(Curses)))
+            {
+                var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
+                    .SetEnum($"itmcurse_{curse.ToString()}")
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetItemComponent<CurseItem>()
+                    .Build();
+                ((CurseItem)ie.item).curse = curse;
+                AllCursesItems.Add(curse, ie);
+            }
+
+            foreach (GreaterCurses curse in Enum.GetValues(typeof(GreaterCurses)))
+            {
+                var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
+                    .SetEnum($"itmgreatercurse_{curse.ToString()}")
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetItemComponent<GreaterCurseItem>()
+                    .Build();
+                ((GreaterCurseItem)ie.item).curse = curse;
+                AllGreaterCursesItems.Add(curse, ie);
+            }
+
+            RerollItem = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_reroll", $"desc_reroll")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_Reroll.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_Reroll.png"))
+                    .SetEnum($"itmreroll")
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+                    .SetItemComponent<Item>()
+                    .Build();
         }
         static public int CurseCount(Curses curse)
         {
@@ -215,6 +274,13 @@ namespace NullscapeinBB
             AllEnemies.Add(Character.Prize, new(Character.Prize, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "FirstPrize"), "Baldi."));
             AllEnemies.Add(Character.Bully, new(Character.Bully, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Bully"), "Baldi."));
             AllEnemies.Add(Character.Pomp, new(Character.Pomp, 5, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Mrs Pomp"), "Baldi."));
+            AllEnemies.Add(Character.Sweep, new(Character.Sweep, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Gotta Sweep"), "Baldi."));
+            AllEnemies.Add(Character.Cumulo, new(Character.Cumulo, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "CloudyCopter"), "Baldi."));
+            AllEnemies.Add(Character.DrReflex, new(Character.DrReflex, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "DrReflex"), "Baldi."));
+            AllEnemies.Add(Character.LookAt, new(Character.LookAt, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "LookAt"), "Baldi."));
+            AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
+            AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
+            AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
             yield return "Creating All Curses";
             AllCurses.Add(Curses.MathMachine, new()
             {
@@ -301,15 +367,41 @@ namespace NullscapeinBB
 
                 }
             });
+            AllCurses.Add(Curses.OneMoreProblem, new()
+            {
+                curse = Curses.OneMoreProblem,
+                MaxCurses = 3,
+                MinFloor = 0,
+                Requirements = () => {
+                    return CurseCount(Curses.MathMachine) >= 1;
+                },
+                CursesAction = () =>
+                {
+
+                }
+            });
 
             AllGreaterCurses.Add(GreaterCurses.OmniscientBaldi, new()
             {
                 curse = GreaterCurses.OmniscientBaldi,
                 MaxCurses = 1,
+                MinFloor = 25,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.HarderPlaytime, new()
+            {
+                curse = GreaterCurses.HarderPlaytime,
+                MaxCurses = 1,
                 MinFloor = 0,
                 CursesAction = () =>
                 {
 
+                },
+                Requirements = () => {
+                return EnemyCount(Character.Playtime) >= 1;
                 }
             });
             AllGreaterCurses.Add(GreaterCurses.TimedActivities, new()
@@ -317,13 +409,37 @@ namespace NullscapeinBB
                 curse = GreaterCurses.TimedActivities,
                 Requirements = () =>
                 {
-                    return CurseCount(Curses.MathMachine) >= 1 || CurseCount(Curses.MatchMachine) >= 1 || CurseCount(Curses.BalloonBuster) >= 1; 
+                    return CurseCount(Curses.MathMachine) >= 1 || CurseCount(Curses.MatchMachine) >= 1 || CurseCount(Curses.BalloonBuster) >= 1;
                 },
                 MaxCurses = 1,
                 MinFloor = 0,
                 CursesAction = () =>
                 {
-                    
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.NoMorePraise, new()
+            {
+                curse = GreaterCurses.NoMorePraise,
+                Requirements = () =>
+                {
+                    return CurseCount(Curses.MathMachine) >= 1 || CurseCount(Curses.MatchMachine) >= 1 || CurseCount(Curses.BalloonBuster) >= 1;
+                },
+                MaxCurses = 1,
+                MinFloor = 0,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.TwiceMoreNpcs, new()
+            {
+                curse = GreaterCurses.TwiceMoreNpcs,
+                MaxCurses = 1,
+                MinFloor = 25,
+                CursesAction = () =>
+                {
+
                 }
             });
             AllGreaterCurses.Add(GreaterCurses.Maintenance, new()
@@ -353,50 +469,7 @@ namespace NullscapeinBB
                 }
             });
 
-            yield return "Making all Items";
-            foreach (EnemyData enemy in AllEnemies.Values)
-            {
-                if (enemy.NPCToUse != null)
-                {
-                    var ie = new ItemBuilder(this.Info)
-                    .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{enemy.NPCToUse.name}", $"desc_{enemy.NPCToUse.name}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
-                    .SetEnum($"itmenemy_{enemy.NPCToUse.name}")
-                    .SetItemComponent<EnemItem>()
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
-                    .Build();
-                    ((EnemItem)ie.item).Enemy = enemy.Enemy;
-                    AllEnemiesItems.Add(enemy.Enemy, ie);
-                }
-            }
-            foreach (Curses curse in Enum.GetValues(typeof(Curses)))
-            {
-                var ie = new ItemBuilder(this.Info)
-                    .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
-                    .SetEnum($"itmcurse_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
-                    .SetItemComponent<CurseItem>()
-                    .Build();
-                ((CurseItem)ie.item).curse = curse;
-                AllCursesItems.Add(curse, ie);
-            }
-
-            foreach (GreaterCurses curse in Enum.GetValues(typeof(GreaterCurses)))
-            {
-                var ie = new ItemBuilder(this.Info)
-                    .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
-                    .SetEnum($"itmgreatercurse_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
-                    .SetItemComponent<GreaterCurseItem>()
-                    .Build();
-                ((GreaterCurseItem)ie.item).curse = curse;
-                AllGreaterCursesItems.Add(curse, ie);
-            }
+            
         }
         IEnumerator Preload()
         {
@@ -414,7 +487,8 @@ namespace NullscapeinBB
             Am.Add("mus_cb2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Choirofthebells-2.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_eh", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Event_Horizon.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_nil", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Nil.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("snd_purchase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_purchase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_purchase2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase2.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
 
             yield return "Adding Intermission songs";
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i1"), 1, 2));
@@ -766,6 +840,8 @@ namespace NullscapeinBB
             rooms.Clear();
             CursesPicked.Clear();
             ForcedStructures = new();
+            freeRerolls = 3;
+            rerollPrice = 500;
             foreach (var item in ForcedStructureDefault)
             {
                 ForcedStructures.Add(item);
