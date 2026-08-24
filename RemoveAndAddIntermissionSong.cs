@@ -19,7 +19,8 @@ namespace NullscapeinBB
     {
         Enemy,
         Curse,
-        GreaterCurse
+        GreaterCurse,
+        CurseBreaker
     }
     static class Extras
     {
@@ -96,6 +97,22 @@ namespace NullscapeinBB
                     var i300 = main.AllGreaterCursesItems[random3greatercurses[2].curse];
                     CreatePickupsGreaterCurses(i100, i200, i300);
                     break;
+                case IntermissionType.CurseBreaker:
+                    main.Intermissions.RemoveAt(0);
+                    var random3curs = main.PickThreeExistingCursesByValue();
+                    if (random3curs == null || random3curs.Count < 3)
+                    {
+                        NextIntermission();
+                        // Not enough enemies available; abort safely.
+                        return;
+                    }
+
+                    
+                    var i1000 = main.AllCursesItems[random3curs[0].curse];
+                    var i2000 = main.AllCursesItems[random3curs[1].curse];
+                    var i3000 = main.AllCursesItems[random3curs[2].curse];
+                    CreatePickupsCursesBreaker(i1000, i2000, i3000);
+                    break;
             }
         }
 
@@ -138,8 +155,8 @@ namespace NullscapeinBB
             }
             NullscapeInBB.delay(() => {NextIntermission();},0.85f);
         }
-  
-        static void OnCollectIntermissionCurses(GameObject[] pickups, Pickup currpck,CurseItem ei)
+
+        static void OnCollectIntermissionCurses(GameObject[] pickups, Pickup currpck, CurseItem ei)
         {
             var CURSETOEXECUTE = NullscapeInBB.Instance.AllCurses[ei.curse];
             // Record that this curse was picked so PickThreeCurses respects MaxCurses
@@ -153,9 +170,21 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
+            NullscapeInBB.delay(() => { NextIntermission(); }, 0.85f);
         }
-        
+
+        static void OnCollectIntermissionCurseBreaker(GameObject[] pickups, Pickup currpck, CurseItem ei)
+        {
+            var curseToRemove = NullscapeInBB.Instance.CursesPicked.First(x => x.curse == ei.curse);
+            Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7),1,99999999) * 6)),0,true);
+            NullscapeInBB.Instance.CursesPicked.Remove(curseToRemove);
+            foreach (var item in pickups)
+            {
+                Object.Destroy(item);
+            }
+            NullscapeInBB.delay(() => { NextIntermission(); }, 0.85f);
+        }
+
         public static void CreatePickupsEnemy(ItemObject i1, ItemObject i2, ItemObject i3)
         {
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
@@ -201,30 +230,9 @@ namespace NullscapeinBB
                 Reroll.GetComponent<Pickup>().price = NullscapeInBB.Instance.rerollPrice;
                 
             }
-            Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
-            {
-
-                if (NullscapeInBB.Instance.freeRerolls >0)
-                {
-                    NullscapeInBB.Instance.freeRerolls -= 1;
-                }
-                else
-                {
-                    NullscapeInBB.Instance.rerollPrice += 500;
-                }
-                Object.Destroy(PickUp1);
-                Object.Destroy(PickUp2);
-                Object.Destroy(PickUp3);
-                Object.Destroy(Reroll);
-                NullscapeInBB.delay(() =>
-                {
-                    var random3 = NullscapeInBB.Instance.PickThreeEnemies();
-                    CreatePickupsEnemy(NullscapeInBB.Instance.AllEnemiesItems[random3[0].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[1].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[2].Enemy]);
-                }, 0.5f);
-
-            };
+            
             Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            Reroll.transform.localPosition = new Vector3(360, 5, 57.5f);
+            Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
             // Add a small 3D text label above the middle pedestal indicating the intermission type
             GameObject label = new GameObject("IntermissionLabel_Enemy");
                 var tm = label.AddComponent<TextMeshPro>();
@@ -239,10 +247,32 @@ namespace NullscapeinBB
                 label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
                 label.transform.localPosition = new Vector3(335, 8f, 60);
 
+            Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
 
+                if (NullscapeInBB.Instance.freeRerolls > 0)
+                {
+                    NullscapeInBB.Instance.freeRerolls -= 1;
+                }
+                else
+                {
+                    NullscapeInBB.Instance.rerollPrice += 500;
+                }
+                Object.Destroy(PickUp1);
+                Object.Destroy(PickUp2);
+                Object.Destroy(PickUp3);
+                Object.Destroy(label);
+                Object.Destroy(Reroll);
+                NullscapeInBB.delay(() =>
+                {
+                    var random3 = NullscapeInBB.Instance.PickThreeEnemies();
+                    CreatePickupsEnemy(NullscapeInBB.Instance.AllEnemiesItems[random3[0].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[1].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[2].Enemy]);
+                }, 0.5f);
 
-                // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-                PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
+            };
+
+            // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
                     OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem1);
                 };
                 PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
@@ -253,15 +283,51 @@ namespace NullscapeinBB
                 };
             ;
         }
-     public static void CreatePickupsCurses(ItemObject i1, ItemObject i2, ItemObject i3)
+
+        public static void CreateCurseBreakerPickup( ) {
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
+            
+            var Cursebreaker = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
+            Cursebreaker.GetComponent<Pickup>().showDescription = true;
+            
+                NullscapeInBB.Instance.CursebreakerItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm")} {NullscapeInBB.Instance.cursebreakerprice} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm2")}";
+            
+            Cursebreaker.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.CursebreakerItem);
+
+                Cursebreaker.GetComponent<Pickup>().free = false;
+                Cursebreaker.GetComponent<Pickup>().price = NullscapeInBB.Instance.cursebreakerprice;
+            
+
+
+            
+            Cursebreaker.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Cursebreaker.transform.localPosition = new Vector3(360, 5, 57.5f);
+
+           
+            Cursebreaker.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+
+                NullscapeInBB.Instance.CursebreakerQueued = true;
+                NullscapeInBB.Instance.cursebreakerprice += 1000;
+                NullscapeInBB.Instance.LastTimeCursebreakerUsed = NullscapeInBB.Instance.FloorCounter + 1;
+                Object.Destroy(Cursebreaker);
+                
+                
+
+            };
+
+        }
+
+
+        public static void CreatePickupsCurses(ItemObject i1, ItemObject i2, ItemObject i3)
         {
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
-                var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
-                PickUp1.GetComponent<Pickup>().showDescription = true;
-                PickUp1.GetComponent<Pickup>().AssignItem(i1);
-                var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
-                PickUp2.GetComponent<Pickup>().showDescription = true;
-                PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
+            PickUp1.GetComponent<Pickup>().showDescription = true;
+            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
+            PickUp2.GetComponent<Pickup>().showDescription = true;
+            PickUp2.GetComponent<Pickup>().AssignItem(i2);
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
@@ -278,75 +344,136 @@ namespace NullscapeinBB
             }
             Reroll.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.RerollItem);
 
-            if (NullscapeInBB.Instance.freeRerolls > 0) {
+            if (NullscapeInBB.Instance.freeRerolls > 0)
+            {
                 Reroll.GetComponent<Pickup>().free = true;
-                
-            } else {
+
+            }
+            else
+            {
                 Reroll.GetComponent<Pickup>().free = false;
                 Reroll.GetComponent<Pickup>().price = NullscapeInBB.Instance.rerollPrice;
             }
+
+
+            CurseItem enemItem1 = ((CurseItem)i1.item);
+            CurseItem enemItem2 = ((CurseItem)i2.item);
+            CurseItem enemItem3 = ((CurseItem)i3.item);
+            PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp1.transform.localPosition = new Vector3(335, 5, 60);
+            PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
+            PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+            Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
+
+            // Add a small 3D text label above the middle pedestal indicating the intermission type
+            GameObject label = new GameObject("IntermissionLabel_Curse");
+            var tm = label.AddComponent<TextMeshPro>();
+            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Curse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Curse")}";
+            tm.fontSize = 8f;
+            tm.richText = true;
+            tm.alignment = TextAlignmentOptions.Center;
+            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
+            tm.color = new Color(168f / 255f, 0f, 202f / 255f);
+            tm.font = BaldiFonts.ComicSans24.FontAsset();
+
+            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            label.transform.localPosition = new Vector3(335, 8f, 60);
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                
-                if (NullscapeInBB.Instance.freeRerolls > 0) {
+
+                if (NullscapeInBB.Instance.freeRerolls > 0)
+                {
                     NullscapeInBB.Instance.freeRerolls -= 1;
-                } else {
+                }
+                else
+                {
                     NullscapeInBB.Instance.rerollPrice += 500;
                 }
                 Object.Destroy(PickUp1);
                 Object.Destroy(PickUp2);
                 Object.Destroy(PickUp3);
                 Object.Destroy(Reroll);
+                Object.Destroy(label);
                 NullscapeInBB.delay(() =>
                 {
                     var random3 = NullscapeInBB.Instance.PickThreeCurses();
                     CreatePickupsCurses(NullscapeInBB.Instance.AllCursesItems[random3[0].curse], NullscapeInBB.Instance.AllCursesItems[random3[1].curse], NullscapeInBB.Instance.AllCursesItems[random3[2].curse]);
-                },0.5f);
-                
+                }, 0.5f);
+
             };
+
+            // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1);
+            };
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2);
+            };
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3);
+            };
+            ;
+        }
+
+        public static void CreatePickupsCursesBreaker(ItemObject i1, ItemObject i2, ItemObject i3)
+        {
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
+            var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
+            PickUp1.GetComponent<Pickup>().showDescription = true;
+            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
+            PickUp2.GetComponent<Pickup>().showDescription = true;
+            PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
+            PickUp3.GetComponent<Pickup>().showDescription = true;
+            PickUp3.GetComponent<Pickup>().AssignItem(i3);
             
+
             CurseItem enemItem1 = ((CurseItem)i1.item);
-                CurseItem enemItem2 = ((CurseItem)i2.item);
-                CurseItem enemItem3 = ((CurseItem)i3.item);
-                PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp1.transform.localPosition = new Vector3(335, 5, 60);
-                PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
+            CurseItem enemItem2 = ((CurseItem)i2.item);
+            CurseItem enemItem3 = ((CurseItem)i3.item);
+            PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp1.transform.localPosition = new Vector3(335, 5, 60);
+            PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
             PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
-            Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            Reroll.transform.localPosition = new Vector3(360, 5, 57.5f);
+            
 
             // Add a small 3D text label above the middle pedestal indicating the intermission type
             GameObject label = new GameObject("IntermissionLabel_Curse");
-                var tm = label.AddComponent<TextMeshPro>();
-                tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Curse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Curse")}";
-                    tm.fontSize = 8f;
-                    tm.richText = true;
-                    tm.alignment = TextAlignmentOptions.Center;
-                    // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-                    tm.color = new Color(168f/255f,0f,202f/255f);
-                    tm.font = BaldiFonts.ComicSans24.FontAsset();
+            var tm = label.AddComponent<TextMeshPro>();
+            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_CurseBreaker")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_CurseBreaker")}";
+            tm.fontSize = 8f;
+            tm.richText = true;
+            tm.alignment = TextAlignmentOptions.Center;
+            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
+            tm.color = new Color(168f / 255f, 0f, 202f / 255f);
+            tm.font = BaldiFonts.ComicSans24.FontAsset();
 
-                label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                label.transform.localPosition = new Vector3(335, 8f, 60);
+            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            label.transform.localPosition = new Vector3(335, 8f, 60);
+            
 
-        
-                // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-                PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem1);
-                };
-                PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem2);
-                };
-                PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label,Reroll }, pckup,enemItem3);
-                };
+            // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem1);
+            };
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem2);
+            };
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem3);
+            };
             ;
         }
-    
-    
-    public static void CreatePickupsGreaterCurses(ItemObject i1, ItemObject i2, ItemObject i3)
+
+
+
+        public static void CreatePickupsGreaterCurses(ItemObject i1, ItemObject i2, ItemObject i3)
         {
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
                 var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
@@ -409,6 +536,7 @@ namespace NullscapeinBB
             Singleton<CoreGameManager>.Instance.SetLives(0,true);
             if (__instance is PitstopGameManager)
             {
+                List<string> ProgEvents = new();
                 NullscapeInBB.Instance.Intermissions.Clear();
                 var extraNPCIntermission = 0;
                 var extraCurseIntermission = 0;
@@ -452,7 +580,33 @@ namespace NullscapeinBB
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);
                     }
                 }
+                int[] BaldifasterEvents = [10,20,35,50,65,80,100];
+                if (BaldifasterEvents.Contains(NullscapeInBB.Instance.FloorCounter + 1))
+                {
+                    ProgEvents.Add("pevent_fasterbaldi");
+                    NullscapeInBB.Instance.CursesPicked.Add(new CurseData()
+                    {
+                        curse = Curses.AngrierBaldi,
+                        MaxCurses = 999,
+                        MinFloor = 0,
+                        CursesAction = () =>
+                        {
 
+                        }
+                    });
+                  
+                }
+                if ((NullscapeInBB.Instance.FloorCounter+1) - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3) {
+                    Extras.CreateCurseBreakerPickup();
+                }
+                if (NullscapeInBB.Instance.CursebreakerQueued) {
+                    NullscapeInBB.Instance.Intermissions.Add(IntermissionType.CurseBreaker);
+                    NullscapeInBB.Instance.CursebreakerQueued = false;
+                }
+                    
+                if (ProgEvents.Count > 0) {
+                    NullscapeInBB.ProgressionEventNotifier(ProgEvents.ToArray());
+                }
                 if (NullscapeInBB.Instance.Intermissions.Count > 0) {
                     __instance.Ec.ElevatorManager.SetAllElevators(ElevatorState.Open);
                 }
@@ -468,6 +622,8 @@ namespace NullscapeinBB
                 
                 Extras.NextIntermission();
             }
+
+            
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed",new(1,4.5f));
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed",new(1,6.5f));
 

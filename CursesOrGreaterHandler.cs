@@ -2,7 +2,9 @@
 using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace NullscapeinBB
 {
@@ -38,6 +40,29 @@ namespace NullscapeinBB
                 return false;
             } else {
                 return true;
+            }
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnvironmentController), "SpawnNPCs")]
+        static void Nothingtnogitno(EnvironmentController __instance) {
+            if (Singleton<BaseGameManager>.Instance is MainInfiniteGameManager)
+            {
+                if (NullscapeInBB.GreaterCurseCount(GreaterCurses.Nothing) >= 1) {
+                    var numberOfNpcs = Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 6f);
+                    for (int i = 0; i < numberOfNpcs; i++)
+                    {
+                        var randomCell = __instance.RandomCell(false, false, true);
+                        var distance = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - randomCell.CenterWorldPosition).magnitude;
+                        while (distance < 120)
+                        {
+                            randomCell = __instance.RandomCell(false, false, true);
+                            distance = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - randomCell.CenterWorldPosition).magnitude;
+                        }
+                        var allNpcs = NullscapeInBB.Instance.AllEnemies.ToArray();
+                        var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].Value.NPCToUse;
+                        __instance.SpawnNPC(randomNPC, randomCell.position);
+                    }
+                }
             }
         }
     }

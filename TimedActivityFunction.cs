@@ -12,9 +12,12 @@ namespace NullscapeinBB
         bool timed = false;
         IEnumerator TimeTi()
         {
+
+            Singleton<CoreGameManager>.Instance.audMan.PlaySingle(NullscapeInBB.Am.Get<SoundObject>("snd_computercount10"));
             while (!IsActivityDone && Timer > 0)
             {
-                Timer-=1;
+                yield return new WaitForSeconds(1);
+                ;
                 if (Timer == 18) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_9"));
                 if (Timer == 16) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_8"));
                 if (Timer == 14) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_7"));
@@ -23,8 +26,9 @@ namespace NullscapeinBB
                 if (Timer == 8) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_4"));
                 if (Timer == 6) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_3"));
                 if (Timer == 4) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_2"));
-                if (Timer == 2) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_1"));
-                yield return new WaitForSeconds(1);
+                if (Timer == 2) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_1"));
+                if (Timer == 0) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_0"));
+                Timer -= 1;
             }
             if (!IsActivityDone)
             {
@@ -44,7 +48,7 @@ namespace NullscapeinBB
         }
         public override void OnPlayerEnter(PlayerManager player)
         {
-            if (!timed) {
+            if (!timed && room.Powered) {
                 timed = true;
                 StartCoroutine(TimeTi());
             }
@@ -56,6 +60,7 @@ namespace NullscapeinBB
             IsActivityDone = true;
             base.OnActivityCompletion();
         }
+        
 
         
     }

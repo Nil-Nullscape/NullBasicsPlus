@@ -7,7 +7,7 @@ namespace NullscapeinBB
         {
 
             var baseAngerValue = 6.5f / ec.notebookTotal;
-            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) / 2.75f));
+            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 1.5f));
         }
 
         protected override void AwakeFunction()
@@ -33,5 +33,6 @@ namespace NullscapeinBB
             }
             base.VirtualUpdate();
         }
+
     }
 }
