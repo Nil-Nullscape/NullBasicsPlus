@@ -16,8 +16,7 @@ namespace NullscapeinBB
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(NullscapeInBB.Am.Get<SoundObject>("snd_computercount10"));
             while (!IsActivityDone && Timer > 0)
             {
-                yield return new WaitForSeconds(1);
-                ;
+                yield return new WaitForSeconds(1f - (NullscapeInBB.CurseCount(Curses.FasterTimedActivities) * 0.2f));
                 if (Timer == 18) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_9"));
                 if (Timer == 16) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_8"));
                 if (Timer == 14) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_7"));
@@ -45,6 +44,12 @@ namespace NullscapeinBB
                     }
                 }
             }
+        }
+
+        public void ResetFunction() {
+            Timer = 20;
+            IsActivityDone = false;
+            timed = false;
         }
         public override void OnPlayerEnter(PlayerManager player)
         {

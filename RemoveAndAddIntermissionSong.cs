@@ -26,7 +26,7 @@ namespace NullscapeinBB
     {
 
         
-       public static void NextIntermission()
+        public static void NextIntermission()
         {
             var main = NullscapeInBB.Instance;
             if (main == null) return;
@@ -107,7 +107,7 @@ namespace NullscapeinBB
                         return;
                     }
 
-                    
+
                     var i1000 = main.AllCursesItems[random3curs[0].curse];
                     var i2000 = main.AllCursesItems[random3curs[1].curse];
                     var i3000 = main.AllCursesItems[random3curs[2].curse];
@@ -116,12 +116,12 @@ namespace NullscapeinBB
             }
         }
 
-        static void OnCollectIntermissionEnemy(GameObject[] pickups, Pickup currpck,EnemItem ei)
+        static void OnCollectIntermissionEnemy(GameObject[] pickups, Pickup currpck, EnemItem ei)
         {
             var npc = NullscapeInBB.Instance.AllEnemies[ei.Enemy].NPCToUse;
             // Only add the NPC once (avoid duplicates across floors)
             var pot = NullscapeInBB.Instance.potentialNPCs;
-          
+
             // Increment selected count for this character so PickThreeEnemies respects MaxEnemies
             var counts = NullscapeInBB.Instance.selectedNPCCounts;
             if (counts.ContainsKey(ei.Enemy)) counts[ei.Enemy]++;
@@ -138,14 +138,14 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
+            NullscapeInBB.delay(() => { NextIntermission(); }, 0.85f);
         }
-         static void OnCollectIntermissionGreaterCurses(GameObject[] pickups, Pickup currpck,GreaterCurseItem ei)
+        static void OnCollectIntermissionGreaterCurses(GameObject[] pickups, Pickup currpck, GreaterCurseItem ei)
         {
             var npc = NullscapeInBB.Instance.AllGreaterCurses[ei.curse].curse;
             // Only add the NPC once (avoid duplicates across floors)
             var pot = NullscapeInBB.Instance.GreaterCursesPicked;
-          
+
             // Increment selected count for this character so PickThreeEnemies respects MaxEnemies
             pot.Add(NullscapeInBB.Instance.AllGreaterCurses[npc]);
             NullscapeInBB.Instance.AllGreaterCurses[npc].CursesAction();
@@ -153,7 +153,7 @@ namespace NullscapeinBB
             {
                 Object.Destroy(item);
             }
-            NullscapeInBB.delay(() => {NextIntermission();},0.85f);
+            NullscapeInBB.delay(() => { NextIntermission(); }, 0.85f);
         }
 
         static void OnCollectIntermissionCurses(GameObject[] pickups, Pickup currpck, CurseItem ei)
@@ -176,7 +176,7 @@ namespace NullscapeinBB
         static void OnCollectIntermissionCurseBreaker(GameObject[] pickups, Pickup currpck, CurseItem ei)
         {
             var curseToRemove = NullscapeInBB.Instance.CursesPicked.First(x => x.curse == ei.curse);
-            Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7),1,99999999) * 6)),0,true);
+            Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7), 1, 99999999) * 6)), 0, true);
             NullscapeInBB.Instance.CursesPicked.Remove(curseToRemove);
             foreach (var item in pickups)
             {
@@ -187,25 +187,25 @@ namespace NullscapeinBB
 
         public static void CreatePickupsEnemy(ItemObject i1, ItemObject i2, ItemObject i3)
         {
-            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
-                var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
-                PickUp1.GetComponent<Pickup>().showDescription = true;
-                PickUp1.GetComponent<Pickup>().AssignItem(i1);
-                var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
-                PickUp2.GetComponent<Pickup>().showDescription = true;
-                PickUp2.GetComponent<Pickup>().AssignItem(i2);
-                var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
-                PickUp3.GetComponent<Pickup>().showDescription = true;
-                PickUp3.GetComponent<Pickup>().AssignItem(i3);
-                EnemItem enemItem1 = ((EnemItem)i1.item);
-                EnemItem enemItem2 = ((EnemItem)i2.item);
-                EnemItem enemItem3 = ((EnemItem)i3.item);
-                PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp1.transform.localPosition = new Vector3(335, 5, 60);
-                PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
-                PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
+            var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
+            PickUp1.GetComponent<Pickup>().showDescription = true;
+            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
+            PickUp2.GetComponent<Pickup>().showDescription = true;
+            PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
+            PickUp3.GetComponent<Pickup>().showDescription = true;
+            PickUp3.GetComponent<Pickup>().AssignItem(i3);
+            EnemItem enemItem1 = ((EnemItem)i1.item);
+            EnemItem enemItem2 = ((EnemItem)i2.item);
+            EnemItem enemItem3 = ((EnemItem)i3.item);
+            PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp1.transform.localPosition = new Vector3(335, 5, 60);
+            PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
+            PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
             var Reroll = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
             Reroll.GetComponent<Pickup>().showDescription = true;
             if (NullscapeInBB.Instance.freeRerolls > 0)
@@ -222,30 +222,30 @@ namespace NullscapeinBB
             if (NullscapeInBB.Instance.freeRerolls > 0)
             {
                 Reroll.GetComponent<Pickup>().free = true;
-                
+
             }
             else
             {
                 Reroll.GetComponent<Pickup>().free = false;
                 Reroll.GetComponent<Pickup>().price = NullscapeInBB.Instance.rerollPrice;
-                
+
             }
-            
+
             Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
             // Add a small 3D text label above the middle pedestal indicating the intermission type
             GameObject label = new GameObject("IntermissionLabel_Enemy");
-                var tm = label.AddComponent<TextMeshPro>();
-                tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Enemy")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Enemy")}";
-                    tm.fontSize = 8f;
-                    tm.richText = true;
-                    tm.alignment = TextAlignmentOptions.Center;
-                    // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-                    tm.color = Color.red;
-                    tm.font = BaldiFonts.ComicSans24.FontAsset();
+            var tm = label.AddComponent<TextMeshPro>();
+            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Enemy")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Enemy")}";
+            tm.fontSize = 8f;
+            tm.richText = true;
+            tm.alignment = TextAlignmentOptions.Center;
+            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
+            tm.color = Color.red;
+            tm.font = BaldiFonts.ComicSans24.FontAsset();
 
-                label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                label.transform.localPosition = new Vector3(335, 8f, 60);
+            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            label.transform.localPosition = new Vector3(335, 8f, 60);
 
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
@@ -272,38 +272,42 @@ namespace NullscapeinBB
             };
 
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem1);
-                };
-                PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem2);
-                };
-                PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup,enemItem3);
-                };
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1);
+            };
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2);
+            };
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3);
+            };
             ;
         }
 
-        public static void CreateCurseBreakerPickup( ) {
-            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
-            
+        public static void CreateCurseBreakerPickup()
+        {
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
+
             var Cursebreaker = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
             Cursebreaker.GetComponent<Pickup>().showDescription = true;
-            
-                NullscapeInBB.Instance.CursebreakerItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm")} {NullscapeInBB.Instance.cursebreakerprice} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm2")}";
-            
+
+            NullscapeInBB.Instance.CursebreakerItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm")} {NullscapeInBB.Instance.cursebreakerprice} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_cursebreakeritm2")}";
+
             Cursebreaker.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.CursebreakerItem);
 
-                Cursebreaker.GetComponent<Pickup>().free = false;
-                Cursebreaker.GetComponent<Pickup>().price = NullscapeInBB.Instance.cursebreakerprice;
-            
+            Cursebreaker.GetComponent<Pickup>().free = false;
+            Cursebreaker.GetComponent<Pickup>().price = NullscapeInBB.Instance.cursebreakerprice;
 
 
-            
+
+
             Cursebreaker.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             Cursebreaker.transform.localPosition = new Vector3(360, 5, 57.5f);
 
-           
+
             Cursebreaker.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
 
@@ -311,8 +315,8 @@ namespace NullscapeinBB
                 NullscapeInBB.Instance.cursebreakerprice += 1000;
                 NullscapeInBB.Instance.LastTimeCursebreakerUsed = NullscapeInBB.Instance.FloorCounter + 1;
                 Object.Destroy(Cursebreaker);
-                
-                
+
+
 
             };
 
@@ -321,7 +325,7 @@ namespace NullscapeinBB
 
         public static void CreatePickupsCurses(ItemObject i1, ItemObject i2, ItemObject i3)
         {
-            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
             var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
             PickUp1.GetComponent<Pickup>().showDescription = true;
             PickUp1.GetComponent<Pickup>().AssignItem(i1);
@@ -406,13 +410,16 @@ namespace NullscapeinBB
             };
 
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1);
             };
-            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2);
             };
-            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3);
             };
             ;
@@ -420,7 +427,7 @@ namespace NullscapeinBB
 
         public static void CreatePickupsCursesBreaker(ItemObject i1, ItemObject i2, ItemObject i3)
         {
-            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
             var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
             PickUp1.GetComponent<Pickup>().showDescription = true;
             PickUp1.GetComponent<Pickup>().AssignItem(i1);
@@ -430,7 +437,7 @@ namespace NullscapeinBB
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
-            
+
 
             CurseItem enemItem1 = ((CurseItem)i1.item);
             CurseItem enemItem2 = ((CurseItem)i2.item);
@@ -441,7 +448,7 @@ namespace NullscapeinBB
             PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
             PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
-            
+
 
             // Add a small 3D text label above the middle pedestal indicating the intermission type
             GameObject label = new GameObject("IntermissionLabel_Curse");
@@ -456,16 +463,19 @@ namespace NullscapeinBB
 
             label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             label.transform.localPosition = new Vector3(335, 8f, 60);
-            
+
 
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem1);
             };
-            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem2);
             };
-            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) => {
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
                 OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem3);
             };
             ;
@@ -475,54 +485,57 @@ namespace NullscapeinBB
 
         public static void CreatePickupsGreaterCurses(ItemObject i1, ItemObject i2, ItemObject i3)
         {
-            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup");
-                var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
-                PickUp1.GetComponent<Pickup>().showDescription = true;
-                PickUp1.GetComponent<Pickup>().AssignItem(i1);
-                var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
-                PickUp2.GetComponent<Pickup>().showDescription = true;
-                PickUp2.GetComponent<Pickup>().AssignItem(i2);
-                var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
-                PickUp3.GetComponent<Pickup>().showDescription = true;
-                PickUp3.GetComponent<Pickup>().AssignItem(i3);
-                GreaterCurseItem enemItem1 = ((GreaterCurseItem)i1.item);
-                GreaterCurseItem enemItem2 = ((GreaterCurseItem)i2.item);
-                GreaterCurseItem enemItem3 = ((GreaterCurseItem)i3.item);
-                PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp1.transform.localPosition = new Vector3(335, 5, 60);
-                PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
-                PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
-           
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
+            var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
+            PickUp1.GetComponent<Pickup>().showDescription = true;
+            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
+            PickUp2.GetComponent<Pickup>().showDescription = true;
+            PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
+            PickUp3.GetComponent<Pickup>().showDescription = true;
+            PickUp3.GetComponent<Pickup>().AssignItem(i3);
+            GreaterCurseItem enemItem1 = ((GreaterCurseItem)i1.item);
+            GreaterCurseItem enemItem2 = ((GreaterCurseItem)i2.item);
+            GreaterCurseItem enemItem3 = ((GreaterCurseItem)i3.item);
+            PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp1.transform.localPosition = new Vector3(335, 5, 60);
+            PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
+            PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+
             // Add a small 3D text label above the middle pedestal indicating the intermission type
             GameObject label = new GameObject("IntermissionLabel_GreaterCurse");
-                var tm = label.AddComponent<TextMeshPro>();
-                tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_GreaterCurse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_GreaterCurse")}";
-                    tm.fontSize = 8f;
-                    tm.richText = true;
-                    tm.alignment = TextAlignmentOptions.Center;
-                    // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-                    tm.color = new Color(1,165f/255f,0);
-                    tm.font = BaldiFonts.ComicSans24.FontAsset();
+            var tm = label.AddComponent<TextMeshPro>();
+            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_GreaterCurse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_GreaterCurse")}";
+            tm.fontSize = 8f;
+            tm.richText = true;
+            tm.alignment = TextAlignmentOptions.Center;
+            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
+            tm.color = new Color(1, 165f / 255f, 0);
+            tm.font = BaldiFonts.ComicSans24.FontAsset();
 
-                label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-                label.transform.localPosition = new Vector3(335, 8f, 60);
+            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            label.transform.localPosition = new Vector3(335, 8f, 60);
 
-        
-                // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
-                PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem1);
-                };
-                PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem2);
-                };
-                PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup,plr) => {
-                    OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup,enemItem3);
-                };
+
+            // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem1);
+            };
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem2);
+            };
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem3);
+            };
             ;
         }
-    
+
     }
 
     [HarmonyPatch]
@@ -533,7 +546,7 @@ namespace NullscapeinBB
         static void stopandstart2(BaseGameManager __instance)
         {
             Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
-            Singleton<CoreGameManager>.Instance.SetLives(0,true);
+            Singleton<CoreGameManager>.Instance.SetLives(0, true);
             if (__instance is PitstopGameManager)
             {
                 List<string> ProgEvents = new();
@@ -566,21 +579,22 @@ namespace NullscapeinBB
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Curse);
                     }
                 }
-                if ((NullscapeInBB.Instance.FloorCounter+1 ) % 5 == 0)
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
-                    if ((NullscapeInBB.Instance.FloorCounter+1 ) < 30)
+                    if ((NullscapeInBB.Instance.FloorCounter + 1) < 20)
                     {
-                        if (((NullscapeInBB.Instance.FloorCounter+1 ) == 15) || (NullscapeInBB.Instance.FloorCounter+1 ) == 25)
+                        if (((NullscapeInBB.Instance.FloorCounter + 1) == 10) || (NullscapeInBB.Instance.FloorCounter + 1) == 20)
                         {
-                            NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);    
+                            NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);
                         }
-                        
-                    } else
+
+                    }
+                    else
                     {
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);
                     }
                 }
-                int[] BaldifasterEvents = [10,20,35,50,65,80,100];
+                int[] BaldifasterEvents = [10, 20, 35, 50, 65, 80, 100];
                 if (BaldifasterEvents.Contains(NullscapeInBB.Instance.FloorCounter + 1))
                 {
                     ProgEvents.Add("pevent_fasterbaldi");
@@ -594,23 +608,54 @@ namespace NullscapeinBB
 
                         }
                     });
-                  
+
                 }
-                if ((NullscapeInBB.Instance.FloorCounter+1) - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3) {
+                if ((NullscapeInBB.Instance.FloorCounter + 1) >= 10 && (NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
+                {
+                    ProgEvents.Add("pevent_stickerreset");
+                    Singleton<StickerManager>.Instance.ClearAppliedStickers();
+
+                }
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 7 == 0)
+                {
+                    ProgEvents.Add("pevent_fastermart");
+
+                }
+
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 4 == 0)
+                {
+                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
+                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
+                    ).Take(1).Single());
+                }
+
+
+                if ((NullscapeInBB.Instance.FloorCounter + 1) - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
+                {
                     Extras.CreateCurseBreakerPickup();
                 }
-                if (NullscapeInBB.Instance.CursebreakerQueued) {
+                if (NullscapeInBB.Instance.CursebreakerQueued)
+                {
                     NullscapeInBB.Instance.Intermissions.Add(IntermissionType.CurseBreaker);
                     NullscapeInBB.Instance.CursebreakerQueued = false;
                 }
-                    
-                if (ProgEvents.Count > 0) {
-                    NullscapeInBB.ProgressionEventNotifier(ProgEvents.ToArray());
+                List<string> tempListForEvents = new();
+                var iee = 1;
+                foreach (var item in ProgEvents)
+                {
+                    tempListForEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText(item)}\n({iee}/{ProgEvents.Count})");
+                    iee++;
                 }
-                if (NullscapeInBB.Instance.Intermissions.Count > 0) {
+
+                if (ProgEvents.Count > 0)
+                {
+                    NullscapeInBB.ProgressionEventNotifier(tempListForEvents.ToArray());
+                }
+                if (NullscapeInBB.Instance.Intermissions.Count > 0)
+                {
                     __instance.Ec.ElevatorManager.SetAllElevators(ElevatorState.Open);
                 }
-                var calculatedTimeLimit = 45 + (NullscapeInBB.Instance.notebookcount-1)*35;
+                var calculatedTimeLimit = 45 + (NullscapeInBB.Instance.notebookcount - 1) * 35;
                 foreach (var cuslevob in NullscapeInBB.Instance.F1.GetCustomLevelObjects())
                 {
                     cuslevob.timeLimit = calculatedTimeLimit;
@@ -619,13 +664,13 @@ namespace NullscapeinBB
                 {
                     cuslevob.timeLimit = calculatedTimeLimit;
                 }
-                
+
                 Extras.NextIntermission();
             }
 
-            
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed",new(1,4.5f));
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed",new(1,6.5f));
+
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1, 4.5f));
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1, 6.5f));
 
         }
         [HarmonyPatch(typeof(NoLateTeacher), "Initialize")]
@@ -634,8 +679,14 @@ namespace NullscapeinBB
         {
             if (NullscapeInBB.CurseCount(Curses.OneMinutePomp) >= 1)
             {
-                __instance.ReflectionSetVariable("classTime",60);
+                __instance.ReflectionSetVariable("classTime", 60);
             }
+        }
+        [HarmonyPatch(typeof(CoreGameManager), "YtpMultiplier", MethodType.Getter)]
+        [HarmonyPostfix]
+        static void Deez(ref float __result)
+        {
+            __result *= 1+NullscapeInBB.CurseCount(Curses.Lap2);
         }
 
         [HarmonyPatch(typeof(Activity), "Initialize")]
@@ -645,8 +696,8 @@ namespace NullscapeinBB
             if (!(__instance is NoActivity) && NullscapeInBB.GreaterCurseCount(GreaterCurses.TimedActivities) >= 1)
             {
                 var azertyuiop = __instance.room.functionObject.AddComponent<TimedActivityRoomFunctions>();
-            __instance.room.functions.AddFunction(azertyuiop);
-            azertyuiop.ReflectionSetVariable("room", __instance.room);
+                __instance.room.functions.AddFunction(azertyuiop);
+                azertyuiop.ReflectionSetVariable("room", __instance.room);
             }
         }
 
@@ -656,146 +707,149 @@ namespace NullscapeinBB
         {
             if (__instance is PitstopGameManager)
             {
-                if (NullscapeInBB.Instance.FloorCounter+1 >= 10 && NullscapeInBB.Instance.FloorCounter+1 < 25)
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 10 && NullscapeInBB.Instance.FloorCounter + 1 < 30)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(128f/255f,0,128f/255f),new Color(35f/255f,4f/255f,67f/255f),Mathf.Abs(Mathf.Sin(__instance.realTime/2 + i/10)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(128f / 255f, 0, 128f / 255f), new Color(35f / 255f, 4f / 255f, 67f / 255f), Mathf.Abs(Mathf.Sin(__instance.realTime / 2 + i / 10)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
-                }
-                if (NullscapeInBB.Instance.FloorCounter+1 >= 25 && NullscapeInBB.Instance.FloorCounter+1 < 35)
-                {
-                    var i = 0;
-                    foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(1,0f,0),new Color(1f,0.6f,0f),Mathf.Abs(Mathf.Sin(__instance.realTime/3 + i/10)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
-                }
-                if (NullscapeInBB.Instance.FloorCounter+1 >= 35 && NullscapeInBB.Instance.FloorCounter+1 < 50)
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 30 && NullscapeInBB.Instance.FloorCounter + 1 < 40)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(0.5f,0.5f,1),new Color(0,0,0.25f),Mathf.Abs(Mathf.Tan(__instance.realTime/6 + i/100)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(1, 0f, 0), new Color(1f, 0.6f, 0f), Mathf.Abs(Mathf.Sin(__instance.realTime / 3 + i / 10)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
                 }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 40 && NullscapeInBB.Instance.FloorCounter + 1 < 50)
+                {
+                    var i = 0;
+                    foreach (var light in __instance.Ec.lights)
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(0.5f, 0.5f, 1), new Color(0, 0, 0.25f), Mathf.Abs(Mathf.Tan(__instance.realTime / 6 + i / 100)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
 
-                if (NullscapeInBB.Instance.FloorCounter+1 >= 50 && NullscapeInBB.Instance.FloorCounter+1 < 10000)
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 50 && NullscapeInBB.Instance.FloorCounter + 1 < 10000)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(1,1,1),new Color(0.05f,0.05f,0.05f),Mathf.Abs(Mathf.Sin(__instance.realTime/10 + i/100)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(1, 1, 1), new Color(0.05f, 0.05f, 0.05f), Mathf.Abs(Mathf.Sin(__instance.realTime / 10 + i / 100)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
             }
-        if (__instance is MainInfiniteGameManager)
+            if (__instance is MainInfiniteGameManager)
             {
                 if (NullscapeInBB.Instance.FloorCounter >= 10 && NullscapeInBB.Instance.FloorCounter < 25)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(128f/255f,0,128f/255f),new Color(35f/255f,4f/255f,67f/255f),Mathf.Abs(Mathf.Sin(__instance.realTime/2 + i/10)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(128f / 255f, 0, 128f / 255f), new Color(35f / 255f, 4f / 255f, 67f / 255f), Mathf.Abs(Mathf.Sin(__instance.realTime / 2 + i / 10)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
                 if (NullscapeInBB.Instance.FloorCounter >= 25 && NullscapeInBB.Instance.FloorCounter < 35)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(1,0f,0),new Color(1f,0.6f,0f),Mathf.Abs(Mathf.Sin(__instance.realTime/3 + i/10)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(1, 0f, 0), new Color(1f, 0.6f, 0f), Mathf.Abs(Mathf.Sin(__instance.realTime / 3 + i / 10)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
                 }
                 if (NullscapeInBB.Instance.FloorCounter >= 35 && NullscapeInBB.Instance.FloorCounter < 50)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(0.5f,0.5f,1),new Color(0,0,0.25f),Mathf.Abs(Mathf.Tan(__instance.realTime/6 + i/100)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(0.5f, 0.5f, 1), new Color(0, 0, 0.25f), Mathf.Abs(Mathf.Tan(__instance.realTime / 6 + i / 100)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
 
                 if (NullscapeInBB.Instance.FloorCounter >= 50 && NullscapeInBB.Instance.FloorCounter < 10000)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
-                {
-                    i++;
-                    light.lightColor = Color.Lerp(new Color(1,1,1),new Color(0.05f,0.05f,0.05f),Mathf.Abs(Mathf.Sin(__instance.realTime/10 + i/100)));
-                    __instance.Ec.QueueLightSourceForRegenerate(light);
-                }
-                __instance.Ec.UpdateQueuedLightChanges();
-                
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(1, 1, 1), new Color(0.05f, 0.05f, 0.05f), Mathf.Abs(Mathf.Sin(__instance.realTime / 10 + i / 100)));
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
             }
-        
+
         }
         [HarmonyPatch(typeof(SwingDoor), "Initialize")]
         [HarmonyPostfix]
-        static void YellowDoorStore(SwingDoor __instance) {
-            var listofLevelstoNotLockTheDoor = new int[] {3,5,8,10,13,15,18,20,23,25,28,30,33,35,38,40,43,45,48,50,53,55,58,60,63,65};
-            var level = NullscapeInBB.Instance.FloorCounter+1;
-            if (__instance.transform.parent && __instance.transform.parent.parent && __instance.transform.parent.parent.gameObject.name == "JohnnysStore" && !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0 ))
+        static void YellowDoorStore(SwingDoor __instance)
+        {
+            var listofLevelstoNotLockTheDoor = new int[] { 3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40, 43, 45, 48, 50, 53, 55, 58, 60, 63, 65 };
+            var level = NullscapeInBB.Instance.FloorCounter + 1;
+            if (__instance.transform.parent && __instance.transform.parent.parent && __instance.transform.parent.parent.gameObject.name == "JohnnysStore" && !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0))
             {
                 __instance.Lock(true);
             }
         }
 
-        [HarmonyPatch(typeof(PitstopGameManager),"BeginPlay")]
+        [HarmonyPatch(typeof(PitstopGameManager), "BeginPlay")]
         [HarmonyPostfix]
         static void stopandstart(PitstopGameManager __instance)
         {
-            
+
             if (__instance is PitstopGameManager && NullscapeInBB.Instance.fakecount % 2 == 1)
             {
-                            Singleton<MusicManager>.Instance.StopMidi();
-            
-            Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(NullscapeInBB.Instance.IntermissionSongs.ToArray().GetSongInRange(NullscapeInBB.Instance.FloorCounter + 1).IntermissionSongAsset,true);
-            Singleton<CoreGameManager>.Instance.musicMan.SetLoop(true);
-        
+                Singleton<MusicManager>.Instance.StopMidi();
+
+                Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(NullscapeInBB.Instance.IntermissionSongs.ToArray().GetSongInRange(NullscapeInBB.Instance.FloorCounter + 1).IntermissionSongAsset, true);
+                Singleton<CoreGameManager>.Instance.musicMan.SetLoop(true);
+
             }
         }
 
-        [HarmonyPatch(typeof(StickerManager),"StickerValue")]
+        [HarmonyPatch(typeof(StickerManager), "StickerValue")]
         [HarmonyPostfix]
-        static void ModificationsAbtThat(ref int __result, Sticker sticker,StickerManager __instance) {
+        static void ModificationsAbtThat(ref int __result, Sticker sticker, StickerManager __instance)
+        {
             var Addition = 0;
             for (int i = 0; i < __instance.activeStickerData.Length; i++)
             {
-                if (__instance.activeStickerData[i].sticker == sticker && __instance.SlotUpgraded(i)) {
+                if (__instance.activeStickerData[i].sticker == sticker && __instance.SlotUpgraded(i))
+                {
                     Addition += 2;
                 }
             }
             __result += Addition;
-            
+
         }
-        [HarmonyPatch(typeof(StoreRoomFunction),"Initialize")]
+        [HarmonyPatch(typeof(StoreRoomFunction), "Initialize")]
         [HarmonyPostfix]
         static void Yeaheayj(StoreRoomFunction __instance)
         {
@@ -816,8 +870,9 @@ namespace NullscapeinBB
 
     }
 
-        [HarmonyPatch(typeof(BaseGameManager), "FinishLevel")]
-        class FinishLevelPatch
+
+    [HarmonyPatch(typeof(BaseGameManager), "FinishLevel")]
+    class FinishLevelPatch
     {
         [HarmonyPrefix]
         static void Prefix()
@@ -826,23 +881,25 @@ namespace NullscapeinBB
             bool flopthing = main.flop;
 
             main.fakecount++;
-            
+
             if (main.fakecount % 2 == 0)
             {
                 main.FloorCounter++;
                 main.F1.previousLevels = [];
                 main.F2.previousLevels = [];
-                
-                
-                    if (main.FloorCounter % 2 == 0 && main.notebookcount >= 7)
+
+
+                if (main.FloorCounter % 2 == 0 && main.notebookcount >= 7)
                 {
                     main.notebookcount++;
                     main.mapprice += 50;
-                } else if (main.notebookcount < 7) {
-                    main.notebookcount+= 2;
+                }
+                else if (main.notebookcount < 7)
+                {
+                    main.notebookcount += 2;
                     main.mapprice += 25;
                     main.levelsize += new IntVector2(1, 2);
-                } 
+                }
                 if (main.FloorCounter % 2 == 0)
                 {
                     if (!(((IntVector2)(main.levelsize + new IntVector2(1, 1))).x > 225))
@@ -857,27 +914,27 @@ namespace NullscapeinBB
                 {
                     main.plotcount++;
                 }
-    
+
                 if (flopthing == false)
                 {
-                   
+
                     main.F2.previousLevels = [];
-                    
 
 
-                    
+
+
                     if (main.FloorCounter % 3 == 0)
                     {
                         main.ForcedStructures.Add(new()
                         {
                             parameters = new()
                             {
-                                minMax = [new(1,1)]
+                                minMax = [new(1, 1)]
                             },
                             prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
                         });
                     }
-                    
+
                     main.F2.forcedNpcs = main.potentialNPCs.ToArray();
                     if (main.FloorCounter % 5 == 0)
                     {
@@ -904,6 +961,15 @@ namespace NullscapeinBB
                         cuslevob.maxItemValue = main.itembudget;
                         cuslevob.maxPlots = main.plotcount + 1;
                         cuslevob.minPlots = main.plotcount - 1;
+                        cuslevob.randomEvents.Clear();
+                        foreach (var item in NullscapeInBB.Instance.EventsList)
+                        {
+                            cuslevob.randomEvents.Add(new()
+                            {
+                                selection = item,
+                                weight = 100
+                            });
+                        }
 
                         if (main.FloorCounter >= 35)
                         {
@@ -921,17 +987,17 @@ namespace NullscapeinBB
                         {
                             cuslevob.exitCount = 1;
                         }
-                        
+
                     }
                 }
                 else
                 {
-                    
+
                     main.F1.previousLevels = [];
 
-                    
+
                     main.F1.previousLevels = [];
-                   
+
                     main.F1.forcedNpcs = main.potentialNPCs.ToArray();
                     if (main.FloorCounter % 3 == 0)
                     {
@@ -939,7 +1005,7 @@ namespace NullscapeinBB
                         {
                             parameters = new()
                             {
-                                minMax = [new(1,1)]
+                                minMax = [new(1, 1)]
                             },
                             prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
                         });
@@ -961,6 +1027,15 @@ namespace NullscapeinBB
                         cuslevob.maxPlots = main.plotcount + 1;
                         cuslevob.forcedStructures = main.ForcedStructures.ToArray();
                         cuslevob.minPlots = main.plotcount - 1;
+                        cuslevob.randomEvents.Clear();
+                        foreach (var item in NullscapeInBB.Instance.EventsList)
+                        {
+                            cuslevob.randomEvents.Add(new()
+                            {
+                                selection = item,
+                                weight = 100
+                            });
+                        }
                         if (main.FloorCounter >= 35)
                         {
                             cuslevob.exitCount = 4;
@@ -976,7 +1051,7 @@ namespace NullscapeinBB
                         else
                         {
                             cuslevob.exitCount = 1;
-                        }    
+                        }
                     }
                 }
 
@@ -1004,12 +1079,12 @@ namespace NullscapeinBB
         static void Prefix()
         {
             NullscapeInBB.Instance.ResetValues();
-            NullscapeInBB.Instance.F1.previousLevels = new SceneObject[0];
-            NullscapeInBB.Instance.F2.previousLevels = new SceneObject[0];
+            //NullscapeInBB.Instance.F1.previousLevels = new SceneObject[0];
+            //NullscapeInBB.Instance.F2.previousLevels = new SceneObject[0];
         }
     }
 
-        public static class FloorDuplicator
+    public static class FloorDuplicator
     {
         private static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("InfiniteFloorsDietEdition_FloorDuplicator");
         private static readonly Dictionary<object, object> _objectMap = new Dictionary<object, object>();
