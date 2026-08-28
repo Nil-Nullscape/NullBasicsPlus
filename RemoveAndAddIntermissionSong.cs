@@ -197,9 +197,9 @@ namespace NullscapeinBB
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
-            EnemItem enemItem1 = ((EnemItem)i1.item);
-            EnemItem enemItem2 = ((EnemItem)i2.item);
-            EnemItem enemItem3 = ((EnemItem)i3.item);
+            EnemItem enemItem1 = (EnemItem)i1.item;
+            EnemItem enemItem2 = (EnemItem)i2.item;
+            EnemItem enemItem3 = (EnemItem)i3.item;
             PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp1.transform.localPosition = new Vector3(335, 5, 60);
             PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
@@ -360,9 +360,9 @@ namespace NullscapeinBB
             }
 
 
-            CurseItem enemItem1 = ((CurseItem)i1.item);
-            CurseItem enemItem2 = ((CurseItem)i2.item);
-            CurseItem enemItem3 = ((CurseItem)i3.item);
+            CurseItem enemItem1 = (CurseItem)i1.item;
+            CurseItem enemItem2 = (CurseItem)i2.item;
+            CurseItem enemItem3 = (CurseItem)i3.item;
             PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp1.transform.localPosition = new Vector3(335, 5, 60);
             PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
@@ -439,9 +439,9 @@ namespace NullscapeinBB
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
 
 
-            CurseItem enemItem1 = ((CurseItem)i1.item);
-            CurseItem enemItem2 = ((CurseItem)i2.item);
-            CurseItem enemItem3 = ((CurseItem)i3.item);
+            CurseItem enemItem1 = (CurseItem)i1.item;
+            CurseItem enemItem2 = (CurseItem)i2.item;
+            CurseItem enemItem3 = (CurseItem)i3.item;
             PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp1.transform.localPosition = new Vector3(335, 5, 60);
             PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
@@ -495,9 +495,9 @@ namespace NullscapeinBB
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
-            GreaterCurseItem enemItem1 = ((GreaterCurseItem)i1.item);
-            GreaterCurseItem enemItem2 = ((GreaterCurseItem)i2.item);
-            GreaterCurseItem enemItem3 = ((GreaterCurseItem)i3.item);
+            GreaterCurseItem enemItem1 = (GreaterCurseItem)i1.item;
+            GreaterCurseItem enemItem2 = (GreaterCurseItem)i2.item;
+            GreaterCurseItem enemItem3 = (GreaterCurseItem)i3.item;
             PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp1.transform.localPosition = new Vector3(335, 5, 60);
             PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
@@ -630,7 +630,7 @@ namespace NullscapeinBB
                 }
 
 
-                if ((NullscapeInBB.Instance.FloorCounter + 1) - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
+                if (NullscapeInBB.Instance.FloorCounter + 1 - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
                 {
                     Extras.CreateCurseBreakerPickup();
                 }

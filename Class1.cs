@@ -17,6 +17,7 @@ using UnityEngine.UI;
 using PlusStudioLevelFormat;
 using BepInEx.Bootstrap;
 using PlusStudioLevelLoader;
+using MTM101BaldAPI.Reflection;
 
 namespace NullscapeinBB
 {
@@ -782,12 +783,24 @@ namespace NullscapeinBB
             Am.Add("mus_collapse_congaline", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Congaline-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_normal_babyface", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "BabyFace-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_collapse_babyface", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "BabyFace-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_cadenceP1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv1.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_cadenceP2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv2.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_cadenceP3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv3.wav"), "snd_cadenceintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+
+            Am.Add("snd_cadenceP4", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv4.wav"), "snd_cadenceveryintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_harpInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "HarpAmbience.wav"), "snd_harpambiance", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_violinInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "ViolinAmbience.wav"), "snd_harpambiance", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_instwarning", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_Spawn_Alarm.ogg"), "snd_cadencespawninstrument", SoundType.Effect, UnityEngine.Color.gray, 2));
+            Am.Add("snd_collectharp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CollectHarp.wav"), "snd_harp", SoundType.Effect, UnityEngine.Color.gray, 3));
+            Am.Add("snd_collectviolin", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CollectViolin.wav"), "snd_violin", SoundType.Effect, UnityEngine.Color.gray, 3));
             yield return "Loading textures/Images";
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
             Am.Add<Texture2D>("tex_poster2", AssetLoader.TextureFromMod(this, "posters", "mart.png"));
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
             Am.Add("sprsheet_mart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 84, 84, 20, 24));
-            Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200,200,80,12));
+            Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200,200,40,12));
+            Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 300, "newenemies", "CadenceHarpInstrument.png"));
+            Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 300, "newenemies", "CadenceViolinInstrument.png"));
             yield return "Adding ingame Songs to the list of lists";
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_lineoffire"), Am.Get<SoundObject>("mus_collapse_lineoffire"), 0, 9));
@@ -854,7 +867,7 @@ namespace NullscapeinBB
                 .SetName("Mart")
                 .Build());
             Am.Get<NPC>("npc_Mart").spriteRenderer[0].sprite = Am.Get<Sprite>("spr_mart");
-            Am.Add("npc_Cadence", new NPCBuilder<MartNPC>(this.Info)
+            Am.Add("npc_Cadence", new NPCBuilder<CadenceNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()
                 .SetEnum("Cadence")
@@ -862,6 +875,18 @@ namespace NullscapeinBB
                 .SetName("Cadence")
                 .SetMinMaxAudioDistance(50,750)
                 .Build());
+            var Inst = new GameObject("InstrumentPre").AddComponent<Instrument>();
+            Inst.gameObject.ConvertToPrefab(true);
+            Inst.gameObject.AddComponent<SphereCollider>().radius = 7.5f;
+            Inst.gameObject.GetComponent<SphereCollider>().isTrigger = true;
+            Inst.gameObject.AddComponent<PropagatedAudioManager>();
+            Inst.AudMan = Inst.gameObject.GetComponent<PropagatedAudioManager>();
+            var InstRenderer = new GameObject("Renderer").AddComponent<SpriteRenderer>();
+            InstRenderer.gameObject.layer = LayerMask.NameToLayer("Billboard");
+            InstRenderer.material = Resources.FindObjectsOfTypeAll<Material>().First(x => x.name == "SpriteStandard_Billboard");
+            InstRenderer.transform.parent = Inst.transform;
+            Inst.Renderer = InstRenderer;
+            Am.Get<CadenceNPC>("npc_Cadence").Pre = Inst;
             Am.Get<NPC>("npc_Cadence").spriteRenderer[0].sprite = Am.Get<Sprite[]>("sprsheet_cadence")[0];
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
