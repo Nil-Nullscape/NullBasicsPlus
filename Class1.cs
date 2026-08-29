@@ -17,7 +17,9 @@ using UnityEngine.UI;
 using PlusStudioLevelFormat;
 using BepInEx.Bootstrap;
 using PlusStudioLevelLoader;
+using NilLib;
 using MTM101BaldAPI.Reflection;
+using NilLib.Creators;
 
 namespace NullscapeinBB
 {
@@ -214,6 +216,8 @@ namespace NullscapeinBB
         }
     }
 
+    
+    [BepInDependency("Nil.Library",BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "1.0.0.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
@@ -244,6 +248,7 @@ namespace NullscapeinBB
         public int facultycount;
         public int fakecount;
         public bool CursebreakerQueued = false;
+        public int extraenemyintermission = 0;
         public List<IntermissionType> Intermissions = new();
 
         public List<RandomEvent> EventsList = new();
@@ -282,7 +287,8 @@ namespace NullscapeinBB
             {
                 if (enemy.NPCToUse != null)
                 {
-                    var ie = new ItemBuilder(this.Info)
+                    if (enemy.Enemy != EnumExtensions.GetFromExtendedName<Character>("???")) {
+                        var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{enemy.NPCToUse.name}", $"desc_{enemy.NPCToUse.name}")
                     .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
@@ -290,8 +296,20 @@ namespace NullscapeinBB
                     .SetItemComponent<EnemItem>()
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .Build();
-                    ((EnemItem)ie.item).Enemy = enemy.Enemy;
-                    AllEnemiesItems.Add(enemy.Enemy, ie);
+                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
+                        AllEnemiesItems.Add(enemy.Enemy, ie);
+                    } else {
+                        var ie = new ItemBuilder(this.Info)
+                        .SetAsInstantUse()
+                        .SetNameAndDescription($"itm_???", $"desc_???")
+                        .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"))
+                        .SetEnum($"itmenemy_random")
+                        .SetItemComponent<EnemItem>()
+                        .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                        .Build();
+                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
+                        AllEnemiesItems.Add(enemy.Enemy, ie);
+                    }
                 }
             }
             foreach (Curses curse in Enum.GetValues(typeof(Curses)))
@@ -412,6 +430,7 @@ namespace NullscapeinBB
             Instance.StartCoroutine(Instance.DelayCode(codeToDelay, time));
 
         }
+
         public IEnumerator DelayCode(Action code, float time)
         {
             yield return new WaitForSeconds(time);
@@ -475,8 +494,14 @@ namespace NullscapeinBB
             AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
             AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
             AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
-            AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
-            
+
+           
+            if (EnabledNullscapeEntities.Value) {
+                AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 9, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
+            }
+            // gets used when no more enemies
+            AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
             yield return "Creating All Curses";
             AllCurses.Add(Curses.MathMachine, new()
             {
@@ -521,7 +546,7 @@ namespace NullscapeinBB
             {
                 curse = Curses.BalloonBuster,
                 MaxCurses = 1,
-                MinFloor = 5,
+                MinFloor = 0,
                 CursesAction = () =>
                 {
                     foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())
@@ -541,7 +566,7 @@ namespace NullscapeinBB
             {
                 curse = Curses.MatchMachine,
                 MaxCurses = 1,
-                MinFloor = 5,
+                MinFloor =0,
                 CursesAction = () =>
                 {
                     foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())
@@ -561,7 +586,7 @@ namespace NullscapeinBB
             AllCurses.Add(Curses.AngrierBaldi, new()
             {
                 curse = Curses.AngrierBaldi,
-                MaxCurses = 6700,
+                MaxCurses = 67000000,
                 MinFloor = int.MaxValue - 1,
                 CursesAction = () =>
                 {
@@ -615,7 +640,7 @@ namespace NullscapeinBB
                 curse = Curses.FasterTimedActivities,
                 MaxCurses = 3,
                 MinFloor = 0,
-                CurseValue = 25,
+                CurseValue = 30,
                 Requirements = () =>
                 {
                     return GreaterCurseCount(GreaterCurses.TimedActivities) >= 1;
@@ -786,21 +811,32 @@ namespace NullscapeinBB
             Am.Add("snd_cadenceP1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv1.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv2.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv3.wav"), "snd_cadenceintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
-
+            
             Am.Add("snd_cadenceP4", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv4.wav"), "snd_cadenceveryintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
-            Am.Add("snd_harpInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "HarpAmbience.wav"), "snd_harpambiance", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
-            Am.Add("snd_violinInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "ViolinAmbience.wav"), "snd_harpambiance", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_harpInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "HarpAmbience.wav"), "snd_harpambience", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_violinInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "ViolinAmbience.wav"), "snd_violinambience", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_instwarning", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_Spawn_Alarm.ogg"), "snd_cadencespawninstrument", SoundType.Effect, UnityEngine.Color.gray, 2));
             Am.Add("snd_collectharp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CollectHarp.wav"), "snd_harp", SoundType.Effect, UnityEngine.Color.gray, 3));
             Am.Add("snd_collectviolin", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CollectViolin.wav"), "snd_violin", SoundType.Effect, UnityEngine.Color.gray, 3));
+            Am.Add("snd_cadencechasebegin", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_ChaseImpact.ogg"), "snd_angrycadencebegin", SoundType.Effect, UnityEngine.Color.gray, 3));
+            Am.Add("snd_cadencechaseend", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_ChaseStop.ogg"), "snd_angrycadenceend", SoundType.Effect, UnityEngine.Color.gray, 3));
+            Am.Add("snd_cadencechase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CadenceChase.ogg"), "snd_angrycadence", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, int.MaxValue));
+            Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, int.MaxValue));
             yield return "Loading textures/Images";
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
             Am.Add<Texture2D>("tex_poster2", AssetLoader.TextureFromMod(this, "posters", "mart.png"));
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
+            Am.Add<Sprite>("spr_icbmmarker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBM_Marker.png"));
+            Am.Add<Sprite>("spr_icbm", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBMAnimated.png"));
             Am.Add("sprsheet_mart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 84, 84, 20, 24));
-            Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200,200,40,12));
-            Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 300, "newenemies", "CadenceHarpInstrument.png"));
-            Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 300, "newenemies", "CadenceViolinInstrument.png"));
+            Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200, 200, 35, 12));
+            Am.Add("sprsheet_gift", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "activitiesstuff", "newgift.png"), 150, 150, 55, 23));
+            Am.Add("sprsheet_ggift", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "activitiesstuff", "newgoldgift.png"), 150, 150, 55, 23));
+            Am.Add("sprsheet_cadence2", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "AngryCadenceSpritesheet.png"), 120, 120, 20, 24));
+            Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceHarpInstrument.png"));
+            Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceViolinInstrument.png"));
+            Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             yield return "Adding ingame Songs to the list of lists";
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_lineoffire"), Am.Get<SoundObject>("mus_collapse_lineoffire"), 0, 9));
@@ -811,6 +847,7 @@ namespace NullscapeinBB
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_congaline"), Am.Get<SoundObject>("mus_collapse_congaline"), 10, 1000000));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_babyface"), Am.Get<SoundObject>("mus_collapse_babyface"), 5, 20));
             yield return "Adding Intermission songs";
+            
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i1"), 1, 2));
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i2"), 3, 4));
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i3"), 5, 6));
@@ -847,17 +884,7 @@ namespace NullscapeinBB
                 textKey = "pst_cadencedontcare"
                 }
             ]));
-            Am.Add("pst_poster2", ObjectCreators.CreatePosterObject(Am.Get<Texture2D>("tex_poster2"), [
-                new() {
-                alignment = TextAlignmentOptions.Center,
-                color = Color.black,
-                font = BaldiFonts.BoldComicSans12.FontAsset(),
-                fontSize = 13,
-                position = new(35,15),
-                size = new(100,106),
-                textKey = "pst_mart"
-                }
-            ]));
+            Am.Add("pst_poster2", ObjectCreators.CreatePosterObject(Am.Get<Texture2D>("tex_poster2"), []));
             yield return "Making new NPCs";
             Am.Add("npc_Mart", new NPCBuilder<MartNPC>(this.Info)
                 .AddTrigger()
@@ -873,7 +900,8 @@ namespace NullscapeinBB
                 .SetEnum("Cadence")
                 .SetStationary()
                 .SetName("Cadence")
-                .SetMinMaxAudioDistance(50,750)
+                .IgnorePlayerOnSpawn()
+                .SetMinMaxAudioDistance(50, 750)
                 .Build());
             var Inst = new GameObject("InstrumentPre").AddComponent<Instrument>();
             Inst.gameObject.ConvertToPrefab(true);
@@ -882,12 +910,24 @@ namespace NullscapeinBB
             Inst.gameObject.AddComponent<PropagatedAudioManager>();
             Inst.AudMan = Inst.gameObject.GetComponent<PropagatedAudioManager>();
             var InstRenderer = new GameObject("Renderer").AddComponent<SpriteRenderer>();
-            InstRenderer.gameObject.layer = LayerMask.NameToLayer("Billboard");
+            InstRenderer.gameObject.layer = LayerMask.NameToLayer("Overlay");
             InstRenderer.material = Resources.FindObjectsOfTypeAll<Material>().First(x => x.name == "SpriteStandard_Billboard");
             InstRenderer.transform.parent = Inst.transform;
             Inst.Renderer = InstRenderer;
             Am.Get<CadenceNPC>("npc_Cadence").Pre = Inst;
             Am.Get<NPC>("npc_Cadence").spriteRenderer[0].sprite = Am.Get<Sprite[]>("sprsheet_cadence")[0];
+            Am.Add("npc_ICBM", new NPCBuilder<IcbmNPC>(this.Info)
+                .AddTrigger()
+                .SetAirborne()
+                .SetEnum("IBCM")
+                .SetStationary()
+                .SetName("ICBM")
+                .IgnorePlayerOnSpawn()
+                .SetMinMaxAudioDistance(15, 100)
+                .Build());
+            Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay),Am.Get<IcbmNPC>("npc_ICBM").transform, false, "AimICBMPre");
+            Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.sprite = Am.Get<Sprite>("spr_icbmmarker");
+            Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.transform.localScale = Vector2.one * 2f;
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
             gcactgameobj.ConvertToPrefab(true);
@@ -906,10 +946,10 @@ namespace NullscapeinBB
             giftPre.renderer = renderer;
             renderer.material = Resources.FindObjectsOfTypeAll<Material>().First(x => x.name == "SpriteStandard_Billboard");
             gcact.giftPre = giftPre.gameObject;
-            gcact.sprGift = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "activitiesstuff", "Gift.png");
-            gcact.sprgoldenGift = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "activitiesstuff", "Golden_Gift.png");
-            gcact.sndCollectNormal = ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "GiftCollect.ogg"), "snd_giftcollect", SoundType.Music, UnityEngine.Color.black, 0.4f);
-            gcact.sndCollectGolden = ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "GoldGiftCollect.ogg"), "snd_giftcollect", SoundType.Music, UnityEngine.Color.black, 0.4f);
+            gcact.sprGiftSheet = Am.Get<Sprite[]>("sprsheet_gift");
+            gcact.sprGoldenGiftSheet = Am.Get<Sprite[]>("sprsheet_ggift");
+            gcact.sndCollectNormal = ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "GiftCollect.ogg"), "snd_giftcollect", SoundType.Effect, UnityEngine.Color.magenta, 0.4f);
+            gcact.sndCollectGolden = ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "GoldGiftCollect.ogg"), "snd_giftcollect", SoundType.Effect, UnityEngine.Color.yellow, 0.4f);
 
             var HintObject = new GameObject("GiftPlacementHint").AddComponent<ActivityGiftPlacementHint>();
             HintObject.gameObject.ConvertToPrefab(true);
@@ -939,6 +979,8 @@ namespace NullscapeinBB
         public void GetAssets()
         {
         }
+
+        
 
         public List<EnemyData> PickThreeEnemies()
         {

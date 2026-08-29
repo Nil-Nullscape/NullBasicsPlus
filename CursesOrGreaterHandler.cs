@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
@@ -58,8 +59,10 @@ namespace NullscapeinBB
                             randomCell = __instance.RandomCell(false, false, true);
                             distance = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - randomCell.CenterWorldPosition).magnitude;
                         }
-                        var allNpcs = NullscapeInBB.Instance.AllEnemies.ToArray();
-                        var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].Value.NPCToUse;
+                        var allNpcsL = NullscapeInBB.Instance.AllEnemies.Values.ToList();
+                        allNpcsL.RemoveAll(x => x.Enemy == EnumExtensions.GetFromExtendedName<Character>("???"));
+                        var allNpcs = allNpcsL.ToArray();
+                        var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].NPCToUse;
                         __instance.SpawnNPC(randomNPC, randomCell.position);
                     }
                 }

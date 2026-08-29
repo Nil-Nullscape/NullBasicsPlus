@@ -1,17 +1,18 @@
+using BepInEx.Logging;
+using HarmonyLib;
+using MTM101BaldAPI;
+using MTM101BaldAPI.AssetTools;
+using MTM101BaldAPI.PlusExtensions;
+using MTM101BaldAPI.Reflection;
+using MTM101BaldAPI.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using BepInEx.Logging;
-using HarmonyLib;
-using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
-using MTM101BaldAPI.UI;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using Object = UnityEngine.Object;
-using MTM101BaldAPI.PlusExtensions;
 
 namespace NullscapeinBB
 {
@@ -59,12 +60,17 @@ namespace NullscapeinBB
                     break;
                 case IntermissionType.Enemy:
                     main.Intermissions.RemoveAt(0);
+                    var question = false;
                     var random3enemies = main.PickThreeEnemies();
                     if (random3enemies == null || random3enemies.Count < 3)
                     {
-                        NextIntermission();
-                        // Not enough enemies available; abort safely.
-                        return;
+                        random3enemies = new()
+                        {
+                            main.AllEnemies.GetValueSafe(EnumExtensions.GetFromExtendedName<Character>("???")),
+                            main.AllEnemies.GetValueSafe(EnumExtensions.GetFromExtendedName<Character>("???")),
+                            main.AllEnemies.GetValueSafe(EnumExtensions.GetFromExtendedName<Character>("???"))
+                        };
+                        question = true;
                     }
 
                     if (!main.AllEnemiesItems.ContainsKey(random3enemies[0].Enemy) || !main.AllEnemiesItems.ContainsKey(random3enemies[1].Enemy) || !main.AllEnemiesItems.ContainsKey(random3enemies[2].Enemy))
@@ -75,7 +81,7 @@ namespace NullscapeinBB
                     var i1 = main.AllEnemiesItems[random3enemies[0].Enemy];
                     var i2 = main.AllEnemiesItems[random3enemies[1].Enemy];
                     var i3 = main.AllEnemiesItems[random3enemies[2].Enemy];
-                    CreatePickupsEnemy(i1, i2, i3);
+                    CreatePickupsEnemy(i1, i2, i3,question);
                     break;
                 case IntermissionType.GreaterCurse:
                     main.Intermissions.RemoveAt(0);
@@ -116,7 +122,7 @@ namespace NullscapeinBB
             }
         }
 
-        static void OnCollectIntermissionEnemy(GameObject[] pickups, Pickup currpck, EnemItem ei)
+        static void OnCollectIntermissionEnemy(GameObject[] pickups, Pickup currpck, EnemItem ei, bool isitquestionmark = false)
         {
             var npc = NullscapeInBB.Instance.AllEnemies[ei.Enemy].NPCToUse;
             // Only add the NPC once (avoid duplicates across floors)
@@ -124,15 +130,24 @@ namespace NullscapeinBB
 
             // Increment selected count for this character so PickThreeEnemies respects MaxEnemies
             var counts = NullscapeInBB.Instance.selectedNPCCounts;
-            if (counts.ContainsKey(ei.Enemy)) counts[ei.Enemy]++;
-            else counts[ei.Enemy] = 1;
-            try
+            if (!isitquestionmark)
             {
-            }
-            catch { }
-            if (counts[ei.Enemy] <= NullscapeInBB.Instance.AllEnemies[ei.Enemy].MaxEnemies)
-            {
-                pot.Add(npc);
+                if (counts.ContainsKey(ei.Enemy)) counts[ei.Enemy]++;
+                else counts[ei.Enemy] = 1;
+                try
+                {
+                }
+                catch { }
+                if (counts[ei.Enemy] <= NullscapeInBB.Instance.AllEnemies[ei.Enemy].MaxEnemies)
+                {
+                    pot.Add(npc);
+                }
+            } else {
+                var allNpcsL = NullscapeInBB.Instance.AllEnemies.Values.ToList();
+                allNpcsL.RemoveAll(x => x.Enemy == EnumExtensions.GetFromExtendedName<Character>("???"));
+                var allNpcs = allNpcsL.ToArray();
+                var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].NPCToUse;
+                pot.Add(randomNPC);
             }
             foreach (var item in pickups)
             {
@@ -185,18 +200,21 @@ namespace NullscapeinBB
             NullscapeInBB.delay(() => { NextIntermission(); }, 0.85f);
         }
 
-        public static void CreatePickupsEnemy(ItemObject i1, ItemObject i2, ItemObject i3)
+        public static void CreatePickupsEnemy(ItemObject i1, ItemObject i2, ItemObject i3, bool isitquestionmark = false)
         {
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
             var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
             PickUp1.GetComponent<Pickup>().showDescription = true;
             PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            if (isitquestionmark) PickUp1.GetComponent<Pickup>().itemSprite.sprite = AssetLoader.SpriteFromMod(NullscapeInBB.Instance, Vector2.one / 2, 35, "items", "placeholder.png");
             var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
             PickUp2.GetComponent<Pickup>().showDescription = true;
             PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            if (isitquestionmark) PickUp2.GetComponent<Pickup>().itemSprite.sprite = AssetLoader.SpriteFromMod(NullscapeInBB.Instance, Vector2.one / 2, 35, "items", "placeholder.png");
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
+            if (isitquestionmark) PickUp3.GetComponent<Pickup>().itemSprite.sprite = AssetLoader.SpriteFromMod(NullscapeInBB.Instance, Vector2.one / 2, 35, "items", "placeholder.png");
             EnemItem enemItem1 = (EnemItem)i1.item;
             EnemItem enemItem2 = (EnemItem)i2.item;
             EnemItem enemItem3 = (EnemItem)i3.item;
@@ -274,15 +292,15 @@ namespace NullscapeinBB
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1,isitquestionmark);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2, isitquestionmark);
             };
             PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3, isitquestionmark);
             };
             ;
         }
@@ -564,6 +582,7 @@ namespace NullscapeinBB
                     extraNPCIntermission += 1;
                     extraCurseIntermission += 1;
                 }
+                extraNPCIntermission += NullscapeInBB.Instance.extraenemyintermission;
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
                 {
                     for (int i = 0; i < 1 + extraNPCIntermission; i++)

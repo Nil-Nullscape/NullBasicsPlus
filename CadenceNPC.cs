@@ -1,5 +1,7 @@
 ﻿using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
+using NilLib;
+using NilLib.extension;
 using PlusLevelStudio.Editor.ModeSettings;
 using System;
 using System.Collections;
@@ -49,15 +51,42 @@ namespace NullscapeinBB
             var randomCell = ec.RandomCell(true, false, true);
             inst.transform.SetParent(ec.transform);
             inst.transform.position = randomCell.CenterWorldPosition;
+           
             instruments.Add(inst);
 
 
             inst.Init();
         }
         public void OnCollectInstrument() {
-            if (instruments.Count > 2) timeleft = Mathf.Clamp(timeleft + 15,0,50);
+            if (instruments.Count > 2) timeleft = Mathf.Clamp(timeleft + 12.5f,0,50);
         }
-        public void CheckNewPhase() {
+        public void CheckNewPhase(bool playsoundanyway = false) {
+        if (playsoundanyway) {
+                switch (phase)
+                {
+                    case 1:
+                        audMan.FlushQueue(true);
+                        audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_cadenceP1"), true);
+                        audMan.SetLoop(true);
+                        break;
+                    case 2:
+                        audMan.FlushQueue(true);
+                        audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_cadenceP2"), true);
+                        audMan.SetLoop(true);
+                        break;
+                    case 3:
+                        audMan.FlushQueue(true);
+                        audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_cadenceP3"), true);
+                        audMan.SetLoop(true);
+                        break;
+                    case 4:
+                        audMan.FlushQueue(true);
+                        audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_cadenceP4"), true);
+                        audMan.SetLoop(true);
+                        break;
+                }
+
+            }
             if (phase == currentCheckedphase) {
 
             } else {
@@ -104,10 +133,19 @@ namespace NullscapeinBB
     }
 
     class CadenceNPC_stateidle(CadenceNPC npc) : CadenceNPC_statebase(npc) {
+        CadenceNPC CNpc = npc as CadenceNPC;
+        public override void Enter()
+        {
+            npc.Entity.Teleport(npc.ec.RandomCell(true, false, true).CenterWorldPosition);
+            base.Enter();
+            CNpc.CheckNewPhase(true);
+        }
         public override void Update()
         {
             ((CadenceNPC) npc).timeanim += Time.deltaTime * Mathf.Pow(2,((CadenceNPC)npc).phase-1);
-            npc.spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence")[Mathf.FloorToInt(Mathf.Repeat(((CadenceNPC)npc).timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence").Length - 1))];
+            npc.spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence")[Mathf.FloorToInt(Mathf.Repeat(((CadenceNPC)npc).timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence").Length ))];
+            
+            
             if (((CadenceNPC)npc).instruments.Count >= 2) {
                 ((CadenceNPC)npc).timeleft -= Time.deltaTime;
             } else {
@@ -129,14 +167,65 @@ namespace NullscapeinBB
             {
                 ((CadenceNPC)npc).phase = 4;
             }
+            if (((CadenceNPC)npc).timeleft <= 0) {
+                npc.behaviorStateMachine.ChangeState(new CadenceNPC_statechase((CadenceNPC)npc));
+            }
             ((CadenceNPC)npc).CheckNewPhase();
             base.Update();
+        }
+        public override void Exit()
+        {
+            base.Exit();
         }
 
         
     }
 
     class CadenceNPC_statechase(CadenceNPC npc) : CadenceNPC_statebase(npc) {
+    CadenceNPC CNpc = npc as CadenceNPC;
+        public override void Enter()
+        {
+            CNpc.spriteRenderer[0].gameObject.layer = UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay);
+            CNpc.audMan.PlaySingleViaAssetMan(NullscapeInBB.Am,"snd_cadencechasebegin");
+            CNpc.audMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "snd_cadencechase", true, true, true);
+            base.Enter();
+
+        }
+        public override void Exit()
+        {
+            CNpc.spriteRenderer[0].gameObject.layer = UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Billboard);
+            CNpc.audMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "snd_cadencechaseend", true, false, true);
+            base.Exit();
+        }
+        public override void Update()
+        {
+            ((CadenceNPC)npc).timeanim += Time.deltaTime * 4;
+            npc.spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence2")[Mathf.FloorToInt(Mathf.Repeat(((CadenceNPC)npc).timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence2").Length ))];
+            var direction = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - npc.transform.position).normalized;
+            npc.transform.position += direction * 40 * Time.deltaTime;
+            if (CNpc.timeleft > 0 || CNpc.instruments.Count < 2) {
+                
+                CNpc.behaviorStateMachine.ChangeState(new CadenceNPC_stateidle(CNpc));
+            }
+            base.Update();
+        }
+        public override void OnStateTriggerEnter(Entity otherEntity, Collider other, bool validCollision)
+        {
+            if (otherEntity == Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.Entity)
+            {
+                var e = npc.gameObject.AddComponent<Baldi>();
+                e.enabled = false;
+                e.loseSounds = [
+                    new() {
+                    selection = NullscapeInBB.Am.Get<SoundObject>("snd_cadencechasebegin"),
+                    weight = 6969
+                    }
+                ];
+                e.CaughtPlayer(Singleton<CoreGameManager>.Instance.GetPlayer(0));
+                UnityEngine.Object.Destroy(e);
+            }
+            base.OnStateTriggerEnter(otherEntity, other, validCollision);
+        }
 
     }
     class Instrument : MonoBehaviour {
@@ -205,7 +294,6 @@ namespace NullscapeinBB
             if (other.GetComponent<PlayerManager>() && !collected) {
                 Cadence.OnCollectInstrument();
                 Cadence.instruments.Remove(this);
-                
                 collected = true;
                 Renderer.enabled = false;
                 StartCoroutine(DespawnOrSmthLikethat());
