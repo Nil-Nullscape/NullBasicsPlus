@@ -1,5 +1,6 @@
 ﻿using MTM101BaldAPI;
 using NilLib;
+using NilLib.Creators;
 using NilLib.extension;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,17 @@ namespace NullscapeinBB
     {
         public PropagatedAudioManager audMan;
         public float idleTime = 7f;
+        public float sizemultiplier = 1f;
         public float aimingtime = 2.694f;
         public float fallingtime = 1.504f;
-        public float explosionTime = 1;
+        public float explosionTime = 0.4f;
         public Vector3 CurrentlyAimedAt = Vector3.zero;
         public SpriteRenderer AimingRenderer;
         public override void Initialize()
         {
+
             AimingRenderer.gameObject.SetActive(false);
+            AimingRenderer.transform.localScale *= sizemultiplier;
             AimingRenderer.transform.rotation = Quaternion.Euler(-90,0,0);
             spriteRenderer[0].enabled = false;
             audMan = gameObject.GetComponent<PropagatedAudioManager>();
@@ -43,6 +47,7 @@ namespace NullscapeinBB
         public float timeleft = 7f;
         public override void Enter()
         {
+            npc.ConvertNpcType<IcbmNPC>().idleTime = UnityEngine.Random.Range(2.45f, 7f);
             timeleft = npc.ConvertNpcType<IcbmNPC>().idleTime;
             npc.spriteRenderer[0].enabled = false;
             npc.ConvertNpcType<IcbmNPC>().AimingRenderer.gameObject.SetActive(false);
@@ -119,7 +124,7 @@ namespace NullscapeinBB
             icbm.spriteRenderer[0].transform.localPosition = Vector3.up * (timeleft * 150);
             if (timeleft < 0)
             {
-                npc.behaviorStateMachine.ChangeState(new Icbm_StateIdle((IcbmNPC)npc));
+                npc.behaviorStateMachine.ChangeState(new Icbm_IExplodeByebye((IcbmNPC)npc));
             }
             base.Update();
         }
@@ -128,7 +133,11 @@ namespace NullscapeinBB
         class Icbm_IExplodeByebye(IcbmNPC npc) : Icbm_StateBase(npc)
         {
             public float timeleft = 7f;
+        public bool died = false;
+        public float distance = 9999f;
             public IcbmNPC icbm;
+        public SpriteRenderer TempRenderer;
+        public float timeanim = 0f;
             public override void Initialize()
             {
 
@@ -138,19 +147,37 @@ namespace NullscapeinBB
             {
                 icbm = npc.ConvertNpcType<IcbmNPC>();
                 timeleft = npc.ConvertNpcType<IcbmNPC>().explosionTime;
-                base.Enter();
+            TempRenderer = ObjectCreation.MakeRenderer(true, "explode");
+            TempRenderer.transform.position = icbm.transform.position;
+            icbm.spriteRenderer[0].enabled = false;
+            icbm.audMan.PlaySingleViaAssetMan(NullscapeInBB.Am, "snd_ICBMExplode");
+            base.Enter();
             }
             public override void Update()
             {
+            distance = (icbm.transform.position - Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position).magnitude;
 
                 timeleft -= Time.deltaTime;
+            TempRenderer.sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_explode")[Mathf.FloorToInt(Mathf.Clamp(timeanim, 0, 8))];
+            timeanim += Time.deltaTime * 4;
 
                 if (timeleft < 0)
                 {
+                UnityEngine.Object.Destroy(TempRenderer.gameObject);
                     npc.behaviorStateMachine.ChangeState(new Icbm_StateIdle((IcbmNPC)npc));
                 }
+            if (distance < 15f * icbm.sizemultiplier && !died) {
+                UsefulHelpers.KillPlayer(npc,[
+                    new() {
+                        selection= NullscapeInBB.Am.Get<SoundObject>("snd_ICBMExplode"),
+                        weight=3232
+                    }
+                ]);
+                died = true;
+            }
                 base.Update();
             }
+            
 
 
         }

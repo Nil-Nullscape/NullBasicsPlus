@@ -227,6 +227,7 @@ namespace NullscapeinBB
         public List<IntermissionSong> IntermissionSongs = new List<IntermissionSong>();
         public List<IngameSong> IngameSongs = new List<IngameSong>();
         public SceneObject F1;
+        public int shields = 0;
         public SceneObject F2;
         public SceneObject F1Clone;
         public bool flop;
@@ -265,6 +266,7 @@ namespace NullscapeinBB
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
         public Dictionary<GreaterCurses, GreaterCurseData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
         public ConfigEntry<bool> EnabledNullscapeEntities;
+        public ConfigEntry<bool> DisableCopyright;
         public List<RoomAsset> GiftsActivityRooms = new();
 
         public IEnumerator FinalLoad()
@@ -440,16 +442,18 @@ namespace NullscapeinBB
         {
             Instance = this;
             EnabledNullscapeEntities = Config.Bind("Gameplay stuff", "EnableNullscapeEnemies", true, "This enables the enemies from nullscape if you dont want them set this to false");
+            DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (like teledancer's song)");
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, Preload(), LoadingEventOrder.Pre);
-            GeneratorManagement.Register((BaseUnityPlugin)this, GenerationModType.Addend, new Action<string, int, SceneObject>(AddContent));
+            GeneratorManagement.Register((BaseUnityPlugin)this, GenerationModType.Base, new Action<string, int, SceneObject>(AddContent));
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, FinalLoad(), LoadingEventOrder.Final);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, PostLoad(), LoadingEventOrder.Post);
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
             MTM101BaldiDevAPI.AddWarningScreen("Hello, first of all..\n thanks for playtesting this mod you will be credited on the gb page once the final build releases,\n second of all..\nPlease do not share this build with anyone.", false);
             MTM101BaldiDevAPI.AddWarningScreen("And third of all\nThis mod may have bugs.. please give feedback, suggestions, or bug reports in the playtester channel.\n\nHave fun playing!!", false);
             MTM101BaldiDevAPI.AddWarningScreen("If you dont like the nullscape entities feel free to disable them in the config", false);
+            MTM101BaldiDevAPI.AddWarningScreen("also incase you scared of copyrighted songs/sound you can enable the setting to switch or mute the copyrighted ones", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
             harmony.PatchAll();
         }
@@ -499,6 +503,8 @@ namespace NullscapeinBB
             if (EnabledNullscapeEntities.Value) {
                 AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 9, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -821,19 +827,30 @@ namespace NullscapeinBB
             Am.Add("snd_cadencechasebegin", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_ChaseImpact.ogg"), "snd_angrycadencebegin", SoundType.Effect, UnityEngine.Color.gray, 3));
             Am.Add("snd_cadencechaseend", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cadence_ChaseStop.ogg"), "snd_angrycadenceend", SoundType.Effect, UnityEngine.Color.gray, 3));
             Am.Add("snd_cadencechase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CadenceChase.ogg"), "snd_angrycadence", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
-            Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, int.MaxValue));
-            Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, int.MaxValue));
+            Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, 8));
+            Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, 3));
+            if (!DisableCopyright.Value) {
+                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerTheme.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+            } else {
+                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNew.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+            }
+            Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
+            Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             yield return "Loading textures/Images";
+
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
             Am.Add<Texture2D>("tex_poster2", AssetLoader.TextureFromMod(this, "posters", "mart.png"));
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
             Am.Add<Sprite>("spr_icbmmarker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBM_Marker.png"));
             Am.Add<Sprite>("spr_icbm", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBMAnimated.png"));
             Am.Add("sprsheet_mart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 84, 84, 20, 24));
+            Am.Add("sprsheet_tele", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Telefragger_Spritesheet.png"), 100, 100, 30, 2));
             Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200, 200, 35, 12));
+            Am.Add("sprsheet_teledance", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Teledance_spritesheet.png"), 480, 480, 100, 441));
             Am.Add("sprsheet_gift", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "activitiesstuff", "newgift.png"), 150, 150, 55, 23));
             Am.Add("sprsheet_ggift", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "activitiesstuff", "newgoldgift.png"), 150, 150, 55, 23));
             Am.Add("sprsheet_cadence2", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "AngryCadenceSpritesheet.png"), 120, 120, 20, 24));
+            Am.Add("sprsheet_explode", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Explostion_Sheet.png"), 128, 128, 5, 9));
             Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceHarpInstrument.png"));
             Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceViolinInstrument.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
@@ -894,6 +911,15 @@ namespace NullscapeinBB
                 .SetName("Mart")
                 .Build());
             Am.Get<NPC>("npc_Mart").spriteRenderer[0].sprite = Am.Get<Sprite>("spr_mart");
+            Am.Add("npc_Tele", new NPCBuilder<TelefraggerNPC>(this.Info)
+                .AddTrigger()
+                .SetAirborne()
+                .SetEnum("Telefragger")
+                .SetStationary()
+                .SetMinMaxAudioDistance(25,125)
+                .SetName("Telefragger")
+                .Build());
+            Am.Get<NPC>("npc_Tele").spriteRenderer[0].sprite = Am.Get<Sprite>("npc_Tele");
             Am.Add("npc_Cadence", new NPCBuilder<CadenceNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()
@@ -927,7 +953,7 @@ namespace NullscapeinBB
                 .Build());
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay),Am.Get<IcbmNPC>("npc_ICBM").transform, false, "AimICBMPre");
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.sprite = Am.Get<Sprite>("spr_icbmmarker");
-            Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.transform.localScale = Vector2.one * 2f;
+            Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.transform.localScale = Vector2.one * 1.5f;
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
             gcactgameobj.ConvertToPrefab(true);

@@ -1,3 +1,4 @@
+using MTM101BaldAPI.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,18 @@ namespace NullscapeinBB
         float Timer = 20;
         bool IsActivityDone = false;
         bool timed = false;
+        Activity actt;
         IEnumerator TimeTi()
         {
-
+            foreach (var act in Singleton<BaseGameManager>.Instance.Ec.activities)
+            {
+                if (act.room == room)
+                {
+                    actt = act;
+                }
+            }
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(NullscapeInBB.Am.Get<SoundObject>("snd_computercount10"));
-            while (!IsActivityDone && Timer > 0)
+            while (!IsActivityDone && Timer > 0 && !actt.IsCompleted)
             {
                 yield return new WaitForSeconds(1f - (NullscapeInBB.CurseCount(Curses.FasterTimedActivities) * 0.2f));
                 if (Timer == 18) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_9"));
@@ -33,14 +41,20 @@ namespace NullscapeinBB
             {
                 foreach (var act in Singleton<BaseGameManager>.Instance.Ec.activities)
                 {
-                    if (act.room == room) {
-                        act.Completed(0,false);
+                    if (act.room == room && !act.IsCompleted)
+                    {
+                        act.Completed(0, false);
                         Singleton<BaseGameManager>.Instance.AngerBaldi(1f);
                         if (act is BalloonBuster)
                         {
                             ((BalloonBuster)act).SubmitAnswer();
+                            List<BalloonBusterBalloon> baloons = (List<BalloonBusterBalloon>)((BalloonBuster)act).ReflectionGetVariable("unpoppedBalloons");
+                            foreach (var item in baloons)
+                            {
+                                item.Pop(false);
+                            }
                         }
-                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "Activity_Incorrect"));
+                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "Activity_Incorrect"));
                     }
                 }
             }

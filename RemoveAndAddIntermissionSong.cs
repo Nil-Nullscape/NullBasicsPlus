@@ -284,7 +284,11 @@ namespace NullscapeinBB
                 NullscapeInBB.delay(() =>
                 {
                     var random3 = NullscapeInBB.Instance.PickThreeEnemies();
-                    CreatePickupsEnemy(NullscapeInBB.Instance.AllEnemiesItems[random3[0].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[1].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[2].Enemy]);
+                    if (!isitquestionmark) {
+                        CreatePickupsEnemy(NullscapeInBB.Instance.AllEnemiesItems[random3[0].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[1].Enemy], NullscapeInBB.Instance.AllEnemiesItems[random3[2].Enemy], isitquestionmark);
+                    } else {
+                        CreatePickupsEnemy(i1,i2,i3, isitquestionmark);
+                    }
                 }, 0.5f);
 
             };
