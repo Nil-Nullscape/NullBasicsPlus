@@ -228,6 +228,8 @@ namespace NullscapeinBB
         public List<IngameSong> IngameSongs = new List<IngameSong>();
         public SceneObject F1;
         public int shields = 0;
+        public int shieldcost = 5000;
+        public int shieldcostadd = 2500;
         public SceneObject F2;
         public SceneObject F1Clone;
         public bool flop;
@@ -250,6 +252,7 @@ namespace NullscapeinBB
         public int fakecount;
         public bool CursebreakerQueued = false;
         public int extraenemyintermission = 0;
+        
         public List<IntermissionType> Intermissions = new();
 
         public List<RandomEvent> EventsList = new();
@@ -261,6 +264,7 @@ namespace NullscapeinBB
         public Dictionary<Curses, CurseData> AllCurses = new Dictionary<Curses, CurseData>();
         public ItemObject RerollItem;
         public ItemObject CursebreakerItem;
+        public ItemObject ShieldItem;
         public List<StructureWithParameters> ForcedStructureDefault;
         public List<StructureWithParameters> ForcedStructures;
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
@@ -358,6 +362,14 @@ namespace NullscapeinBB
             .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
             .SetItemComponent<Item>()
             .Build();
+            ShieldItem = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"desc_shielditm")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_shield.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_shield.png"))
+            .SetEnum($"itmshield")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+            .SetItemComponent<Item>()
+            .Build();
         }
         static public int CurseCount(Curses curse)
         {
@@ -408,6 +420,40 @@ namespace NullscapeinBB
 
 
             }, 3f);
+
+        }
+
+        static public void ShieldEventNotifier(string enemykey)
+        {
+            Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_shieldbreak"));
+
+            delay(() =>
+            {
+                var blackImageThingie = new GameObject("eventthingie").AddComponent<RawImage>();
+                blackImageThingie.transform.SetParent(Singleton<CoreGameManager>.Instance.GetHud(0).Canvas().transform, false);
+                blackImageThingie.rectTransform.anchorMin = new(0, 0f);
+                blackImageThingie.rectTransform.anchorMax = new(1, 0.25f);
+                blackImageThingie.rectTransform.offsetMin = new(-0, 0);
+                blackImageThingie.rectTransform.offsetMax = new(0, -0);
+                blackImageThingie.color = new(0, 0, 0, 0.45f);
+
+                var text = UIHelpers.CreateText<TextMeshProUGUI>(BaldiFonts.ComicSans24, "", blackImageThingie.transform, Vector3.zero, true);
+                text.color = Color.white;
+                text.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                text.verticalAlignment = VerticalAlignmentOptions.Middle;
+                text.rectTransform.anchorMin = new(0f, 1f);
+                text.rectTransform.anchorMax = new(1f, 0f);
+                text.rectTransform.offsetMin = new(-0, 0);
+                text.rectTransform.offsetMax = new(0, -0);
+                text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3")}";
+                delay(() =>
+                {
+                    Destroy(blackImageThingie);
+                    Destroy(text);
+                }, 4f);
+
+
+            }, 0f);
 
         }
 
@@ -836,6 +882,7 @@ namespace NullscapeinBB
             }
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_shieldbreak", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shield_Break.ogg"), "snd_shieldbreak", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
             yield return "Loading textures/Images";
 
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
@@ -853,7 +900,12 @@ namespace NullscapeinBB
             Am.Add("sprsheet_explode", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Explostion_Sheet.png"), 128, 128, 5, 9));
             Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceHarpInstrument.png"));
             Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceViolinInstrument.png"));
+            Am.Add("spr_intenemy", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent1.png"));
+            Am.Add("spr_intcurse", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent2.png"));
+            Am.Add("spr_intgcurse", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent3.png"));
+            Am.Add("spr_intcursebreaker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent4.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
+            Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             yield return "Adding ingame Songs to the list of lists";
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_lineoffire"), Am.Get<SoundObject>("mus_collapse_lineoffire"), 0, 9));
@@ -999,6 +1051,9 @@ namespace NullscapeinBB
             foreach (var item in e)
             {
                 GiftsActivityRooms.Add(LevelImporter.CreateVanillaRoomAsset(item));
+            }
+            foreach (var room in GiftsActivityRooms) {
+                room.color = UsefulHelpers.GetColorFromRgb(194, 0, 255);
             }
         }
 
@@ -1396,6 +1451,8 @@ namespace NullscapeinBB
             notebookcount = 1;
             facultycount = 2;
             mapprice = 100;
+            shieldcost = 5000;
+            shields = 0;
             plotcount = 3;
             itembudget = 200;
             levelsize = new IntVector2(14, 14);

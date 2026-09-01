@@ -1,7 +1,9 @@
+using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEngine;
 
 namespace NullscapeinBB
 {
@@ -11,11 +13,26 @@ namespace NullscapeinBB
         private bool spoopmode = false;
         private int BonusactivitiesLeft = 0;
         private int BonusactivitiesMax = 0;
+        public float shieldtimeleft = 0f;
+        private HudGauge ShieldGauge;
         public override void AngerBaldi(float val)
         {
-
+            
             var baseAngerValue = 6.5f / ec.notebookTotal;
             base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.75f));
+        }
+
+        public bool canDie(Baldi inst) {
+            if (shieldtimeleft > 0) {
+                return false;
+            }
+            if (NullscapeInBB.Instance.shields > 0) {
+                shieldtimeleft = 5f;
+                NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}");
+                NullscapeInBB.Instance.shields -= 1;
+                return false;
+            }
+            return true;
         }
 
         protected override void AwakeFunction()
@@ -110,6 +127,20 @@ namespace NullscapeinBB
                     {
                         npc.GetComponent<Baldi>().Hear(plr.gameObject, plr.transform.position, 127, false);
                     }
+                }
+            }
+            if (!ShieldGauge && shieldtimeleft >0) {
+                ShieldGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_brokenshield"),5f);
+
+            }
+            if (ShieldGauge) {
+                if (shieldtimeleft > 0) {
+                    ShieldGauge.SetValue(5f, shieldtimeleft);
+                    shieldtimeleft -= Time.deltaTime;
+                } else {
+                    shieldtimeleft = -1;
+                    ShieldGauge.Deactivate();
+                    ShieldGauge = null;
                 }
             }
             base.VirtualUpdate();

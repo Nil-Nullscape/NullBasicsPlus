@@ -5,6 +5,8 @@ using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.UI;
+using NilLib;
+using NilLib.Creators;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -252,18 +254,9 @@ namespace NullscapeinBB
             Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
             // Add a small 3D text label above the middle pedestal indicating the intermission type
-            GameObject label = new GameObject("IntermissionLabel_Enemy");
-            var tm = label.AddComponent<TextMeshPro>();
-            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Enemy")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Enemy")}";
-            tm.fontSize = 8f;
-            tm.richText = true;
-            tm.alignment = TextAlignmentOptions.Center;
-            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-            tm.color = Color.red;
-            tm.font = BaldiFonts.ComicSans24.FontAsset();
-
-            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            label.transform.localPosition = new Vector3(335, 8f, 60);
+            var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Enemies");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intenemy");
+            renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
 
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
@@ -279,7 +272,7 @@ namespace NullscapeinBB
                 Object.Destroy(PickUp1);
                 Object.Destroy(PickUp2);
                 Object.Destroy(PickUp3);
-                Object.Destroy(label);
+                Object.Destroy(renderer.gameObject);
                 Object.Destroy(Reroll);
                 NullscapeInBB.delay(() =>
                 {
@@ -296,15 +289,15 @@ namespace NullscapeinBB
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1,isitquestionmark);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem1,isitquestionmark);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2, isitquestionmark);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem2, isitquestionmark);
             };
             PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3, isitquestionmark);
+                OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem3, isitquestionmark);
             };
             ;
         }
@@ -336,6 +329,39 @@ namespace NullscapeinBB
                 NullscapeInBB.Instance.CursebreakerQueued = true;
                 NullscapeInBB.Instance.cursebreakerprice += 1000;
                 NullscapeInBB.Instance.LastTimeCursebreakerUsed = NullscapeInBB.Instance.FloorCounter + 1;
+                Object.Destroy(Cursebreaker);
+
+
+
+            };
+
+        }
+        public static void CreateShieldPickup()
+        {
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
+
+            var Cursebreaker = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
+            Cursebreaker.GetComponent<Pickup>().showDescription = true;
+
+            NullscapeInBB.Instance.ShieldItem.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_shielditm")} {NullscapeInBB.Instance.shieldcost} {Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_shielditm2")}";
+
+            Cursebreaker.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.ShieldItem);
+
+            Cursebreaker.GetComponent<Pickup>().free = false;
+            Cursebreaker.GetComponent<Pickup>().price = NullscapeInBB.Instance.shieldcost;
+
+
+
+
+            Cursebreaker.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Cursebreaker.transform.localPosition = new Vector3(355, 5, 57.5f);
+
+
+            Cursebreaker.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+
+                NullscapeInBB.Instance.shieldcost += NullscapeInBB.Instance.shieldcostadd;
+                NullscapeInBB.Instance.shields += 1;
                 Object.Destroy(Cursebreaker);
 
 
@@ -395,18 +421,9 @@ namespace NullscapeinBB
             Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
 
             // Add a small 3D text label above the middle pedestal indicating the intermission type
-            GameObject label = new GameObject("IntermissionLabel_Curse");
-            var tm = label.AddComponent<TextMeshPro>();
-            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_Curse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_Curse")}";
-            tm.fontSize = 8f;
-            tm.richText = true;
-            tm.alignment = TextAlignmentOptions.Center;
-            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-            tm.color = new Color(168f / 255f, 0f, 202f / 255f);
-            tm.font = BaldiFonts.ComicSans24.FontAsset();
-
-            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            label.transform.localPosition = new Vector3(335, 8f, 60);
+            var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Curse");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intcurse");
+            renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
 
@@ -422,7 +439,7 @@ namespace NullscapeinBB
                 Object.Destroy(PickUp2);
                 Object.Destroy(PickUp3);
                 Object.Destroy(Reroll);
-                Object.Destroy(label);
+                Object.Destroy(renderer.gameObject);
                 NullscapeInBB.delay(() =>
                 {
                     var random3 = NullscapeInBB.Instance.PickThreeCurses();
@@ -434,15 +451,15 @@ namespace NullscapeinBB
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem1);
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem1);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem2);
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem2);
             };
             PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label, Reroll }, pckup, enemItem3);
+                OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem3);
             };
             ;
         }
@@ -473,32 +490,23 @@ namespace NullscapeinBB
 
 
             // Add a small 3D text label above the middle pedestal indicating the intermission type
-            GameObject label = new GameObject("IntermissionLabel_Curse");
-            var tm = label.AddComponent<TextMeshPro>();
-            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_CurseBreaker")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_CurseBreaker")}";
-            tm.fontSize = 8f;
-            tm.richText = true;
-            tm.alignment = TextAlignmentOptions.Center;
-            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-            tm.color = new Color(168f / 255f, 0f, 202f / 255f);
-            tm.font = BaldiFonts.ComicSans24.FontAsset();
-
-            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            label.transform.localPosition = new Vector3(335, 8f, 60);
+            var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Enemies");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intcursebreaker");
+            renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
 
 
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem1);
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem1);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem2);
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem2);
             };
             PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem3);
+                OnCollectIntermissionCurseBreaker(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem3);
             };
             ;
         }
@@ -527,33 +535,23 @@ namespace NullscapeinBB
             PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
 
-            // Add a small 3D text label above the middle pedestal indicating the intermission type
-            GameObject label = new GameObject("IntermissionLabel_GreaterCurse");
-            var tm = label.AddComponent<TextMeshPro>();
-            tm.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("int_GreaterCurse")}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_GreaterCurse")}";
-            tm.fontSize = 8f;
-            tm.richText = true;
-            tm.alignment = TextAlignmentOptions.Center;
-            // Try to assign a Comic Sans TMP font from BaldiFonts via reflection if available
-            tm.color = new Color(1, 165f / 255f, 0);
-            tm.font = BaldiFonts.ComicSans24.FontAsset();
-
-            label.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
-            label.transform.localPosition = new Vector3(335, 8f, 60);
+            var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Enemies");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intgcurse");
+            renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
 
 
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem1);
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem1);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem2);
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem2);
             };
             PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, label }, pckup, enemItem3);
+                OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem3);
             };
             ;
         }
@@ -657,6 +655,7 @@ namespace NullscapeinBB
                 {
                     Extras.CreateCurseBreakerPickup();
                 }
+                Extras.CreateShieldPickup();
                 if (NullscapeInBB.Instance.CursebreakerQueued)
                 {
                     NullscapeInBB.Instance.Intermissions.Add(IntermissionType.CurseBreaker);
