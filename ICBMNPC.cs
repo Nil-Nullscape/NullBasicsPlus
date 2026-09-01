@@ -21,7 +21,7 @@ namespace NullscapeinBB
         public SpriteRenderer AimingRenderer;
         public override void Initialize()
         {
-
+            sizemultiplier = 1 + NullscapeInBB.CurseCount(Curses.BiggerBlast);
             AimingRenderer.gameObject.SetActive(false);
             AimingRenderer.transform.localScale *= sizemultiplier;
             AimingRenderer.transform.rotation = Quaternion.Euler(-90,0,0);

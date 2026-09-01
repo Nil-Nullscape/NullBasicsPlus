@@ -642,6 +642,11 @@ namespace NullscapeinBB
                     ProgEvents.Add("pevent_fastermart");
 
                 }
+                if ((NullscapeInBB.Instance.FloorCounter + 1) == 50 || (NullscapeInBB.Instance.FloorCounter + 1) == 150)
+                {
+                    ProgEvents.Add("pevent_morecursesandnpcs");
+
+                }
 
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 4 == 0)
                 {

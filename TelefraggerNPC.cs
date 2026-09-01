@@ -21,6 +21,7 @@ namespace NullscapeinBB
         public override void Initialize()
         {
             TheFunValue = UnityEngine.Random.Range(0, 100);
+            timeleft = UnityEngine.Random.Range(1f, 12f);
             audMan = gameObject.GetComponent<PropagatedAudioManager>();
             if (forceValue > 0) {
                 TheFunValue = forceValue;

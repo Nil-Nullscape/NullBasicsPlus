@@ -125,7 +125,9 @@ namespace NullscapeinBB
         OneMoreProblem,
         FasterTimedActivities,
         Lap2,
-        GiftActivity
+        GiftActivity,
+        BiggerBlast,
+        FasterTurningFirstPrize
     }
 
     public enum GreaterCurses
@@ -137,7 +139,8 @@ namespace NullscapeinBB
         NoMorePraise,
         TwiceMoreNpcs,
         Nothing,
-        Tantrum
+        Tantrum,
+        BaldiAppleEatFaster
     }
 
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
@@ -672,10 +675,24 @@ namespace NullscapeinBB
 
                 }
             });
+            AllCurses.Add(Curses.BiggerBlast, new()
+            {
+                curse = Curses.BiggerBlast,
+                MaxCurses = 2,
+                MinFloor = 0,
+                CurseValue = 40,
+                Requirements = () => {
+                    return EnemyCount(Am.Get<NPC>("npc_ICBM").Character) >= 1;
+                },
+                CursesAction = () =>
+                {
+
+                }
+            });
             AllCurses.Add(Curses.OneMoreProblem, new()
             {
                 curse = Curses.OneMoreProblem,
-                MaxCurses = 3,
+                MaxCurses = 4,
                 MinFloor = 0,
                 CurseValue = 30,
                 Requirements = () =>
@@ -702,6 +719,22 @@ namespace NullscapeinBB
 
                 }
             });
+            AllCurses.Add(Curses.FasterTurningFirstPrize, new()
+            {
+                curse = Curses.FasterTurningFirstPrize,
+                MaxCurses = 3,
+                MinFloor = 0,
+                CurseValue = 30,
+                Requirements = () =>
+                {
+                    return EnemyCount(Character.Prize) >= 1;
+                },
+                CursesAction = () =>
+                {
+
+                }
+            });
+
             // greater curses
 
             AllGreaterCurses.Add(GreaterCurses.OmniscientBaldi, new()
@@ -709,6 +742,16 @@ namespace NullscapeinBB
                 curse = GreaterCurses.OmniscientBaldi,
                 MaxCurses = 1,
                 MinFloor = 19,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.BaldiAppleEatFaster, new()
+            {
+                curse = GreaterCurses.BaldiAppleEatFaster,
+                MaxCurses = 1,
+                MinFloor = 9,
                 CursesAction = () =>
                 {
 
@@ -742,6 +785,7 @@ namespace NullscapeinBB
 
                 }
             });
+            
             AllGreaterCurses.Add(GreaterCurses.NoMorePraise, new()
             {
                 curse = GreaterCurses.NoMorePraise,
@@ -997,7 +1041,7 @@ namespace NullscapeinBB
             Am.Add("npc_ICBM", new NPCBuilder<IcbmNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()
-                .SetEnum("IBCM")
+                .SetEnum("ICBM")
                 .SetStationary()
                 .SetName("ICBM")
                 .IgnorePlayerOnSpawn()

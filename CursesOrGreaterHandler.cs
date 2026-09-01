@@ -68,5 +68,18 @@ namespace NullscapeinBB
                 }
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FirstPrize), "Initialize")]
+        static void TurnTURN(FirstPrize __instance)
+        {
+            __instance.turnSpeed = 22.5f * (NullscapeInBB.CurseCount(Curses.FasterTurningFirstPrize) + 1);
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Baldi), "Initialize")]
+        static void TurnTURN(Baldi __instance)
+        {
+            __instance.appleTime = 10f / (NullscapeInBB.GreaterCurseCount(GreaterCurses.BaldiAppleEatFaster) * 2 + 1);
+        }
     }
 }
