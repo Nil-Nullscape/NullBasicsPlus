@@ -193,7 +193,7 @@ namespace NullscapeinBB
         static void OnCollectIntermissionCurseBreaker(GameObject[] pickups, Pickup currpck, CurseItem ei)
         {
             var curseToRemove = NullscapeInBB.Instance.CursesPicked.First(x => x.curse == ei.curse);
-            Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7), 1, 99999999) * 6)), 0, true);
+            Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7), 1, 99999999) * 15)), 0, true);
             NullscapeInBB.Instance.CursesPicked.Remove(curseToRemove);
             foreach (var item in pickups)
             {
@@ -350,7 +350,14 @@ namespace NullscapeinBB
             Cursebreaker.GetComponent<Pickup>().free = false;
             Cursebreaker.GetComponent<Pickup>().price = NullscapeInBB.Instance.shieldcost;
 
-
+            var yes = new GameObject("yeah");
+            yes.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            var shtext = ObjectCreation.MakeTMPObject(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Billboard),true, "", UsefulHelpers.GetSpriteassetFromEnum(UsefulHelpers.SpriteAssetSelection.MathmachineNumbers));
+            shtext.transform.parent = yes.transform;
+            yes.transform.localPosition = new Vector3(355, 5, 61.5f);
+            shtext.horizontalAlignment = HorizontalAlignmentOptions.Center;
+            shtext.gameObject.AddComponent<ShieldNumberUpdater>().text = shtext;
+            shtext.gameObject.AddComponent<PickupBob>();
 
 
             Cursebreaker.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
@@ -557,6 +564,24 @@ namespace NullscapeinBB
         }
 
     }
+    public class ShieldNumberUpdater : MonoBehaviour {
+        public TextMeshPro text;
+        
+    void Update() {
+            var shields = NullscapeInBB.Instance.shields;
+            var shstring = shields.ToString();
+            if (text) {
+                if (shields < 10)
+                {
+                    text.text = $"<sprite={shields}>";
+                } else if (shields >= 10 && shields < 100) {
+                    text.text = $"<sprite={shstring[0]}><sprite={shstring[1]}>";
+                } else {
+                    text.text = $"<sprite={shstring[0]}><sprite={shstring[1]}><sprite={shstring[2]}>";
+                }
+                }    
+        }
+    }
 
     [HarmonyPatch]
     static class PatchesJohn
@@ -615,7 +640,7 @@ namespace NullscapeinBB
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);
                     }
                 }
-                int[] BaldifasterEvents = [10, 20, 35, 50, 65, 80, 100];
+                int[] BaldifasterEvents = [10, 15,20,30,40,50,60,80,100,125,150,175,200,250,300,400,500,600];
                 if (BaldifasterEvents.Contains(NullscapeInBB.Instance.FloorCounter + 1))
                 {
                     ProgEvents.Add("pevent_fasterbaldi");
@@ -633,8 +658,21 @@ namespace NullscapeinBB
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) >= 10 && (NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
-                    ProgEvents.Add("pevent_stickerreset");
-                    Singleton<StickerManager>.Instance.ClearAppliedStickers();
+                    if (NullscapeInBB.GreaterCurseCount(GreaterCurses.byebyestickystickers) == 0)
+                    {
+                        ProgEvents.Add("pevent_stickerreset");
+                        Singleton<StickerManager>.Instance.ClearAppliedStickers();
+                    } else {
+                        ProgEvents.Add("pevent_stickerreset2");
+                        for (int i = 0; i < Singleton<StickerManager>.Instance.activeStickerData.Length; i++)
+                        {
+
+                            Singleton<StickerManager>.Instance.activeStickerData[i] = new StickerStateData(Sticker.Nothing, 0, opened: true, sticky: false);
+                            
+                        }
+
+                        Singleton<StickerManager>.Instance.ClearAppliedStickers();
+                    }
 
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 7 == 0)
@@ -1106,8 +1144,8 @@ namespace NullscapeinBB
         static void Prefix()
         {
             NullscapeInBB.Instance.ResetValues();
-            //NullscapeInBB.Instance.F1.previousLevels = new SceneObject[0];
-            //NullscapeInBB.Instance.F2.previousLevels = new SceneObject[0];
+            NullscapeInBB.Instance.F1.previousLevels = new SceneObject[0];
+            NullscapeInBB.Instance.F2.previousLevels = new SceneObject[0];
         }
     }
 

@@ -9,6 +9,7 @@ namespace NullscapeinBB
 {
     class MainInfiniteGameManager : MainGameManager
     {
+     
         private IngameSong Song;
         private bool spoopmode = false;
         private int BonusactivitiesLeft = 0;
@@ -19,7 +20,7 @@ namespace NullscapeinBB
         {
             
             var baseAngerValue = 6.5f / ec.notebookTotal;
-            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.75f));
+            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.25f));
         }
 
         public bool canDie(Baldi inst) {
@@ -27,7 +28,14 @@ namespace NullscapeinBB
                 return false;
             }
             if (NullscapeInBB.Instance.shields > 0) {
-                shieldtimeleft = 5f;
+                if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0)
+                {
+                    shieldtimeleft = 2f;
+                }
+                else {
+                    shieldtimeleft = 5f;
+                }
+                    
                 NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}");
                 NullscapeInBB.Instance.shields -= 1;
                 return false;
@@ -112,8 +120,21 @@ namespace NullscapeinBB
             }
             base.ActivityCompleted(correct, activity);
         }
-        
 
+        public override void BeginPlay()
+        {
+            for (int i = 0; i < NullscapeInBB.CurseCount(Curses.RandomTilesAreSilenced)*10; i++)
+            {
+                var cell = ec.RandomCell(true, true, true);
+                while (cell.Silent)
+                {
+                    cell = ec.RandomCell(true, true, true);
+                }
+                cell.SetSilence(true);
+            }
+            ec.AddTimeScale(new(1 + (NullscapeInBB.CurseCount(Curses.FasterNPCs) * 0.25f), 1 + (NullscapeInBB.CurseCount(Curses.FasterEnviromnent) * 0.25f), 1));
+            base.BeginPlay();
+        }
         protected override void VirtualUpdate()
         {
             
@@ -135,7 +156,12 @@ namespace NullscapeinBB
             }
             if (ShieldGauge) {
                 if (shieldtimeleft > 0) {
-                    ShieldGauge.SetValue(5f, shieldtimeleft);
+                    
+                    if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0) {
+                        ShieldGauge.SetValue(2f, shieldtimeleft);
+                    } else {
+                        ShieldGauge.SetValue(5f, shieldtimeleft);
+                    }
                     shieldtimeleft -= Time.deltaTime;
                 } else {
                     shieldtimeleft = -1;

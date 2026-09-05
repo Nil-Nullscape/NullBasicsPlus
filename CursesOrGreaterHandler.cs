@@ -81,5 +81,68 @@ namespace NullscapeinBB
         {
             __instance.appleTime = 10f / (NullscapeInBB.GreaterCurseCount(GreaterCurses.BaldiAppleEatFaster) * 2 + 1);
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ArtsAndCrafters), "Jealous", MethodType.Getter)]
+        static bool angy(ArtsAndCrafters __instance, ref bool __result)
+        {
+            if (NullscapeInBB.CurseCount(Curses.TooJealousArts) >= 1)
+            {
+                __result = Singleton<BaseGameManager>.Instance.FoundNotebooks >= Singleton<BaseGameManager>.Instance.NotebookTotal - 3;
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(NPC), "VirtualUpdate")]
+        static void byebyedaudio(NPC __instance)
+        {
+            if (NullscapeInBB.GreaterCurseCount(GreaterCurses.SilentNpcs) >= 1) {
+                foreach (var item in __instance.Entity.propagatedAudioManager)
+                {
+                    item.volumeModifier = -100f;
+                    item.FlushQueue(true);
+
+                }
+                
+            } 
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Principal), "SendToDetention")]
+        static void EvilParenImeanPrincipals(Principal __instance, bool validCollision) {
+            if (NullscapeInBB.CurseCount(Curses.ThreeStrikesPrincipal) >= 1) {
+                switch ((int)__instance.ReflectionGetVariable("detentionLevel"))
+                {
+                    default:
+                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_2"));
+                        break;
+                    case 3:
+                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_0"));
+                        break;
+                    case 2:
+                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_0"));
+                        break;
+                    case 1:
+                        Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_1"));
+                        break;
+                }
+                if ((int)__instance.ReflectionGetVariable("detentionLevel") >= 2)
+                {
+                    var big = __instance.gameObject.AddComponent<Baldi>();
+                    big.enabled = false;
+                    big.loseSounds = [
+                        new() {
+                        selection = Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "Lose_Creepy"),
+                        weight = 212
+                    }
+                    ];
+                    big.CaughtPlayer(Singleton<CoreGameManager>.Instance.GetPlayer(0));
+                    UnityEngine.Object.Destroy(big);
+                }
+            }
+        }
     }
 }

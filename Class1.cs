@@ -127,7 +127,14 @@ namespace NullscapeinBB
         Lap2,
         GiftActivity,
         BiggerBlast,
-        FasterTurningFirstPrize
+        FasterTurningFirstPrize,
+        TooJealousArts,
+        FasterEnviromnent,
+        FasterNPCs,
+        ThreeStrikesPrincipal,
+        RandomTilesAreSilenced,
+        OldChalkface,
+        CadenceOneInstrument
     }
 
     public enum GreaterCurses
@@ -140,7 +147,10 @@ namespace NullscapeinBB
         TwiceMoreNpcs,
         Nothing,
         Tantrum,
-        BaldiAppleEatFaster
+        BaldiAppleEatFaster,
+        LessShield,
+        SilentNpcs,
+        byebyestickystickers
     }
 
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
@@ -230,7 +240,7 @@ namespace NullscapeinBB
         public List<IntermissionSong> IntermissionSongs = new List<IntermissionSong>();
         public List<IngameSong> IngameSongs = new List<IngameSong>();
         public SceneObject F1;
-        public int shields = 0;
+        public int shields = 1;
         public int shieldcost = 5000;
         public int shieldcostadd = 2500;
         public SceneObject F2;
@@ -487,6 +497,9 @@ namespace NullscapeinBB
             yield return new WaitForSeconds(time);
             code();
         }
+        public static void AddCurseToList(Curses cursetoadd) {
+            Instance.CursesPicked.Add(Instance.AllCurses[cursetoadd]);
+        }
         public void Awake()
         {
             Instance = this;
@@ -734,6 +747,103 @@ namespace NullscapeinBB
 
                 }
             });
+            AllCurses.Add(Curses.TooJealousArts, new()
+            {
+                curse = Curses.TooJealousArts,
+                MaxCurses = 1,
+                MinFloor = 9,
+                CurseValue = 0,
+                Requirements = () =>
+                {
+                    return EnemyCount(Character.Crafters) >= 1;
+
+                },
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllCurses.Add(Curses.FasterEnviromnent, new()
+            {
+                curse = Curses.FasterEnviromnent,
+                MaxCurses = 3,
+                MinFloor = 5,
+                CurseValue = 20,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllCurses.Add(Curses.FasterNPCs, new()
+            {
+                curse = Curses.FasterNPCs,
+                MaxCurses = 3,
+                MinFloor = 5,
+                CurseValue = 20,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllCurses.Add(Curses.ThreeStrikesPrincipal, new()
+            {
+                curse = Curses.ThreeStrikesPrincipal,
+                MaxCurses = 1,
+                MinFloor = 5,
+                CurseValue = 0,
+                CursesAction = () =>
+                {
+                    
+                },
+                Requirements = () =>
+                {
+                    return EnemyCount(Character.Principal) >= 1;
+
+                }
+            });
+            AllCurses.Add(Curses.RandomTilesAreSilenced, new()
+            {
+                curse = Curses.RandomTilesAreSilenced,
+                MaxCurses = 3,
+                MinFloor = 5,
+                CurseValue = 0,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllCurses.Add(Curses.OldChalkface, new()
+            {
+                curse = Curses.OldChalkface,
+                MaxCurses = 1,
+                MinFloor = 5000000,
+                CurseValue = 0,
+                CursesAction = () =>
+                {
+
+                },
+                Requirements = () =>
+                {
+                    return EnemyCount(Character.Chalkles) >= 1;
+
+                }
+            });
+            AllCurses.Add(Curses.CadenceOneInstrument, new()
+            {
+                curse = Curses.CadenceOneInstrument,
+                MaxCurses = 1,
+                MinFloor = 5,
+                CurseValue = 0,
+                CursesAction = () =>
+                {
+
+                },
+                Requirements = () =>
+                {
+                    return EnemyCount(Am.Get<CadenceNPC>("npc_Cadence").Character) >= 1;
+
+                }
+            });
 
             // greater curses
 
@@ -747,9 +857,39 @@ namespace NullscapeinBB
 
                 }
             });
+            AllGreaterCurses.Add(GreaterCurses.LessShield, new()
+            {
+                curse = GreaterCurses.LessShield,
+                MaxCurses = 1,
+                MinFloor = 19,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.SilentNpcs, new()
+            {
+                curse = GreaterCurses.SilentNpcs,
+                MaxCurses = 1,
+                MinFloor = 19,
+                CursesAction = () =>
+                {
+
+                }
+            });
             AllGreaterCurses.Add(GreaterCurses.BaldiAppleEatFaster, new()
             {
                 curse = GreaterCurses.BaldiAppleEatFaster,
+                MaxCurses = 1,
+                MinFloor = 9,
+                CursesAction = () =>
+                {
+
+                }
+            });
+            AllGreaterCurses.Add(GreaterCurses.byebyestickystickers, new()
+            {
+                curse = GreaterCurses.byebyestickystickers,
                 MaxCurses = 1,
                 MinFloor = 9,
                 CursesAction = () =>
@@ -1429,9 +1569,9 @@ namespace NullscapeinBB
             {
                 ForcedStructures.Add(item);
             }
-
-
-
+            var e = scene.potentialStickers.ToList();
+            e.RemoveAll(x => x.selection == Sticker.CashRegister);
+            scene.potentialStickers = e.ToArray();
             AssetManager miscman = new AssetManager();
             miscman.AddFromResourcesNoClones<NPC>();
             CustomLevelObject[] customLevelObjects = scene.GetCustomLevelObjects();
@@ -1456,9 +1596,9 @@ namespace NullscapeinBB
                         }
                     }
                 }
-                foreach (var cus in F1.GetCustomLevelObjects())
-                {
-                    foreach (var rg in cus.roomGroup)
+               
+                
+                    foreach (var rg in cuslevob.roomGroup)
                     {
                         if (rg.name == "Class")
                         {
@@ -1471,7 +1611,8 @@ namespace NullscapeinBB
                             }
                         }
                     }
-                }
+                    
+                
                 /* foreach (RoomGroup rg in cuslevob.roomGroup)
                 {
                     if (rg.name == "Class")
@@ -1496,7 +1637,7 @@ namespace NullscapeinBB
             facultycount = 2;
             mapprice = 100;
             shieldcost = 5000;
-            shields = 0;
+            shields = 1;
             plotcount = 3;
             itembudget = 200;
             levelsize = new IntVector2(14, 14);
@@ -1578,6 +1719,53 @@ namespace NullscapeinBB
                 }
 
                 F1.levelTitle = "F1";
+            }
+            if (F2 != null)
+            {
+                F2.additionalNPCs = 0;
+                CustomLevelObject[] customLevelObjectsa = F2.GetCustomLevelObjects();
+
+                foreach (CustomLevelObject cuslevob in customLevelObjectsa)
+                {
+                    cuslevob.maxSize = levelsize;
+                    cuslevob.minSize = levelsize;
+                    cuslevob.forcedStructures = ForcedStructures.ToArray();
+                    cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = notebookcount;
+                    cuslevob.roomGroup.First(x => x.name == "Class").minRooms = notebookcount;
+                    cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = rooms.ToArray();
+
+                    cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = facultycount + 2;
+                    cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = facultycount - 2;
+                    cuslevob.maxItemValue = itembudget;
+                    cuslevob.randomEvents.Clear();
+                    cuslevob.randomEvents.Add(new()
+                    {
+                        selection = Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent && x.GetInstanceID() > 0),
+                        weight = 100
+                    });
+                    cuslevob.maxPlots = plotcount + 1;
+                    cuslevob.minPlots = plotcount - 1;
+                    cuslevob.forcedNpcs = potentialNPCs.ToArray();
+                    cuslevob.timeLimit = 45;
+                    if (FloorCounter >= 18)
+                    {
+                        cuslevob.exitCount = 4;
+                    }
+                    else if (FloorCounter >= 12)
+                    {
+                        cuslevob.exitCount = 3;
+                    }
+                    else if (FloorCounter >= 6)
+                    {
+                        cuslevob.exitCount = 2;
+                    }
+                    else
+                    {
+                        cuslevob.exitCount = 1;
+                    }
+                }
+
+                F2.levelTitle = "F2";
             }
         }
 

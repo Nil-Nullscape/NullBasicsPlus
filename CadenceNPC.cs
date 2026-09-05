@@ -58,7 +58,7 @@ namespace NullscapeinBB
             inst.Init();
         }
         public void OnCollectInstrument() {
-            if (instruments.Count > 2) timeleft = Mathf.Clamp(timeleft + 12.5f,0,50);
+            if (instruments.Count > 2 - Mathf.Clamp01(NullscapeInBB.CurseCount(Curses.CadenceOneInstrument))) timeleft = Mathf.Clamp(timeleft + 10f,0,50);
         }
         public void CheckNewPhase(bool playsoundanyway = false) {
         if (playsoundanyway) {
