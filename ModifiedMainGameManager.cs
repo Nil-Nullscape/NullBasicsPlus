@@ -9,7 +9,6 @@ namespace NullscapeinBB
 {
     class MainInfiniteGameManager : MainGameManager
     {
-     
         private IngameSong Song;
         private bool spoopmode = false;
         private int BonusactivitiesLeft = 0;
@@ -18,7 +17,6 @@ namespace NullscapeinBB
         private HudGauge ShieldGauge;
         public override void AngerBaldi(float val)
         {
-            
             var baseAngerValue = 6.5f / ec.notebookTotal;
             base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.25f));
         }
@@ -35,7 +33,6 @@ namespace NullscapeinBB
                 else {
                     shieldtimeleft = 5f;
                 }
-                    
                 NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}");
                 NullscapeInBB.Instance.shields -= 1;
                 return false;
@@ -73,8 +70,8 @@ namespace NullscapeinBB
             }
 
             base.AllNotebooks();
-            
-            
+
+            BonusactivitiesMax = 0;
             foreach (var activity in ec.activities)
             {
                 if (activity is not NoActivity && activity.InBonusMode && NullscapeInBB.GreaterCurseCount(GreaterCurses.TimedActivities) >= 1) {
@@ -83,7 +80,6 @@ namespace NullscapeinBB
                     TARF.ResetFunction();
                 }
                 if (activity is not NoActivity && activity.InBonusMode) {
-                    
                     BonusactivitiesMax += 1;
                 }
             }
@@ -137,11 +133,9 @@ namespace NullscapeinBB
         }
         protected override void VirtualUpdate()
         {
-            
             var plr = Singleton<CoreGameManager>.Instance.GetPlayer(0);
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.OmniscientBaldi) > 0)
             {
-
                 foreach (NPC npc in ec.Npcs)
                 {
                     if (npc.Character == Character.Baldi)
@@ -150,18 +144,14 @@ namespace NullscapeinBB
                     }
                 }
             }
-            if (!ShieldGauge && shieldtimeleft >0) {
-                ShieldGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_brokenshield"),5f);
-
+            if (!ShieldGauge && shieldtimeleft > 0) {
+                float shieldDuration = NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0 ? 2f : 5f;
+                ShieldGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_brokenshield"), shieldDuration);
             }
             if (ShieldGauge) {
                 if (shieldtimeleft > 0) {
-                    
-                    if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0) {
-                        ShieldGauge.SetValue(2f, shieldtimeleft);
-                    } else {
-                        ShieldGauge.SetValue(5f, shieldtimeleft);
-                    }
+                    float shieldDuration = NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0 ? 2f : 5f;
+                    ShieldGauge.SetValue(shieldDuration, shieldtimeleft);
                     shieldtimeleft -= Time.deltaTime;
                 } else {
                     shieldtimeleft = -1;
