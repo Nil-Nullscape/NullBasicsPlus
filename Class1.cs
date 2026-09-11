@@ -331,13 +331,13 @@ namespace NullscapeinBB
                     }
                 }
             }
-            foreach (Curses curse in Enum.GetValues(typeof(Curses)))
+            foreach (Curses curse in EnumExtensions.GetValues<Curses>())
             {
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
-                    .SetEnum($"itmcurse_{curse.ToString()}")
+                    .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetEnum($"itmcurse_{curse.ToStringExtended()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .SetItemComponent<CurseItem>()
                     .Build();
@@ -345,12 +345,12 @@ namespace NullscapeinBB
                 AllCursesItems.Add(curse, ie);
             }
 
-            foreach (GreaterCurses curse in Enum.GetValues(typeof(GreaterCurses)))
+            foreach (GreaterCurses curse in EnumExtensions.GetValues<GreaterCurses>())
             {
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{curse.ToString()}", $"desc_{curse.ToString()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToString()}.png"))
+                    .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
+                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmgreatercurse_{curse.ToString()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .SetItemComponent<GreaterCurseItem>()
@@ -1004,6 +1004,7 @@ namespace NullscapeinBB
             yield return 7;
             yield return "Preloading audios (this might take a bit)";
             Am.Add("mus_i1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss1.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+            Am.Add("mus_findyourflame", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Find-your-Flame.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss2.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss3.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i4", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss4.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
@@ -1473,7 +1474,7 @@ namespace NullscapeinBB
                 facultycount = 2;
                 mapprice = 100;
                 plotcount = 3;
-                itembudget = 200;
+                itembudget = 20;
                 levelsize = new IntVector2(14, 14);
 
                 CustomLevelObject[] customLevelObjectsa = F1.GetCustomLevelObjects();

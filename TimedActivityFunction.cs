@@ -1,14 +1,18 @@
 using MTM101BaldAPI.Reflection;
+using NilLib;
+using NilLib.Creators;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace NullscapeinBB
 {
     class TimedActivityRoomFunctions :  RoomFunction
     {
-        float Timer = 20;
+        float Timer = 19;
+        TextMeshPro tmptimer = null;
         bool IsActivityDone = false;
         bool timed = false;
         Activity actt;
@@ -25,6 +29,17 @@ namespace NullscapeinBB
             while (!IsActivityDone && Timer > 0 && !actt.IsCompleted)
             {
                 yield return new WaitForSeconds(1f - (NullscapeInBB.CurseCount(Curses.FasterTimedActivities) * 0.2f));
+                var timerstring = Timer.ToString();
+                if (Timer>=10) {
+                    if(tmptimer) {
+                        tmptimer.text = $"<sprite={timerstring[0]}><sprite={timerstring[1]}>";
+                    }
+                } else {
+                    if (tmptimer)
+                    {
+                        tmptimer.text = $"<sprite=0><sprite={timerstring[0]}>";
+                    }
+                }
                 if (Timer == 18) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_9"));
                 if (Timer == 16) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_8"));
                 if (Timer == 14) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x=>x.name == "ComputerCount_7"));
@@ -37,6 +52,7 @@ namespace NullscapeinBB
                 if (Timer == 0) Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "ComputerCount_0"));
                 Timer -= 1;
             }
+            Destroy(tmptimer.gameObject);
             if (!IsActivityDone)
             {
                 foreach (var act in Singleton<BaseGameManager>.Instance.Ec.activities)
@@ -69,6 +85,15 @@ namespace NullscapeinBB
         {
             if (!timed && room.Powered) {
                 timed = true;
+                tmptimer = ObjectCreation.MakeTMPObject(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay),true, "<sprite=0>", UsefulHelpers.GetSpriteassetFromEnum(UsefulHelpers.SpriteAssetSelection.MathmachineNumbers));
+                tmptimer.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                
+                var e = new GameObject("d");
+                e.transform.SetParent(room.transform);
+                e.transform.position = room.RandomEntitySafeCellNoGarbage().CenterWorldPosition;
+                tmptimer.transform.SetParent(e.transform);
+                
+                tmptimer.gameObject.AddComponent<PickupBob>();
                 StartCoroutine(TimeTi());
             }
             base.OnPlayerEnter(player);

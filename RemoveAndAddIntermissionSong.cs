@@ -677,7 +677,15 @@ namespace NullscapeinBB
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 7 == 0)
                 {
-                    ProgEvents.Add("pevent_fastermart");
+                    if (NullscapeInBB.Instance.EnabledNullscapeEntities.Value) {
+                        ProgEvents.Add("pevent_fastermart");
+                    }
+
+                }
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 10 == 0)
+                {
+                    ProgEvents.Add("pevent_freeshield");
+                    NullscapeInBB.Instance.shields += 1;
 
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) == 50 || (NullscapeInBB.Instance.FloorCounter + 1) == 150)
@@ -822,7 +830,7 @@ namespace NullscapeinBB
             }
             if (__instance is MainInfiniteGameManager)
             {
-                if (NullscapeInBB.Instance.FloorCounter >= 10 && NullscapeInBB.Instance.FloorCounter < 25)
+                if (NullscapeInBB.Instance.FloorCounter >= 10 && NullscapeInBB.Instance.FloorCounter < 30)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
@@ -834,7 +842,7 @@ namespace NullscapeinBB
                     __instance.Ec.UpdateQueuedLightChanges();
 
                 }
-                if (NullscapeInBB.Instance.FloorCounter >= 25 && NullscapeInBB.Instance.FloorCounter < 35)
+                if (NullscapeInBB.Instance.FloorCounter >= 30 && NullscapeInBB.Instance.FloorCounter < 40)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
@@ -844,7 +852,7 @@ namespace NullscapeinBB
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                 }
-                if (NullscapeInBB.Instance.FloorCounter >= 35 && NullscapeInBB.Instance.FloorCounter < 50)
+                if (NullscapeInBB.Instance.FloorCounter >= 40 && NullscapeInBB.Instance.FloorCounter < 50)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
@@ -971,7 +979,7 @@ namespace NullscapeinBB
                     {
                         main.levelsize += new IntVector2(1, 1);
                         main.facultycount++;
-                        main.itembudget += 75;
+                        main.itembudget += 20;
                         main.mapprice += 50;
                     }
                 }
@@ -988,7 +996,7 @@ namespace NullscapeinBB
 
 
 
-                    if (main.FloorCounter % 3 == 0)
+                    if (main.FloorCounter % 5 == 0)
                     {
                         main.ForcedStructures.Add(new()
                         {
@@ -1064,7 +1072,7 @@ namespace NullscapeinBB
                     main.F1.previousLevels = [];
 
                     main.F1.forcedNpcs = main.potentialNPCs.ToArray();
-                    if (main.FloorCounter % 3 == 0)
+                    if (main.FloorCounter % 5 == 0)
                     {
                         main.ForcedStructures.Add(new()
                         {

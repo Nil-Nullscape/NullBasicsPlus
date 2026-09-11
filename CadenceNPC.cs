@@ -146,7 +146,7 @@ namespace NullscapeinBB
             npc.spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence")[Mathf.FloorToInt(Mathf.Repeat(((CadenceNPC)npc).timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence").Length ))];
             
             
-            if (((CadenceNPC)npc).instruments.Count >= 2) {
+            if (((CadenceNPC)npc).instruments.Count >= 2 - Mathf.Clamp01(NullscapeInBB.CurseCount(Curses.CadenceOneInstrument))) {
                 ((CadenceNPC)npc).timeleft -= Time.deltaTime;
             } else {
                 ((CadenceNPC)npc).timeleft = 50;

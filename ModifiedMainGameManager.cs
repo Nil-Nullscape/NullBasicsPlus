@@ -1,5 +1,6 @@
 using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
+using NilLib.extension;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -16,6 +17,7 @@ namespace NullscapeinBB
         private int BonusactivitiesMax = 0;
         public float shieldtimeleft = 0f;
         private HudGauge ShieldGauge;
+        public bool FindyourflameIsPlaying = false;
         public override void AngerBaldi(float val)
         {
             
@@ -38,6 +40,10 @@ namespace NullscapeinBB
                     
                 NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}");
                 NullscapeInBB.Instance.shields -= 1;
+                if (NullscapeInBB.Instance.shields == 0 && NotebookTotal >= 14 && FoundNotebooks < NotebookTotal / 2) {
+                    FindyourflameIsPlaying = true;
+                    Singleton<CoreGameManager>.Instance.audMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);
+                }
                 return false;
             }
             return true;
@@ -52,21 +58,27 @@ namespace NullscapeinBB
         public override void BeginSpoopMode()
         {
             spoopmode = true;
-            if (allNotebooksFound) {
-                Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
-                Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.allnbSongAsset, true);
-                Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
-            } else {
-                Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
-                Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.SongAsset, true);
-                Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+            if (!FindyourflameIsPlaying)
+            {
+                if (allNotebooksFound)
+                {
+                    Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
+                    Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.allnbSongAsset, true);
+                    Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+                }
+                else
+                {
+                    Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
+                    Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.SongAsset, true);
+                    Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+                }
             }
             base.BeginSpoopMode();
         }
 
         protected override void AllNotebooks()
         {
-            if (!allNotebooksFound && spoopmode) {
+            if (!allNotebooksFound && spoopmode && !FindyourflameIsPlaying) {
                 Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
                 Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.allnbSongAsset, true);
                 Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
@@ -80,7 +92,9 @@ namespace NullscapeinBB
                 if (activity is not NoActivity && activity.InBonusMode && NullscapeInBB.GreaterCurseCount(GreaterCurses.TimedActivities) >= 1) {
                     List<RoomFunction> roomfuncs = (List<RoomFunction>)activity.room.functions.ReflectionGetVariable("functions");
                     TimedActivityRoomFunctions TARF = (TimedActivityRoomFunctions)roomfuncs.First(x => x is TimedActivityRoomFunctions);
-                    TARF.ResetFunction();
+                    if (TARF) {
+                        TARF?.ResetFunction();
+                    }
                 }
                 if (activity is not NoActivity && activity.InBonusMode) {
                     
