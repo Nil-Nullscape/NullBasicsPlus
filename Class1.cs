@@ -1538,6 +1538,7 @@ namespace NullscapeinBB
                 F2.additionalNPCs = 0;
                 F2.totalShopItems = 12;
                 F2.mapPrice = 100;
+                
                 try
                 {
                     F2.previousLevels = new SceneObject[0];
@@ -1551,6 +1552,9 @@ namespace NullscapeinBB
                 {
                     cuslevob.forcedStructures = ForcedStructureDefault.ToArray();
                     cuslevob.timeLimit = 45;
+                    var r = cuslevob.roomGroup.ToList();
+                    r.RemoveAll(x => x.name == "LockedRoom");
+                    cuslevob.roomGroup = r.ToArray();
                     cuslevob.potentialStructures = new WeightedStructureWithParameters[0];
                     cuslevob.posters = cuslevob.posters.AddToArray(new()
                     {
@@ -1687,7 +1691,9 @@ namespace NullscapeinBB
                     cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = notebookcount;
                     cuslevob.roomGroup.First(x => x.name == "Class").minRooms = notebookcount;
                     cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = rooms.ToArray();
-
+                    var r = cuslevob.roomGroup.ToList();
+                    r.RemoveAll(x => x.name == "LockedRoom");
+                    cuslevob.roomGroup = r.ToArray();
                     cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = facultycount + 2;
                     cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = facultycount - 2;
                     cuslevob.maxItemValue = itembudget;
@@ -1734,7 +1740,9 @@ namespace NullscapeinBB
                     cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = notebookcount;
                     cuslevob.roomGroup.First(x => x.name == "Class").minRooms = notebookcount;
                     cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = rooms.ToArray();
-
+                    var r = cuslevob.roomGroup.ToList();
+                    r.RemoveAll(x => x.name == "LockedRoom");
+                    cuslevob.roomGroup = r.ToArray();
                     cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = facultycount + 2;
                     cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = facultycount - 2;
                     cuslevob.maxItemValue = itembudget;

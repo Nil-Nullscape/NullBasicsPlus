@@ -10,6 +10,7 @@ using NilLib.Creators;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
 using TMPro;
@@ -987,6 +988,110 @@ namespace NullscapeinBB
                 {
                     main.plotcount++;
                 }
+                if (main.FloorCounter % 5 == 0)
+                {
+                    main.ForcedStructures.Add(new()
+                    {
+                        parameters = new()
+                        {
+                            minMax = [new(1, 1)]
+                        },
+                        prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
+                    });
+                    
+                    foreach (var item in main.F1.GetCustomLevelObjects())
+                    {
+                        if (item.roomGroup.FirstOrDefault(x => x.name == "LockedRoom") == null)
+                        {
+                            item.roomGroup = item.roomGroup.AddToArray(new()
+                            {
+                                name = "LockedRoom",
+                                ceilingTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "CeilingNoLight"),
+                                            weight = 500
+                                        }
+                                ],
+                                wallTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "SaloonWall"),
+                                            weight = 500
+                                        }
+                                ],
+                                floorTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Carpet"),
+                                            weight = 500
+                                        }
+                                ],
+                                light = [
+                                    new() {
+                                            selection = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "FluorescentLight").transform,
+                                            weight = 500
+                                        }
+                                ],
+                                maxRooms = 1,
+                                minRooms = 1,
+                                potentialRooms = [
+                                    new() {
+                                            selection = Resources.FindObjectsOfTypeAll<RoomAsset>().First(x => ((UnityEngine.Object)x).name == "Room_Faculty_School_Locked_0_HighEndItems"),
+                                            weight = 100
+                                        }
+                                ]
+                            });
+                        }
+                        else
+                        {
+                            item.roomGroup.First(x => x.name == "LockedRoom").maxRooms += 1;
+                        }
+                    }
+                    foreach (var itemm in main.F2.GetCustomLevelObjects())
+                    {
+                        if (itemm.roomGroup.FirstOrDefault(x => x.name == "LockedRoom") == null)
+                        {
+                            itemm.roomGroup = itemm.roomGroup.AddToArray(new()
+                            {
+                                name = "LockedRoom",
+                                ceilingTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "CeilingNoLight"),
+                                            weight = 500
+                                        }
+                                ],
+                                wallTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "SaloonWall"),
+                                            weight = 500
+                                        }
+                                ],
+                                floorTexture = [
+                                    new() {
+                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Carpet"),
+                                            weight = 500
+                                        }
+                                ],
+                                light = [
+                                    new() {
+                                            selection = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.name == "FluorescentLight"),
+                                            weight = 500
+                                        }
+                                ],
+                                maxRooms = 1,
+                                minRooms = 1,
+                                potentialRooms = [
+                                    new() {
+                                            selection = Resources.FindObjectsOfTypeAll<RoomAsset>().First(x => ((UnityEngine.Object)x).name == "Room_Faculty_School_Locked_0_HighEndItems"),
+                                            weight = 100
+                                        }
+                                ]
+                            });
+                        }
+                        else
+                        {
+                            itemm.roomGroup.First(x => x.name == "LockedRoom").maxRooms += 1;
+                        }
+                    }
+                }
 
                 if (flopthing == false)
                 {
@@ -996,17 +1101,7 @@ namespace NullscapeinBB
 
 
 
-                    if (main.FloorCounter % 5 == 0)
-                    {
-                        main.ForcedStructures.Add(new()
-                        {
-                            parameters = new()
-                            {
-                                minMax = [new(1, 1)]
-                            },
-                            prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
-                        });
-                    }
+                    
 
                     main.F2.forcedNpcs = main.potentialNPCs.ToArray();
                     if (main.FloorCounter % 5 == 0)
