@@ -1,4 +1,5 @@
 ﻿using MTM101BaldAPI;
+using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace NullscapeinBB
 {
     internal class MartNPC : NPC
     {
-        public PropagatedAudioManager audMan;
+        public AudioManager audMan;
         public float speed = 3.5f;
         public int priority = 0;
         public float timeanim = 0;
@@ -16,8 +17,15 @@ namespace NullscapeinBB
         {
             priority = UnityEngine.Random.Range(0, 25555555);
             speed = 3.5f + Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7);
-            audMan = gameObject.GetComponent<PropagatedAudioManager>();
-            audMan.DisableVolumetricAudio();
+            gameObject.SetActive(false);
+            audMan = gameObject.AddComponent<AudioManager>();
+            
+            audMan.audioDevice = gameObject.AddComponent<AudioSource>();
+            
+            audMan.audioDevice.spatialBlend = 1f;
+            gameObject.SetActive(true);
+            audMan.audioSourceManager.minDistance = 5f;
+            audMan.audioSourceManager.maxDistance = 65f;
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop"), true);
             audMan.SetLoop(true);
             this.behaviorStateMachine.ChangeState(new Mart_StateChase(this));

@@ -14,7 +14,7 @@ namespace NullscapeinBB
 {
     internal class CadenceNPC : NPC
     {
-        public PropagatedAudioManager audMan;
+        public AudioManager audMan;
         public Instrument Pre;
         public float timeleft = 50f;
         public float timeanim = 0;
@@ -24,9 +24,16 @@ namespace NullscapeinBB
         public List<Instrument> instruments;
         public override void Initialize()
         {
-           
-            audMan = gameObject.GetComponent<PropagatedAudioManager>();
-            audMan.DisableVolumetricAudio();
+
+            gameObject.SetActive(false);
+            audMan = gameObject.AddComponent<AudioManager>();
+
+            audMan.audioDevice = gameObject.AddComponent<AudioSource>();
+
+            audMan.audioDevice.spatialBlend = 1f;
+            gameObject.SetActive(true);
+            audMan.audioSourceManager.minDistance = 30f;
+            audMan.audioSourceManager.maxDistance = 200f;
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop"), true);
             
             audMan.SetLoop(true);
@@ -203,7 +210,7 @@ namespace NullscapeinBB
             npc.spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence2")[Mathf.FloorToInt(Mathf.Repeat(((CadenceNPC)npc).timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_cadence2").Length ))];
             var direction = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - npc.transform.position).normalized;
             npc.transform.position += direction * 40 * Time.deltaTime;
-            if (CNpc.timeleft > 0 || CNpc.instruments.Count < 2) {
+            if (CNpc.timeleft > 0 || CNpc.instruments.Count < 2 - Mathf.Clamp01(NullscapeInBB.CurseCount(Curses.CadenceOneInstrument))) {
                 
                 CNpc.behaviorStateMachine.ChangeState(new CadenceNPC_stateidle(CNpc));
             }

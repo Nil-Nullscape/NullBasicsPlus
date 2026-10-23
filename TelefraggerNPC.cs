@@ -10,7 +10,7 @@ namespace NullscapeinBB
 {
     public class TelefraggerNPC : NPC
     {
-        public PropagatedAudioManager audMan;
+        public AudioManager audMan;
         public float speed = 5f;
         public int TheFunValue = 0;
         public bool IsHeDancing = false;
@@ -22,7 +22,15 @@ namespace NullscapeinBB
         {
             TheFunValue = UnityEngine.Random.Range(0, 100);
             timeleft = UnityEngine.Random.Range(1f, 12f);
-            audMan = gameObject.GetComponent<PropagatedAudioManager>();
+            gameObject.SetActive(false);
+            audMan = gameObject.AddComponent<AudioManager>();
+
+            audMan.audioDevice = gameObject.AddComponent<AudioSource>();
+
+            audMan.audioDevice.spatialBlend = 1f;
+            gameObject.SetActive(true);
+            audMan.audioSourceManager.minDistance = 5f;
+            audMan.audioSourceManager.maxDistance = 65f;
             if (forceValue > 0) {
                 TheFunValue = forceValue;
             }

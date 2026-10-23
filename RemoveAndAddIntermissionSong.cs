@@ -1,11 +1,13 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using JetBrains.Annotations;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.UI;
 using NilLib;
+using NilLib.Builders;
 using NilLib.Creators;
 using System;
 using System.Collections;
@@ -24,7 +26,9 @@ namespace NullscapeinBB
         Enemy,
         Curse,
         GreaterCurse,
-        CurseBreaker
+        CurseBreaker,
+        Upgrades,
+        Chaos
     }
     static class Extras
     {
@@ -121,6 +125,36 @@ namespace NullscapeinBB
                     var i2000 = main.AllCursesItems[random3curs[1].curse];
                     var i3000 = main.AllCursesItems[random3curs[2].curse];
                     CreatePickupsCursesBreaker(i1000, i2000, i3000);
+                    break;
+                case IntermissionType.Chaos:
+                    main.Intermissions.RemoveAt(0);
+                    var random3chaos = main.PickThreeChaos();
+                    if (random3chaos == null || random3chaos.Count < 3)
+                    {
+                        NextIntermission();
+                        // Not enough enemies available; abort safely.
+                        return;
+                    }
+                    List<ItemObject> yeah = new();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        switch (random3chaos[i].ChaosType)
+                        {
+                            case ChaosItem.ChaosType.Curse:
+                                yeah.Add(main.AllCursesItems[random3chaos[i].CurseData.curse]);
+                                break;
+                            case ChaosItem.ChaosType.GreaterCurse:
+                                yeah.Add(main.AllGreaterCursesItems[random3chaos[i].GreaterCurseData.curse]);
+                                break;
+                            case ChaosItem.ChaosType.Enemy:
+                                yeah.Add(main.AllEnemiesItems[random3chaos[i].EnemyData.Enemy]);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    CreatePickupsChaos(yeah[0], yeah[1], yeah[2]);
                     break;
             }
         }
@@ -563,6 +597,57 @@ namespace NullscapeinBB
             };
             ;
         }
+        public static void CreatePickupsChaos(ItemObject i1, ItemObject i2, ItemObject i3)
+        {
+            GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
+            var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
+            PickUp1.GetComponent<Pickup>().showDescription = true;
+            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
+            PickUp2.GetComponent<Pickup>().showDescription = true;
+            PickUp2.GetComponent<Pickup>().AssignItem(i2);
+            var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
+            PickUp3.GetComponent<Pickup>().showDescription = true;
+            PickUp3.GetComponent<Pickup>().AssignItem(i3);
+            var enemItem1 = i1.item;
+            var enemItem2 = i2.item;
+            var enemItem3 = i3.item;
+            PickUp1.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp1.transform.localPosition = new Vector3(335, 5, 60);
+            PickUp2.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp2.transform.localPosition = new Vector3(340, 5, 57.5f);
+            PickUp3.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            PickUp3.transform.localPosition = new Vector3(330, 5, 57.5f);
+
+            var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Enemies");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intchaos");
+            renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
+
+
+            // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
+            PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                if (enemItem1 is EnemItem) OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (EnemItem)enemItem1);
+                if (enemItem1 is CurseItem) OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (CurseItem)enemItem1);
+                if (enemItem1 is GreaterCurseItem) OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (GreaterCurseItem)enemItem1);
+
+            };
+            PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                if (enemItem2 is EnemItem) OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (EnemItem)enemItem2);
+                if (enemItem2 is CurseItem) OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (CurseItem)enemItem2);
+                if (enemItem2 is GreaterCurseItem) OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (GreaterCurseItem)enemItem2);
+
+            };
+            PickUp3.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
+            {
+                if (enemItem3 is EnemItem) OnCollectIntermissionEnemy(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (EnemItem)enemItem3);
+                if (enemItem3 is CurseItem) OnCollectIntermissionCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (CurseItem)enemItem3);
+                if (enemItem3 is GreaterCurseItem) OnCollectIntermissionGreaterCurses(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, (GreaterCurseItem)enemItem3);
+
+            };
+            ;
+        }
 
     }
     public class ShieldNumberUpdater : MonoBehaviour {
@@ -587,6 +672,25 @@ namespace NullscapeinBB
     [HarmonyPatch]
     static class PatchesJohn
     {
+
+        public static int GetNearestLevel(int level)
+        {
+            int[] targets = { 0, 3, 5, 8, 10 };
+            int remainder = level % 10;
+            int baseValue = (level / 10) * 10;
+
+            // Find the first target that is greater than or equal to the remainder
+            foreach (int t in targets)
+            {
+                if (t >= remainder)
+                {
+                    return baseValue + t;
+                }
+            }
+
+            // Fallback to the next decade's 0 if nothing matched
+            return baseValue + 10;
+        }
         [HarmonyPatch(typeof(BaseGameManager), "BeginPlay")]
         [HarmonyPrefix]
         static void stopandstart2(BaseGameManager __instance)
@@ -595,6 +699,30 @@ namespace NullscapeinBB
             Singleton<CoreGameManager>.Instance.SetLives(0, true);
             if (__instance is PitstopGameManager)
             {
+                var level = NullscapeInBB.Instance.FloorCounter + 1;
+                var poster = ObjectCreators.CreatePosterObject(Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "chk_blank"), [
+                new() {
+                    alignment = TMPro.TextAlignmentOptions.Center,
+                    color = Color.white,
+                    font = BaldiFonts.ComicSans24.FontAsset(),
+                    fontSize = 24,
+                    position = new(0,174),
+                    size = new(256,32),
+                    style = TMPro.FontStyles.Normal,
+                    textKey = !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0) ? "store_locked" : "store_opened"
+                },
+                new() {
+                    alignment = TMPro.TextAlignmentOptions.Center,
+                    color = Color.white,
+                    font = BaldiFonts.ComicSans12.FontAsset(),
+                    fontSize = 12,
+                    position = new(24,88),
+                    size = new(208,96),
+                    style = TMPro.FontStyles.Normal,
+                    textKey = !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0) ? $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_locked1")} F{GetNearestLevel(level)}" : $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_notice")} F{GetNearestLevel(level)}"
+                }
+            ]);
+                __instance.Ec.BuildPoster(poster, __instance.Ec.CellFromPosition(new IntVector2(32, 9)), Direction.North);
                 List<string> ProgEvents = new();
                 NullscapeInBB.Instance.Intermissions.Clear();
                 var extraNPCIntermission = 0;
@@ -611,6 +739,7 @@ namespace NullscapeinBB
                     extraCurseIntermission += 1;
                 }
                 extraNPCIntermission += NullscapeInBB.Instance.extraenemyintermission;
+                
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
                 {
                     for (int i = 0; i < 1 + extraNPCIntermission; i++)
@@ -640,6 +769,9 @@ namespace NullscapeinBB
                     {
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.GreaterCurse);
                     }
+                }
+                if (NullscapeInBB.Instance.EnableChaosMode.Value) {
+                    NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Chaos);
                 }
                 int[] BaldifasterEvents = [10, 15,20,30,40,50,60,80,100,125,150,175,200,250,300,400,500,600];
                 if (BaldifasterEvents.Contains(NullscapeInBB.Instance.FloorCounter + 1))
@@ -753,6 +885,7 @@ namespace NullscapeinBB
         {
             if (NullscapeInBB.CurseCount(Curses.OneMinutePomp) >= 1)
             {
+                
                 __instance.ReflectionSetVariable("classTime", 60);
             }
         }

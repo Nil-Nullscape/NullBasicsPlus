@@ -30,6 +30,22 @@ namespace NullscapeinBB
             return base.Use(pm);
         }
 
-        
+
+    }
+    public class ChaosItem : Item
+    {
+        public enum ChaosType
+        {
+            Curse,
+            GreaterCurse,
+            Enemy
+        }
+        public ChaosCurseData data;
+        public override bool Use(PlayerManager pm)
+        {
+            return base.Use(pm);
+        }
+
+
     }
 }

@@ -149,6 +149,7 @@ namespace NullscapeinBB
             ec.AddTimeScale(new(1 + (NullscapeInBB.CurseCount(Curses.FasterNPCs) * 0.25f), 1 + (NullscapeInBB.CurseCount(Curses.FasterEnviromnent) * 0.25f), 1));
             base.BeginPlay();
         }
+        bool ShouldForceOpenExit = false;
         protected override void VirtualUpdate()
         {
             
@@ -166,6 +167,20 @@ namespace NullscapeinBB
             }
             if (!ShieldGauge && shieldtimeleft >0) {
                 ShieldGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_brokenshield"),5f);
+
+            }
+            if (NullscapeInBB.CurseCount(Curses.Lap2) >= 1 && BonusactivitiesMax > 0 && !ShouldForceOpenExit) {
+                var unpoweredActivities = 0;
+                foreach (var activities in ec.activities)
+                {
+                    if (activities.InBonusMode && !activities.room.Powered && activities is not NoActivity) {
+                        unpoweredActivities += 1;
+                    }
+                }
+                if (BonusactivitiesMax - unpoweredActivities <= 0) {
+                    ShouldForceOpenExit = true;
+                    ec.ElevatorManager.SetAllElevators(ElevatorState.OpenForExit);
+                }
 
             }
             if (ShieldGauge) {

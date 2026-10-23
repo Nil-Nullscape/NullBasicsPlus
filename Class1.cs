@@ -20,6 +20,7 @@ using PlusStudioLevelLoader;
 using NilLib;
 using MTM101BaldAPI.Reflection;
 using NilLib.Creators;
+using MTM101BaldAPI.OptionsAPI;
 
 namespace NullscapeinBB
 {
@@ -29,6 +30,7 @@ namespace NullscapeinBB
         public int minFloor = minFloor;
         public int MaxEnemies = maxEnemies;
         public NPC NPCToUse = npcToUse;
+        public Sprite Icon = null;
         public Func<bool> Requirements = null;
         public string Description = Description;
     }
@@ -38,7 +40,7 @@ namespace NullscapeinBB
         public int MinFloor = minFloor;
         public int MaxCurses = StackSize;
         public Func<bool> Requirements = null;
-
+        public Sprite Icon = null;
         // used for cursebreaker
         public int CurseValue = value;
         public Action CursesAction = action;
@@ -50,7 +52,39 @@ namespace NullscapeinBB
         public int MinFloor = minFloor;
         public int MaxCurses = StackSize;
         public Func<bool> Requirements = null;
+        public Sprite Icon = null;
         public Action CursesAction = action;
+    }
+    public struct ChaosCurseData
+    {
+        public ChaosItem.ChaosType ChaosType;
+        public EnemyData EnemyData;
+        public CurseData CurseData;
+        public GreaterCurseData GreaterCurseData;
+
+        public ChaosCurseData(EnemyData enemy)
+        {
+            ChaosType = ChaosItem.ChaosType.Enemy;
+            EnemyData = enemy;
+            CurseData = default;
+            GreaterCurseData = default;
+        }
+
+        public ChaosCurseData(CurseData curse)
+        {
+            ChaosType = ChaosItem.ChaosType.Curse;
+            EnemyData = default;
+            CurseData = curse;
+            GreaterCurseData = default;
+        }
+
+        public ChaosCurseData(GreaterCurseData greaterCurse)
+        {
+            ChaosType = ChaosItem.ChaosType.GreaterCurse;
+            EnemyData = default;
+            CurseData = default;
+            GreaterCurseData = greaterCurse;
+        }
     }
     public static class Extensions
     {
@@ -183,6 +217,7 @@ namespace NullscapeinBB
             if (!NullscapeInBB.Instance.AllEnemies.ContainsKey(NPCEnum))
             {
                 NullscapeInBB.Instance.AllEnemies.Add(NPCEnum, data);
+                NullscapeInBB.Instance.AllModdedEnemies.Add(NPCEnum,data);
             }
             else
             {
@@ -229,14 +264,13 @@ namespace NullscapeinBB
         }
     }
 
-    
-    [BepInDependency("Nil.Library",BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "1.0.0.0")]
+    [BepInDependency("Nil.Library", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "1.0.1.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
         public static NullscapeInBB Instance;
         public static AssetManager Am;
-
         public List<IntermissionSong> IntermissionSongs = new List<IntermissionSong>();
         public List<IngameSong> IngameSongs = new List<IngameSong>();
         public SceneObject F1;
@@ -270,7 +304,9 @@ namespace NullscapeinBB
 
         public List<RandomEvent> EventsList = new();
         public List<CurseData> CursesPicked = new();
+        
         public List<GreaterCurseData> GreaterCursesPicked = new();
+        public Dictionary<Character, EnemyData> AllModdedEnemies = new();
         public Dictionary<Character, EnemyData> AllEnemies = new Dictionary<Character, EnemyData>();
         public Dictionary<Character, ItemObject> AllEnemiesItems = new Dictionary<Character, ItemObject>();
         public Dictionary<Curses, ItemObject> AllCursesItems = new Dictionary<Curses, ItemObject>();
@@ -284,7 +320,73 @@ namespace NullscapeinBB
         public Dictionary<GreaterCurses, GreaterCurseData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
         public ConfigEntry<bool> EnabledNullscapeEntities;
         public ConfigEntry<bool> DisableCopyright;
+        public ConfigEntry<bool> EnableChaosMode;
         public List<RoomAsset> GiftsActivityRooms = new();
+
+        public void UpdateListOfEnemies() {
+            AllEnemies.Clear();
+            AllEnemies.Add(Character.Baldi, new(Character.Baldi, 0, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Baldi_Main3"), "Baldi."));
+            AllEnemies.Add(Character.Principal, new(Character.Principal, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Principal"), "Baldi."));
+            AllEnemies.Add(Character.Playtime, new(Character.Playtime, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Playtime"), "Baldi."));
+            AllEnemies.Add(Character.Prize, new(Character.Prize, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "FirstPrize"), "Baldi."));
+            AllEnemies.Add(Character.Bully, new(Character.Bully, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Bully"), "Baldi."));
+            AllEnemies.Add(Character.Pomp, new(Character.Pomp, 5, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Mrs Pomp"), "Baldi."));
+            AllEnemies.Add(Character.Sweep, new(Character.Sweep, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Gotta Sweep"), "Baldi."));
+            AllEnemies.Add(Character.Cumulo, new(Character.Cumulo, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "CloudyCopter"), "Baldi."));
+            AllEnemies.Add(Character.DrReflex, new(Character.DrReflex, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "DrReflex"), "Baldi."));
+            AllEnemies.Add(Character.LookAt, new(Character.LookAt, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "LookAt"), "Baldi."));
+            AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
+            AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
+            AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
+
+
+            if (EnabledNullscapeEntities.Value)
+            {
+                AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 9, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
+            }
+            // gets used when no more enemies
+            AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
+            foreach (var item in AllModdedEnemies)
+            {
+                AllEnemies.Add(item.Key, item.Value);
+            }
+            AllEnemiesItems.Clear();
+            foreach (EnemyData enemy in AllEnemies.Values)
+            {
+                if (enemy.NPCToUse != null)
+                {
+                    if (enemy.Enemy != EnumExtensions.GetFromExtendedName<Character>("???"))
+                    {
+                        var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{enemy.NPCToUse.name}", $"desc_{enemy.NPCToUse.name}")
+                    .SetSprites(enemy.Icon != null ? enemy.Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), enemy.Icon != null ? enemy.Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
+                    .SetEnum($"itmenemy_{enemy.NPCToUse.name}")
+                    .SetItemComponent<EnemItem>()
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .Build();
+                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
+                        AllEnemiesItems.Add(enemy.Enemy, ie);
+                    }
+                    else
+                    {
+                        var ie = new ItemBuilder(this.Info)
+                        .SetAsInstantUse()
+                        .SetNameAndDescription($"itm_???", $"desc_???")
+                        .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"))
+                        .SetEnum($"itmenemy_random")
+                        .SetItemComponent<EnemItem>()
+                        .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                        .Build();
+                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
+                        AllEnemiesItems.Add(enemy.Enemy, ie);
+                    }
+                }
+            }
+        }
 
         public IEnumerator FinalLoad()
         {
@@ -302,41 +404,13 @@ namespace NullscapeinBB
 
             }
             yield return "Making all items for curses and stuff";
-            foreach (EnemyData enemy in AllEnemies.Values)
-            {
-                if (enemy.NPCToUse != null)
-                {
-                    if (enemy.Enemy != EnumExtensions.GetFromExtendedName<Character>("???")) {
-                        var ie = new ItemBuilder(this.Info)
-                    .SetAsInstantUse()
-                    .SetNameAndDescription($"itm_{enemy.NPCToUse.name}", $"desc_{enemy.NPCToUse.name}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
-                    .SetEnum($"itmenemy_{enemy.NPCToUse.name}")
-                    .SetItemComponent<EnemItem>()
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
-                    .Build();
-                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
-                        AllEnemiesItems.Add(enemy.Enemy, ie);
-                    } else {
-                        var ie = new ItemBuilder(this.Info)
-                        .SetAsInstantUse()
-                        .SetNameAndDescription($"itm_???", $"desc_???")
-                        .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"))
-                        .SetEnum($"itmenemy_random")
-                        .SetItemComponent<EnemItem>()
-                        .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
-                        .Build();
-                        ((EnemItem)ie.item).Enemy = enemy.Enemy;
-                        AllEnemiesItems.Add(enemy.Enemy, ie);
-                    }
-                }
-            }
+            
             foreach (Curses curse in EnumExtensions.GetValues<Curses>())
             {
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetSprites(AllCurses[curse].Icon != null ? AllCurses[curse].Icon :  AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllCurses[curse].Icon != null ? AllCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmcurse_{curse.ToStringExtended()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .SetItemComponent<CurseItem>()
@@ -350,7 +424,7 @@ namespace NullscapeinBB
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
-                    .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetSprites(AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon :  AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmgreatercurse_{curse.ToString()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .SetItemComponent<GreaterCurseItem>()
@@ -504,6 +578,7 @@ namespace NullscapeinBB
         {
             Instance = this;
             EnabledNullscapeEntities = Config.Bind("Gameplay stuff", "EnableNullscapeEnemies", true, "This enables the enemies from nullscape if you dont want them set this to false");
+            EnableChaosMode = Config.Bind("Gameplay stuff", "EnableChaosMode", false, "This enables chaos mode, an extra intermission will be added every level, where greater curses, curses or enemies can all spawn");
             DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (like teledancer's song)");
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);
@@ -512,12 +587,16 @@ namespace NullscapeinBB
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, FinalLoad(), LoadingEventOrder.Final);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, PostLoad(), LoadingEventOrder.Post);
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
-            MTM101BaldiDevAPI.AddWarningScreen("Hello, first of all..\n thanks for playtesting this mod you will be credited on the gb page once the final build releases,\n second of all..\nPlease do not share this build with anyone.", false);
-            MTM101BaldiDevAPI.AddWarningScreen("And third of all\nThis mod may have bugs.. please give feedback, suggestions, or bug reports in the playtester channel.\n\nHave fun playing!!", false);
-            MTM101BaldiDevAPI.AddWarningScreen("If you dont like the nullscape entities feel free to disable them in the config", false);
-            MTM101BaldiDevAPI.AddWarningScreen("also incase you scared of copyrighted songs/sound you can enable the setting to switch or mute the copyrighted ones", false);
+            MTM101BaldiDevAPI.AddWarningScreen("If you dont like the nullscape entities and prefer only the vanilla content, feel free to disable them in the config (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
+            MTM101BaldiDevAPI.AddWarningScreen("also incase you scared of copyrighted songs/sound you can enable the config to switch or mute the copyrighted ones (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
+            MTM101BaldiDevAPI.SaveGamesEnabled = false;
+            CustomOptionsCore.OnMenuInitialize += AddCategory;
             harmony.PatchAll();
+        }
+        void AddCategory(OptionsMenu __instance, CustomOptionsHandler handler) {
+            if (Singleton<CoreGameManager>.Instance != null) return;
+            handler.AddCategory<NullbasicsSettings>("Nullbasics Settings");
         }
         IEnumerator PostLoad()
         {
@@ -547,29 +626,7 @@ namespace NullscapeinBB
             });
 
             yield return "Adding All enemies";
-            AllEnemies.Add(Character.Baldi, new(Character.Baldi, 0, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Baldi_Main3"), "Baldi."));
-            AllEnemies.Add(Character.Principal, new(Character.Principal, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Principal"), "Baldi."));
-            AllEnemies.Add(Character.Playtime, new(Character.Playtime, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Playtime"), "Baldi."));
-            AllEnemies.Add(Character.Prize, new(Character.Prize, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "FirstPrize"), "Baldi."));
-            AllEnemies.Add(Character.Bully, new(Character.Bully, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Bully"), "Baldi."));
-            AllEnemies.Add(Character.Pomp, new(Character.Pomp, 5, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Mrs Pomp"), "Baldi."));
-            AllEnemies.Add(Character.Sweep, new(Character.Sweep, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Gotta Sweep"), "Baldi."));
-            AllEnemies.Add(Character.Cumulo, new(Character.Cumulo, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "CloudyCopter"), "Baldi."));
-            AllEnemies.Add(Character.DrReflex, new(Character.DrReflex, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "DrReflex"), "Baldi."));
-            AllEnemies.Add(Character.LookAt, new(Character.LookAt, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "LookAt"), "Baldi."));
-            AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
-            AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
-            AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
-
-           
-            if (EnabledNullscapeEntities.Value) {
-                AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 9, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
-            }
-            // gets used when no more enemies
-            AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
+            UpdateListOfEnemies();
             yield return "Creating All Curses";
             AllCurses.Add(Curses.MathMachine, new()
             {
@@ -834,6 +891,7 @@ namespace NullscapeinBB
                 MaxCurses = 1,
                 MinFloor = 5,
                 CurseValue = 0,
+                Icon = Resources.FindObjectsOfTypeAll<Sprite>().First(),
                 CursesAction = () =>
                 {
 
@@ -1089,6 +1147,7 @@ namespace NullscapeinBB
             Am.Add("spr_intcurse", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent2.png"));
             Am.Add("spr_intgcurse", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent3.png"));
             Am.Add("spr_intcursebreaker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent4.png"));
+            Am.Add("spr_intchaos", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent5.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             yield return "Adding ingame Songs to the list of lists";
@@ -1148,6 +1207,7 @@ namespace NullscapeinBB
                 .SetName("Mart")
                 .Build());
             Am.Get<NPC>("npc_Mart").spriteRenderer[0].sprite = Am.Get<Sprite>("spr_mart");
+            Destroy(Am.Get<MartNPC>("npc_Mart").GetComponent<PropagatedAudioManager>());
             Am.Add("npc_Tele", new NPCBuilder<TelefraggerNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()
@@ -1157,6 +1217,7 @@ namespace NullscapeinBB
                 .SetName("Telefragger")
                 .Build());
             Am.Get<NPC>("npc_Tele").spriteRenderer[0].sprite = Am.Get<Sprite>("npc_Tele");
+            Destroy(Am.Get<TelefraggerNPC>("npc_Tele").GetComponent<PropagatedAudioManager>());
             Am.Add("npc_Cadence", new NPCBuilder<CadenceNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()
@@ -1166,6 +1227,7 @@ namespace NullscapeinBB
                 .IgnorePlayerOnSpawn()
                 .SetMinMaxAudioDistance(50, 750)
                 .Build());
+            Destroy(Am.Get<CadenceNPC>("npc_Cadence").GetComponent<PropagatedAudioManager>());
             var Inst = new GameObject("InstrumentPre").AddComponent<Instrument>();
             Inst.gameObject.ConvertToPrefab(true);
             Inst.gameObject.AddComponent<SphereCollider>().radius = 7.5f;
@@ -1246,8 +1308,60 @@ namespace NullscapeinBB
         {
         }
 
-        
 
+        public List<ChaosCurseData> PickThreeChaos()
+        {
+            List<ChaosCurseData> pool = new List<ChaosCurseData>();
+
+            // 1. Add all Enemies without filtering
+            foreach (var enemy in AllEnemies.Values)
+            {
+                pool.Add(new ChaosCurseData(enemy));
+            }
+
+            // 2. Add all Curses without filtering
+            foreach (var curse in AllCurses.Values)
+            {
+                pool.Add(new ChaosCurseData(curse));
+            }
+
+            // 3. Add all Greater Curses without filtering
+            foreach (var greaterCurse in AllGreaterCurses.Values)
+            {
+                pool.Add(new ChaosCurseData(greaterCurse));
+            }
+
+            // If total pool is empty, return empty list
+            if (pool.Count == 0) return new List<ChaosCurseData>();
+
+            List<ChaosCurseData> result = new List<ChaosCurseData>(3);
+            int count = pool.Count;
+            System.Random rng = new System.Random();
+
+            if (count >= 3)
+            {
+                var indices = Enumerable.Range(0, count).OrderBy(_ => rng.Next()).Take(3);
+                foreach (int i in indices)
+                {
+                    result.Add(pool[i]);
+                }
+            }
+            else if (count == 2)
+            {
+                result.Add(pool[0]);
+                result.Add(pool[1]);
+                result.Add(pool[rng.Next(count)]);
+            }
+            else
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    result.Add(pool[0]);
+                }
+            }
+
+            return result;
+        }
         public List<EnemyData> PickThreeEnemies()
         {
             // start from all enemies and filter to those valid for current floor and not exceeding max instances
@@ -1452,157 +1566,159 @@ namespace NullscapeinBB
         }
         private void AddContent(string floor, int floorNumber, SceneObject scene)
         {
-            FloorCounter = 1;
-            fakecount = 0;
-            flop = false;
-            scene.manager = new MainGameManagerBuilder<MainInfiniteGameManager>()
-            .SetAllNotebooksSound(Am.Get<SoundObject>("snd_allnb"))
-            .Build();
-            EventsList.Clear();
-            EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent));
-            if (scene.levelTitle == "F1")
+            if (scene.levelTitle == "F1" || scene.levelTitle == "F2" || scene.levelTitle == "F3" || scene.levelTitle == "F4" || scene.levelTitle == "F5")
             {
-                F1 = scene;
-                F1Clone = DuplicateSceneObject(F1);
-                F1.additionalNPCs = 0;
-                F1.totalShopItems = 12;
-                F1.previousLevels = new SceneObject[0];
-                F1.forcedNpcs = new NPC[0];
-
-                F1.potentialNPCs = new WeightedNPC[0].ToList();
-                notebookcount = 1;
-                facultycount = 2;
-                mapprice = 100;
-                plotcount = 3;
-                itembudget = 20;
-                levelsize = new IntVector2(14, 14);
-
-                CustomLevelObject[] customLevelObjectsa = F1.GetCustomLevelObjects();
-                foreach (CustomLevelObject cuslevob in customLevelObjectsa)
+                FloorCounter = 1;
+                fakecount = 0;
+                flop = false;
+                scene.manager = new MainGameManagerBuilder<MainInfiniteGameManager>()
+                .SetAllNotebooksSound(Am.Get<SoundObject>("snd_allnb"))
+                .Build();
+                EventsList.Clear();
+                EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent));
+                if (scene.levelTitle == "F1")
                 {
-                    cuslevob.maxSize = levelsize;
-                    cuslevob.minSize = levelsize;
-                    cuslevob.timeLimit = 45;
-                    cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = notebookcount;
-                    cuslevob.roomGroup.First(x => x.name == "Class").minRooms = notebookcount;
-                    cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = facultycount + 2;
-                    cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = facultycount - 2;
-                    cuslevob.maxItemValue = itembudget;
-                    cuslevob.posters = cuslevob.posters.AddToArray(new()
+                    F1 = scene;
+                    F1Clone = DuplicateSceneObject(F1);
+                    F1.additionalNPCs = 0;
+                    F1.totalShopItems = 12;
+                    F1.previousLevels = new SceneObject[0];
+                    F1.forcedNpcs = new NPC[0];
+
+                    F1.potentialNPCs = new WeightedNPC[0].ToList();
+                    notebookcount = 1;
+                    facultycount = 2;
+                    mapprice = 100;
+                    plotcount = 3;
+                    itembudget = 20;
+                    levelsize = new IntVector2(14, 14);
+
+                    CustomLevelObject[] customLevelObjectsa = F1.GetCustomLevelObjects();
+                    foreach (CustomLevelObject cuslevob in customLevelObjectsa)
                     {
-                        selection = Am.Get<PosterObject>("pst_poster1"),
-                        weight = 65
-                    });
-                    cuslevob.posters = cuslevob.posters.AddToArray(new()
-                    {
-                        selection = Am.Get<PosterObject>("pst_poster2"),
-                        weight = 75
-                    });
-                    cuslevob.maxPlots = plotcount + 1;
-                    cuslevob.minPlots = plotcount - 1;
-                    cuslevob.randomEvents.Clear();
-                    foreach (var item in NullscapeInBB.Instance.EventsList)
-                    {
-                        cuslevob.randomEvents.Add(new()
+                        cuslevob.maxSize = levelsize;
+                        cuslevob.minSize = levelsize;
+                        cuslevob.timeLimit = 45;
+                        cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = notebookcount;
+                        cuslevob.roomGroup.First(x => x.name == "Class").minRooms = notebookcount;
+                        cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = facultycount + 2;
+                        cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = facultycount - 2;
+                        cuslevob.maxItemValue = itembudget;
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
                         {
-                            selection = item,
-                            weight = 100
+                            selection = Am.Get<PosterObject>("pst_poster1"),
+                            weight = 65
+                        });
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
+                        {
+                            selection = Am.Get<PosterObject>("pst_poster2"),
+                            weight = 75
+                        });
+                        cuslevob.maxPlots = plotcount + 1;
+                        cuslevob.minPlots = plotcount - 1;
+                        cuslevob.randomEvents.Clear();
+                        foreach (var item in NullscapeInBB.Instance.EventsList)
+                        {
+                            cuslevob.randomEvents.Add(new()
+                            {
+                                selection = item,
+                                weight = 100
+                            });
+                        }
+                        ForcedStructureDefault = cuslevob.forcedStructures.ToList();
+                        if (FloorCounter >= 18)
+                        {
+                            cuslevob.exitCount = 4;
+                        }
+                        else if (FloorCounter >= 12)
+                        {
+                            cuslevob.exitCount = 3;
+                        }
+                        else if (FloorCounter >= 6)
+                        {
+                            cuslevob.exitCount = 2;
+                        }
+                        else
+                        {
+                            cuslevob.exitCount = 1;
+                        }
+                    }
+                }
+                else if (scene.levelTitle == "F2")
+                {
+                    F2 = scene;
+                    F2.nextLevel = F1;
+                    F1.nextLevel = F2;
+                    F1.baldiPrefab = F2.baldiPrefab;
+
+                    F2.additionalNPCs = 0;
+                    F2.totalShopItems = 12;
+                    F2.mapPrice = 100;
+
+                    try
+                    {
+                        F2.previousLevels = new SceneObject[0];
+                    }
+                    catch
+                    {
+                    }
+
+                    CustomLevelObject[] customLevelObjectsb = scene.GetCustomLevelObjects();
+                    foreach (CustomLevelObject cuslevob in customLevelObjectsb)
+                    {
+                        cuslevob.forcedStructures = ForcedStructureDefault.ToArray();
+                        cuslevob.timeLimit = 45;
+                        var r = cuslevob.roomGroup.ToList();
+                        r.RemoveAll(x => x.name == "LockedRoom");
+                        cuslevob.roomGroup = r.ToArray();
+                        cuslevob.potentialStructures = new WeightedStructureWithParameters[0];
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
+                        {
+                            selection = Am.Get<PosterObject>("pst_poster1"),
+                            weight = 75
+                        });
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
+                        {
+                            selection = Am.Get<PosterObject>("pst_poster2"),
+                            weight = 75
                         });
                     }
-                    ForcedStructureDefault = cuslevob.forcedStructures.ToList();
-                    if (FloorCounter >= 18)
-                    {
-                        cuslevob.exitCount = 4;
-                    }
-                    else if (FloorCounter >= 12)
-                    {
-                        cuslevob.exitCount = 3;
-                    }
-                    else if (FloorCounter >= 6)
-                    {
-                        cuslevob.exitCount = 2;
-                    }
-                    else
-                    {
-                        cuslevob.exitCount = 1;
-                    }
-                }
-            }
-            else if (scene.levelTitle == "F2")
-            {
-                F2 = scene;
-                F2.nextLevel = F1;
-                F1.nextLevel = F2;
-                F1.baldiPrefab = F2.baldiPrefab;
-
-                F2.additionalNPCs = 0;
-                F2.totalShopItems = 12;
-                F2.mapPrice = 100;
-                
-                try
-                {
-                    F2.previousLevels = new SceneObject[0];
-                }
-                catch
-                {
                 }
 
-                CustomLevelObject[] customLevelObjectsb = scene.GetCustomLevelObjects();
-                foreach (CustomLevelObject cuslevob in customLevelObjectsb)
+                ForcedStructures = new();
+                foreach (var item in ForcedStructureDefault)
                 {
-                    cuslevob.forcedStructures = ForcedStructureDefault.ToArray();
-                    cuslevob.timeLimit = 45;
-                    var r = cuslevob.roomGroup.ToList();
-                    r.RemoveAll(x => x.name == "LockedRoom");
-                    cuslevob.roomGroup = r.ToArray();
-                    cuslevob.potentialStructures = new WeightedStructureWithParameters[0];
-                    cuslevob.posters = cuslevob.posters.AddToArray(new()
-                    {
-                        selection = Am.Get<PosterObject>("pst_poster1"),
-                        weight = 75
-                    });
-                    cuslevob.posters = cuslevob.posters.AddToArray(new()
-                    {
-                        selection = Am.Get<PosterObject>("pst_poster2"),
-                        weight = 75
-                    });
+                    ForcedStructures.Add(item);
                 }
-            }
-
-            ForcedStructures = new();
-            foreach (var item in ForcedStructureDefault)
-            {
-                ForcedStructures.Add(item);
-            }
-            var e = scene.potentialStickers.ToList();
-            e.RemoveAll(x => x.selection == Sticker.CashRegister);
-            scene.potentialStickers = e.ToArray();
-            AssetManager miscman = new AssetManager();
-            miscman.AddFromResourcesNoClones<NPC>();
-            CustomLevelObject[] customLevelObjects = scene.GetCustomLevelObjects();
-            foreach (CustomLevelObject cuslevob in customLevelObjects)
-            {
-                foreach (WeightedItemObject witem in cuslevob.potentialItems)
+                var e = scene.potentialStickers.ToList();
+                e.RemoveAll(x => x.selection == Sticker.CashRegister);
+                scene.potentialStickers = e.ToArray();
+                AssetManager miscman = new AssetManager();
+                miscman.AddFromResourcesNoClones<NPC>();
+                CustomLevelObject[] customLevelObjects = scene.GetCustomLevelObjects();
+                foreach (CustomLevelObject cuslevob in customLevelObjects)
                 {
-                    if (potentialItems.Count != 0)
+                    foreach (WeightedItemObject witem in cuslevob.potentialItems)
                     {
-                        bool canadd = true;
-                        foreach (WeightedItemObject wwitem in potentialItems)
+                        if (potentialItems.Count != 0)
                         {
-                            if (wwitem.selection == witem.selection)
+                            bool canadd = true;
+                            foreach (WeightedItemObject wwitem in potentialItems)
                             {
-                                canadd = false;
+                                if (wwitem.selection == witem.selection)
+                                {
+                                    canadd = false;
+                                }
+                            }
+
+                            if (canadd)
+                            {
+                                potentialItems.Add(witem);
                             }
                         }
-
-                        if (canadd)
-                        {
-                            potentialItems.Add(witem);
-                        }
                     }
-                }
-               
-                
+
+
                     foreach (var rg in cuslevob.roomGroup)
                     {
                         if (rg.name == "Class")
@@ -1616,24 +1732,24 @@ namespace NullscapeinBB
                             }
                         }
                     }
-                    
-                
-                /* foreach (RoomGroup rg in cuslevob.roomGroup)
-                {
-                    if (rg.name == "Class")
+
+
+                    /* foreach (RoomGroup rg in cuslevob.roomGroup)
                     {
-                        foreach (WeightedRoomAsset ra in rg.potentialRooms)
+                        if (rg.name == "Class")
                         {
-                            if (!rooms.Contains(ra) && ra.selection.activity == Activity.Class)
+                            foreach (WeightedRoomAsset ra in rg.potentialRooms)
                             {
-                                rooms.Add(ra);
+                                if (!rooms.Contains(ra) && ra.selection.activity == Activity.Class)
+                                {
+                                    rooms.Add(ra);
+                                }
                             }
                         }
-                    }
-                }  */
+                    }  */
+                }
+
             }
-
-
         }
 
         public void ResetValues()

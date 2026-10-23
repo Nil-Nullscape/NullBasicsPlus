@@ -12,7 +12,7 @@ namespace NullscapeinBB
         [HarmonyPatch(typeof(Baldi),"CaughtPlayer")]
         static bool AntiDeath(Baldi __instance, PlayerManager player) {
             if (Singleton<BaseGameManager>.Instance is MainInfiniteGameManager) {
-
+                    
                 return ((MainInfiniteGameManager)Singleton<BaseGameManager>.Instance).canDie(__instance);
             } else {
                 return true;
