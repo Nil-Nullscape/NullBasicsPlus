@@ -2,7 +2,7 @@ using System;
 
 namespace NullscapeinBB
 {
-    class EnemItem : Item
+    public class EnemItem : Item
     {
         public Character Enemy;
         public override bool Use(PlayerManager pm)
@@ -12,7 +12,7 @@ namespace NullscapeinBB
 
         
     }
-    class CurseItem : Item
+    public class CurseItem : Item
     {
         public Curses curse;
         public override bool Use(PlayerManager pm)
@@ -22,7 +22,7 @@ namespace NullscapeinBB
 
         
     }
-    class GreaterCurseItem : Item
+    public class GreaterCurseItem : Item
     {
         public GreaterCurses curse;
         public override bool Use(PlayerManager pm)
