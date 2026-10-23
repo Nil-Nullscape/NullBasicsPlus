@@ -28,6 +28,7 @@ namespace NullscapeinBB
         GreaterCurse,
         CurseBreaker,
         Upgrades,
+        Delusions,
         Chaos
     }
     static class Extras
@@ -719,10 +720,11 @@ namespace NullscapeinBB
                     position = new(24,88),
                     size = new(208,96),
                     style = TMPro.FontStyles.Normal,
-                    textKey = !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0) ? $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_locked1")} F{GetNearestLevel(level)}" : $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_notice")} F{GetNearestLevel(level)}"
+                    textKey = !(level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0) ? $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_locked1")} F{GetNearestLevel(level)}" : $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("store_notice")} F{GetNearestLevel(level+1)}"
                 }
             ]);
                 __instance.Ec.BuildPoster(poster, __instance.Ec.CellFromPosition(new IntVector2(32, 9)), Direction.North);
+                
                 List<string> ProgEvents = new();
                 NullscapeInBB.Instance.Intermissions.Clear();
                 var extraNPCIntermission = 0;
@@ -1060,21 +1062,27 @@ namespace NullscapeinBB
         [HarmonyPostfix]
         static void Yeaheayj(StoreRoomFunction __instance)
         {
-            Pickup glueStickPickup = (Pickup)__instance.ReflectionGetVariable("glueStickPickup");
-            PriceTag glueStickTag = (PriceTag)__instance.ReflectionGetVariable("glueStickTag");
-            if (Singleton<StickerManager>.Instance.TotalGlueSticks < 4)
+            if (Singleton<BaseGameManager>.Instance is PitstopGameManager)
             {
-                glueStickPickup.price = 10000 + Singleton<StickerManager>.Instance.TotalGlueSticks * 5000;
-                glueStickTag.SetText(glueStickPickup.price.ToString());
+                Pickup glueStickPickup = (Pickup)__instance.ReflectionGetVariable("glueStickPickup");
+                PriceTag glueStickTag = (PriceTag)__instance.ReflectionGetVariable("glueStickTag");
+                if (Singleton<StickerManager>.Instance.TotalGlueSticks < 4)
+                {
+                    glueStickPickup.price = 10000 + Singleton<StickerManager>.Instance.TotalGlueSticks * 5000;
+                    glueStickTag.SetText(glueStickPickup.price.ToString());
+                }
+                else
+                {
+                    glueStickPickup.gameObject.SetActive(value: false);
+                    glueStickTag.SetText(Singleton<LocalizationManager>.Instance.GetLocalizedText("TAG_Sold"));
+                }
+
+
+                __instance.Room.objectObject.transform.Find("RoomBase").Find("Stickers").gameObject.SetActive(false);
+                __instance.Room.objectObject.transform.Find("RoomBase").Find("MiscPurchases").gameObject.SetActive(false);
             }
-            else
-            {
-                glueStickPickup.gameObject.SetActive(value: false);
-                glueStickTag.SetText(Singleton<LocalizationManager>.Instance.GetLocalizedText("TAG_Sold"));
-            }
+
         }
-
-
     }
 
 
