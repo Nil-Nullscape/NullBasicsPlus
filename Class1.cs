@@ -55,6 +55,17 @@ namespace NullscapeinBB
         public Sprite Icon = null;
         public Action CursesAction = action;
     }
+
+    public struct UpgradeData(Upgrades Upgrade, int minFloor, Func<int> cost, int StackSize = 1, Action action = null)
+    {
+        public Upgrades curse = Upgrade;
+        public int MinFloor = minFloor;
+        public int MaxUpgrades = StackSize;
+        public Func<int> Cost = cost;
+        public Func<bool> Requirements = null;
+        public Sprite Icon = null;
+        public Action OnUpgradeBought = action;
+    }
     public struct ChaosCurseData
     {
         public ChaosItem.ChaosType ChaosType;
@@ -148,7 +159,12 @@ namespace NullscapeinBB
             return a;
         }
     }
-
+    public enum Upgrades {
+        MoreYtps,
+        MoreSpeed,
+        PlusOneInventorySlot,
+        BaldiPraise
+    }
     public enum Curses
     {
         MathMachine,
@@ -304,8 +320,9 @@ namespace NullscapeinBB
 
         public List<RandomEvent> EventsList = new();
         public List<CurseData> CursesPicked = new();
-        
+
         public List<GreaterCurseData> GreaterCursesPicked = new();
+        public List<UpgradeData> UpgradesBought = new();
         public Dictionary<Character, EnemyData> AllModdedEnemies = new();
         public Dictionary<Character, EnemyData> AllEnemies = new Dictionary<Character, EnemyData>();
         public Dictionary<Character, ItemObject> AllEnemiesItems = new Dictionary<Character, ItemObject>();
@@ -314,10 +331,15 @@ namespace NullscapeinBB
         public ItemObject RerollItem;
         public ItemObject CursebreakerItem;
         public ItemObject ShieldItem;
+        public ItemObject ContinueItem;
         public List<StructureWithParameters> ForcedStructureDefault;
         public List<StructureWithParameters> ForcedStructures;
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
         public Dictionary<GreaterCurses, GreaterCurseData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
+
+        public Dictionary<Upgrades, ItemObject> AllUpgradesItems = new();
+        public Dictionary<Upgrades, UpgradeData> AllUpgrades = new();
+
         public ConfigEntry<bool> EnabledNullscapeEntities;
         public ConfigEntry<bool> DisableCopyright;
         public ConfigEntry<bool> EnableChaosMode;
@@ -424,13 +446,26 @@ namespace NullscapeinBB
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
-                    .SetSprites(AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon :  AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetSprites(AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmgreatercurse_{curse.ToString()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
                     .SetItemComponent<GreaterCurseItem>()
                     .Build();
                 ((GreaterCurseItem)ie.item).curse = curse;
                 AllGreaterCursesItems.Add(curse, ie);
+            }
+            foreach (Upgrades curse in EnumExtensions.GetValues<Upgrades>())
+            {
+                var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
+                    .SetSprites(AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetEnum($"itmgreatercurse_{curse.ToString()}")
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetItemComponent<UpgradeItem>()
+                    .Build();
+                ((UpgradeItem)ie.item).curse = curse;
+                AllUpgradesItems.Add(curse, ie);
             }
 
             RerollItem = new ItemBuilder(this.Info)
@@ -457,6 +492,15 @@ namespace NullscapeinBB
             .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
             .SetItemComponent<Item>()
             .Build();
+
+            ContinueItem = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"desc_continueitm")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_continue.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_continue.png"))
+            .SetEnum($"itmcontinue")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+            .SetItemComponent<Item>()
+            .Build();
         }
         static public int CurseCount(Curses curse)
         {
@@ -464,6 +508,16 @@ namespace NullscapeinBB
             foreach (var cur in Instance.CursesPicked)
             {
                 if (cur.curse == curse) e++;
+            }
+            return e;
+        }
+
+        static public int UpgradesCount(Upgrades upg)
+        {
+            var e = 0;
+            foreach (var cur in Instance.UpgradesBought)
+            {
+                if (cur.curse == upg) e++;
             }
             return e;
         }
@@ -634,7 +688,7 @@ namespace NullscapeinBB
 
             StuffCreation.AddCurses();
             StuffCreation.AddGreaterCurses();
-
+            StuffCreation.AddUpgrades();
 
         }
         IEnumerator Preload()
@@ -1116,6 +1170,62 @@ namespace NullscapeinBB
             if (values.Count == 0) return new List<GreaterCurseData>();
 
             List<GreaterCurseData> result = new List<GreaterCurseData>(3);
+            int count = values.Count;
+
+            System.Random rng = new System.Random();
+
+            if (count >= 3)
+            {
+                var indices = Enumerable.Range(0, count).OrderBy(_ => rng.Next()).Take(3);
+                foreach (int i in indices)
+                {
+                    result.Add(values[i]);
+                }
+            }
+            else if (count == 2)
+            {
+                result.Add(values[0]);
+                result.Add(values[1]);
+                result.Add(values[rng.Next(count)]);
+            }
+            else
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    result.Add(values[0]);
+                }
+            }
+
+            return result;
+        }
+
+
+
+        public List<UpgradeData> PickThreeUpgrades()
+        {
+            var values = AllUpgrades.Values.ToList();
+
+            values = values.Where(x =>
+            {
+                bool meetsFloor = FloorCounter >= x.MinFloor;
+                int currentCount = UpgradesCount(x.curse);
+                bool underMax = currentCount < x.MaxUpgrades;
+                bool extrarequirement = false;
+                if (x.Requirements != null)
+                {
+                    extrarequirement = x.Requirements();
+                }
+                else extrarequirement = true;
+                return meetsFloor && underMax && extrarequirement;
+            }).ToList();
+
+            // Only consider curses that have a spawnable ItemObject prepared
+            values = values.Where(x => AllUpgradesItems.ContainsKey(x.curse)).ToList();
+
+            // If none are valid, return empty so caller can skip the intermission
+            if (values.Count == 0) return new List<UpgradeData>();
+
+            List<UpgradeData> result = new List<UpgradeData>(3);
             int count = values.Count;
 
             System.Random rng = new System.Random();

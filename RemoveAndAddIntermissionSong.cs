@@ -127,6 +127,22 @@ namespace NullscapeinBB
                     var i3000 = main.AllCursesItems[random3curs[2].curse];
                     CurseBreakerIntermission.CreatePickupsCursesBreaker(i1000, i2000, i3000);
                     break;
+                case IntermissionType.Upgrades:
+                    main.Intermissions.RemoveAt(0);
+                    var rnd3Upg = main.PickThreeUpgrades();
+                    if (rnd3Upg == null || rnd3Upg.Count < 3)
+                    {
+                        NextIntermission();
+                        // Not enough enemies available; abort safely.
+                        return;
+                    }
+
+
+                    var u1 = main.AllUpgradesItems[rnd3Upg[0].curse];
+                    var u2 = main.AllUpgradesItems[rnd3Upg[1].curse];
+                    var u3 = main.AllUpgradesItems[rnd3Upg[2].curse];
+                    UpgradesIntermission.CreatePickupsUpgrade(u1, u2, u3);
+                    break;
                 case IntermissionType.Chaos:
                     main.Intermissions.RemoveAt(0);
                     var random3chaos = main.PickThreeChaos();
@@ -289,6 +305,7 @@ namespace NullscapeinBB
         {
             Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
             Singleton<CoreGameManager>.Instance.SetLives(0, true);
+            
             if (__instance is PitstopGameManager)
             {
                 var level = NullscapeInBB.Instance.FloorCounter + 1;
@@ -347,6 +364,12 @@ namespace NullscapeinBB
                     {
                         NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Curse);
                     }
+                }
+                if ((level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0))
+                {
+                    
+                   NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Upgrades);
+                    
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
@@ -427,6 +450,7 @@ namespace NullscapeinBB
                     ).Take(1).Single());
                 }
 
+               
 
                 if (NullscapeInBB.Instance.FloorCounter + 1 - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
                 {
@@ -468,8 +492,8 @@ namespace NullscapeinBB
             }
 
 
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1, 4.5f));
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1, 6.5f));
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed)*0.1f, 4.5f));
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 6.5f));
 
         }
         [HarmonyPatch(typeof(NoLateTeacher), "Initialize")]
@@ -486,7 +510,8 @@ namespace NullscapeinBB
         [HarmonyPostfix]
         static void Deez(ref float __result)
         {
-            __result *= 1+NullscapeInBB.CurseCount(Curses.Lap2);
+            __result *= 1 + NullscapeInBB.CurseCount(Curses.Lap2);
+            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*0.15f;
         }
 
         [HarmonyPatch(typeof(Activity), "Initialize")]

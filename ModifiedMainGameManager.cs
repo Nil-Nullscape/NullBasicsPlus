@@ -42,7 +42,7 @@ namespace NullscapeinBB
                 NullscapeInBB.Instance.shields -= 1;
                 if (NullscapeInBB.Instance.shields == 0 && NotebookTotal >= 14 && FoundNotebooks < NotebookTotal / 2) {
                     FindyourflameIsPlaying = true;
-                    Singleton<CoreGameManager>.Instance.audMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);
+                    Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);
                 }
                 return false;
             }
@@ -62,15 +62,15 @@ namespace NullscapeinBB
             {
                 if (allNotebooksFound)
                 {
-                    Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
-                    Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.allnbSongAsset, true);
-                    Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+                    Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
+                    Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(Song.allnbSongAsset, true);
+                    Singleton<CoreGameManager>.Instance.musicMan.SetLoop(true);
                 }
                 else
                 {
-                    Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
-                    Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.SongAsset, true);
-                    Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+                    Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
+                    Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(Song.SongAsset, true);
+                    Singleton<CoreGameManager>.Instance.musicMan.SetLoop(true);
                 }
             }
             base.BeginSpoopMode();
@@ -79,9 +79,9 @@ namespace NullscapeinBB
         protected override void AllNotebooks()
         {
             if (!allNotebooksFound && spoopmode && !FindyourflameIsPlaying) {
-                Singleton<CoreGameManager>.Instance.audMan.FlushQueue(true);
-                Singleton<CoreGameManager>.Instance.audMan.QueueAudio(Song.allnbSongAsset, true);
-                Singleton<CoreGameManager>.Instance.audMan.SetLoop(true);
+                Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
+                Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(Song.allnbSongAsset, true);
+                Singleton<CoreGameManager>.Instance.musicMan.SetLoop(true);
             }
 
             base.AllNotebooks();

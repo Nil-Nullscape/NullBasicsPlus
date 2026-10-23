@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
+using NilLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using UnityEngine;
 
@@ -43,6 +45,15 @@ namespace NullscapeinBB
                 return true;
             }
         }
+
+        [HarmonyPatch(typeof(Baldi),"Praise"),HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> PraiseValueReplace(IEnumerable<CodeInstruction> instructions) {
+            var matcher = new CodeMatcher(instructions);
+            matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 0f)).SetInstruction(new(OpCodes.Ldc_R4, NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) * 0.5f));
+            return matcher.InstructionEnumeration();
+        }
+
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EnvironmentController), "SpawnNPCs")]
         static void Nothingtnogitno(EnvironmentController __instance) {
@@ -109,6 +120,24 @@ namespace NullscapeinBB
                 
             } 
         }
+
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemManager), "UpdateTargetInventorySize")]
+        public static bool rewriteOfInventoryUpdat(ItemManager __instance) {
+            __instance.SetCachedReflection("targetInventorySize",__instance.defaultInventorySize + NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot));
+            __instance.SetCachedReflection("maxItem",Mathf.Max(__instance.GetCachedReflection<int>("targetInventorySize"), Mathf.Max(__instance.TotalItemsInInventory, __instance.MaxSlotWithItem + 1)) - 1);
+            Singleton<CoreGameManager>.Instance.GetHud(__instance.pm.playerNumber).UpdateInventorySize(Mathf.Max(__instance.GetCachedReflection<int>("targetInventorySize"), Mathf.Max(__instance.TotalItemsInInventory, __instance.MaxSlotWithItem + 1)));
+            if (__instance.selectedItem > __instance.maxItem)
+            {
+                __instance.selectedItem = __instance.maxItem;
+            }
+
+            __instance.UpdateSelect();
+            return false;
+        }
+
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Principal), "SendToDetention")]

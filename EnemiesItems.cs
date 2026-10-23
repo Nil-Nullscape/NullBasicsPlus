@@ -32,6 +32,16 @@ namespace NullscapeinBB
 
 
     }
+    public class UpgradeItem : Item
+    {
+        public Upgrades curse;
+        public override bool Use(PlayerManager pm)
+        {
+            return base.Use(pm);
+        }
+
+
+    }
     public class ChaosItem : Item
     {
         public enum ChaosType
