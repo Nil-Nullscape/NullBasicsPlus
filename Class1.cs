@@ -21,6 +21,9 @@ using NilLib;
 using MTM101BaldAPI.Reflection;
 using NilLib.Creators;
 using MTM101BaldAPI.OptionsAPI;
+using NullscapeinBB.Structures;
+using NilLib.extension;
+using NilLib.Builders;
 
 namespace NullscapeinBB
 {
@@ -313,7 +316,7 @@ namespace NullscapeinBB
         public int itembudget;
         public int facultycount;
         public int fakecount;
-        public bool CursebreakerQueued = false;
+        public List<IntermissionType> QueuedIntermission = new();
         public int extraenemyintermission = 0;
         
         public List<IntermissionType> Intermissions = new();
@@ -344,7 +347,15 @@ namespace NullscapeinBB
         public ConfigEntry<bool> DisableCopyright;
         public ConfigEntry<bool> EnableChaosMode;
         public List<RoomAsset> GiftsActivityRooms = new();
-
+        public List<AltarData> Altars = new();
+        public List<float> YtpMultipliers = new();
+        public Dictionary<BaseAltar, int> Cooldowns = new();
+        public struct AltarData()
+        {
+            public BaseAltar Altar;
+            public int Weight;
+            public int Max;
+        }
         public void UpdateListOfEnemies() {
             AllEnemies.Clear();
             AllEnemies.Add(Character.Baldi, new(Character.Baldi, 0, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Baldi_Main3"), "Baldi."));
@@ -461,7 +472,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmgreatercurse_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
                     .SetItemComponent<UpgradeItem>()
                     .Build();
                 ((UpgradeItem)ie.item).curse = curse;
@@ -498,7 +509,7 @@ namespace NullscapeinBB
             .SetNameAndDescription($"itm_unused", $"desc_continueitm")
             .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_continue.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_continue.png"))
             .SetEnum($"itmcontinue")
-            .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
             .SetItemComponent<Item>()
             .Build();
         }
@@ -563,7 +574,12 @@ namespace NullscapeinBB
             }, 3f);
 
         }
-
+        static public int GetCooldown(BaseAltar altar) {
+            return Instance.Cooldowns.First(x => x.Key.GetType() == altar.GetType()).Value;
+        }
+        static public void SetCooldown<T>(int cooldown) where T : BaseAltar {
+            NullscapeInBB.Instance.Cooldowns[NullscapeInBB.Instance.Cooldowns.First(x => x.Key is T).Key] = cooldown;
+        } 
         static public void ShieldEventNotifier(string enemykey)
         {
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_shieldbreak"));
@@ -693,7 +709,8 @@ namespace NullscapeinBB
         }
         IEnumerator Preload()
         {
-            yield return 7;
+            yield return 8;
+            #region assets stuff
             yield return "Preloading audios (this might take a bit)";
             Am.Add("mus_i1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss1.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_findyourflame", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Find-your-Flame.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
@@ -782,6 +799,8 @@ namespace NullscapeinBB
             Am.Add("spr_intgcurse", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent3.png"));
             Am.Add("spr_intcursebreaker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent4.png"));
             Am.Add("spr_intchaos", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent5.png"));
+            Am.Add("spr_intupgrade", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent6.png"));
+            Am.Add("spr_intdelusion", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent7.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             yield return "Adding ingame Songs to the list of lists";
@@ -817,6 +836,7 @@ namespace NullscapeinBB
                 new() { key = "nbal_all4", time = 8.008f},
                 new() { key = "nbal_all5", time = 14.712f},
             ];
+            #endregion
             yield return "Adding misc. stuff";
             Am.AddFromResources<RandomEvent>();
             yield return "Creating posters";
@@ -887,6 +907,49 @@ namespace NullscapeinBB
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay),Am.Get<IcbmNPC>("npc_ICBM").transform, false, "AimICBMPre");
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.sprite = Am.Get<Sprite>("spr_icbmmarker");
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.transform.localScale = Vector2.one * 1.5f;
+            yield return "Creating all altars";
+            var pedestalPre = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Decor_Pedestal");
+
+
+
+
+
+
+            Altars.Add(new()
+            {
+                Altar = BaseAltar.CreateAltarPrefab<AltarChance>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "chanceAltarItem.png")], "altar_Chance", 1, "AltarChancePre"),
+                Max = 2,
+                Weight = 75
+            });
+
+            Altars.Add(new()
+            {
+                Altar = BaseAltar.CreateAltarPrefab<AltarPurgatory>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "purgatoryAltarItem.png")], "altar_Purgatory", 1, "AltarPurgPre"),
+                Max = 1,
+                Weight = 999
+            });
+
+            var s = new GameObject("structure");
+            s.ConvertToPrefab(true);
+            s.AddComponent<Structure_AltarBuilder>()
+            
+            
+            
+            
+            
+            ;
+
+            var AltarRoom = LevelImporter.CreateVanillaRoomAsset(NilLib.FormatLoaderExtension.LoadRoom(Path.Combine(this.GetModPath(), "rooms", "AltarRoom.rbpl")));
+            AltarRoom.roomFunctionContainer = RoomFunctionContainerBuilder.CreateBaseObject().Build();
+            AltarRoom.category = RoomCategory.Null;
+            AltarRoom.color = UsefulHelpers.GetColorFromRgb(250, 255, 0);
+            AltarRoom.doorMats = ObjectCreators.CreateDoorDataObject("dor", AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Opened.png"), AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Closed.png"));
+            s.GetComponent<Structure_AltarBuilder>().AltarRoom = AltarRoom;
+            Am.Add("altar", s.GetComponent<Structure_AltarBuilder>());
+            
+            
+               
+
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
             gcactgameobj.ConvertToPrefab(true);
@@ -1316,6 +1379,28 @@ namespace NullscapeinBB
                             });
                         }
                         ForcedStructureDefault = cuslevob.forcedStructures.ToList();
+                        List<WeightedGameObject> weighted = new();
+                        List<IntVector2> Vec2s = new();
+                        foreach (var item in Altars)
+                        {
+                            weighted.Add(new()
+                            {
+                                selection = item.Altar.gameObject,
+                                weight = item.Weight
+                            });
+                            Vec2s.Add(new(0, item.Max));
+                        }
+
+                        ForcedStructureDefault.Add(new()
+                        {
+                            prefab = Am.Get<Structure_AltarBuilder>("altar"),
+                            parameters = new()
+                            {
+                                prefab = weighted.ToArray(),
+                                minMax = Vec2s.ToArray()
+                            }
+                        });
+
                         if (FloorCounter >= 18)
                         {
                             cuslevob.exitCount = 4;
@@ -1466,7 +1551,12 @@ namespace NullscapeinBB
             LastTimeCursebreakerUsed = -99;
             EventsList.Clear();
             EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent));
-            CursebreakerQueued = false;
+            QueuedIntermission.Clear();
+            YtpMultipliers.Clear();
+            foreach (var item in Cooldowns.Keys.ToList())
+            {
+                Cooldowns[item] = 0;
+            }
             foreach (var item in ForcedStructureDefault)
             {
                 ForcedStructures.Add(item);

@@ -53,7 +53,7 @@ namespace NullscapeinBB
             {
                 curse = GreaterCurses.byebyestickystickers,
                 MaxCurses = 1,
-                MinFloor = 9,
+                MinFloor = 99999,
                 CursesAction = () =>
                 {
 

@@ -12,7 +12,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.MoreYtps, new()
             {
                 Cost = () => {
-                    return 350 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) + 1);
+                    return 550 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) + 1);
                 },
                 curse = Upgrades.MoreYtps,
                 MaxUpgrades = 4,
@@ -23,10 +23,10 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.MoreSpeed, new()
             {
                 Cost = () => {
-                    return 300 * (NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) + 1);
+                    return 250 * (NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) + 1);
                 },
                 curse = Upgrades.MoreSpeed,
-                MaxUpgrades = 4,
+                MaxUpgrades = 6,
                 MinFloor = 0
 
 
@@ -45,7 +45,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.PlusOneInventorySlot, new()
             {
                 Cost = () => {
-                    return 850 * (NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot) + 1);
+                    return Mathf.CeilToInt(850 * (NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot) * 1.5f + 1));
                 },
                 curse = Upgrades.PlusOneInventorySlot,
                 MaxUpgrades = 4,

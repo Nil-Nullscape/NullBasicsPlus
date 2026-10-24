@@ -1,6 +1,5 @@
 using BepInEx.Logging;
 using HarmonyLib;
-using JetBrains.Annotations;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.PlusExtensions;
@@ -199,7 +198,7 @@ namespace NullscapeinBB
             Cursebreaker.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
 
-                NullscapeInBB.Instance.CursebreakerQueued = true;
+                NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.CurseBreaker);
                 NullscapeInBB.Instance.cursebreakerprice += 1000;
                 NullscapeInBB.Instance.LastTimeCursebreakerUsed = NullscapeInBB.Instance.FloorCounter + 1;
                 Object.Destroy(Cursebreaker);
@@ -305,9 +304,14 @@ namespace NullscapeinBB
         {
             Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
             Singleton<CoreGameManager>.Instance.SetLives(0, true);
-            
+            NullscapeInBB.Instance.YtpMultipliers.Clear();
             if (__instance is PitstopGameManager)
             {
+                foreach (var item in NullscapeInBB.Instance.Cooldowns.Keys.ToList())
+                {
+                    NullscapeInBB.Instance.Cooldowns[item] -= 1;
+                    Debug.Log($"Lowered {item.keyDesc} to NullscapeInBB.Instance.Cooldowns[item] ");
+                }
                 var level = NullscapeInBB.Instance.FloorCounter + 1;
                 var poster = ObjectCreators.CreatePosterObject(Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "chk_blank"), [
                 new() {
@@ -457,11 +461,11 @@ namespace NullscapeinBB
                     Extras.CreateCurseBreakerPickup();
                 }
                 Extras.CreateShieldPickup();
-                if (NullscapeInBB.Instance.CursebreakerQueued)
+                foreach (var item in NullscapeInBB.Instance.QueuedIntermission)
                 {
-                    NullscapeInBB.Instance.Intermissions.Add(IntermissionType.CurseBreaker);
-                    NullscapeInBB.Instance.CursebreakerQueued = false;
+                    NullscapeInBB.Instance.Intermissions.Add(item);
                 }
+                NullscapeInBB.Instance.QueuedIntermission.Clear();
                 List<string> tempListForEvents = new();
                 var iee = 1;
                 foreach (var item in ProgEvents)
@@ -512,6 +516,10 @@ namespace NullscapeinBB
         {
             __result *= 1 + NullscapeInBB.CurseCount(Curses.Lap2);
             __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*0.15f;
+            foreach (var item in NullscapeInBB.Instance.YtpMultipliers)
+            {
+                __result *= item;
+            }
         }
 
         [HarmonyPatch(typeof(Activity), "Initialize")]

@@ -2,6 +2,7 @@
 using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using NilLib;
+using NilLib.extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,22 +37,18 @@ namespace NullscapeinBB
 
         [HarmonyPatch(typeof(BaseGameManager), "PleaseBaldi")]
         [HarmonyPrefix]
-        static bool ByebyePraising(BaseGameManager __instance)
+        static bool ByebyePraising(BaseGameManager __instance, float time)
         {
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.NoMorePraise) >= 1)
             {
-                return false;
+                
             } else {
-                return true;
+                if (__instance is MainInfiniteGameManager) __instance.ConvertType<MainInfiniteGameManager>().BetterPleaseBaldi(time);
             }
+            return false;
         }
 
-        [HarmonyPatch(typeof(Baldi),"Praise"),HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> PraiseValueReplace(IEnumerable<CodeInstruction> instructions) {
-            var matcher = new CodeMatcher(instructions);
-            matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 0f)).SetInstruction(new(OpCodes.Ldc_R4, NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) * 0.5f));
-            return matcher.InstructionEnumeration();
-        }
+        
 
 
         [HarmonyPrefix]

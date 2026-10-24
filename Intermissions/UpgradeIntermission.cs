@@ -2,6 +2,7 @@
 using NilLib;
 using NilLib.Creators;
 using NilLib.extension;
+using NullscapeinBB.Intermissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,8 +74,9 @@ namespace NullscapeinBB
             Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
             Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
             var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Enemies");
-            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intcursebreaker");
+            renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intupgrade");
             renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
+            renderer.gameObject.AddComponent<IntermissionMovementStuff>();
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
 

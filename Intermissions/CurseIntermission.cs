@@ -1,6 +1,7 @@
 ﻿using MTM101BaldAPI.AssetTools;
 using NilLib;
 using NilLib.Creators;
+using NullscapeinBB.Intermissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +84,7 @@ namespace NullscapeinBB
             var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay), Singleton<BaseGameManager>.Instance.Ec.transform, true, "IntermissionRenderer_Curse");
             renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intcurse");
             renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
+            renderer.gameObject.AddComponent<IntermissionMovementStuff>();
             Reroll.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
 

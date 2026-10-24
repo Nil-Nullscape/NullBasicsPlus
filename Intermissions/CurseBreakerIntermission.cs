@@ -1,5 +1,6 @@
 ﻿using NilLib;
 using NilLib.Creators;
+using NullscapeinBB.Intermissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace NullscapeinBB
             renderer.sprite = NullscapeInBB.Am.Get<Sprite>("spr_intcursebreaker");
             renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
 
-
+            renderer.gameObject.AddComponent<IntermissionMovementStuff>();
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {

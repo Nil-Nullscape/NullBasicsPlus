@@ -134,7 +134,15 @@ namespace NullscapeinBB
             }
             base.ActivityCompleted(correct, activity);
         }
-
+        public void BetterPleaseBaldi(float time) {
+            foreach (NPC npc in ec.Npcs)
+            {
+                if (npc.Character == Character.Baldi)
+                {
+                    npc.GetComponent<Baldi>().Praise(time + NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) * 0.5f,false);
+                }
+            }
+        }
         public override void BeginPlay()
         {
             for (int i = 0; i < NullscapeInBB.CurseCount(Curses.RandomTilesAreSilenced)*10; i++)
