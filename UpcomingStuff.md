@@ -15,7 +15,7 @@
 # Upcoming altars
 - Altar of chance (done)
 - Altar of duality
-- Altar of purgatory (probably greed only)
+- Altar of purgatory (probably greed only) (done)
 
 # Potential upcoming altars
 - Altar of protection?

@@ -59,6 +59,16 @@ namespace NullscapeinBB
         public Action CursesAction = action;
     }
 
+    public struct DelusionData(Delusions delusion, int minFloor, int StackSize = 1, Action action = null)
+    {
+        public Delusions curse = delusion;
+        public int MinFloor = minFloor;
+        public int MaxCurses = StackSize;
+        public Func<bool> Requirements = null;
+        public Sprite Icon = null;
+        public Action CursesAction = action;
+    }
+
     public struct UpgradeData(Upgrades Upgrade, int minFloor, Func<int> cost, int StackSize = 1, Action action = null)
     {
         public Upgrades curse = Upgrade;
@@ -206,6 +216,9 @@ namespace NullscapeinBB
         byebyestickystickers
     }
 
+    public enum Delusions {
+        baldihappybutapplebye
+    }
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
     {
 
@@ -339,6 +352,9 @@ namespace NullscapeinBB
         public List<StructureWithParameters> ForcedStructures;
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
         public Dictionary<GreaterCurses, GreaterCurseData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
+
+        public Dictionary<Delusions, DelusionData> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
+        public Dictionary<Delusions, DelusionData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
 
         public Dictionary<Upgrades, ItemObject> AllUpgradesItems = new();
         public Dictionary<Upgrades, UpgradeData> AllUpgrades = new();
