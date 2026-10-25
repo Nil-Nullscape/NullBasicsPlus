@@ -16,6 +16,7 @@ namespace NullscapeinBB
     {
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, UpgradeItem ei)
         {
+            PatchesJohn.IsSavingPossible = false;
             var upg = NullscapeInBB.Instance.AllUpgrades[ei.curse];
             NullscapeInBB.Instance.UpgradesBought.Add(upg);
                 if (upg.OnUpgradeBought != null) upg.OnUpgradeBought();

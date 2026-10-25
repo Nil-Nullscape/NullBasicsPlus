@@ -14,6 +14,7 @@ namespace NullscapeinBB
     {
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, CurseItem ei)
         {
+            PatchesJohn.IsSavingPossible = false;
             var curseToRemove = NullscapeInBB.Instance.CursesPicked.First(x => x.curse == ei.curse);
             Singleton<CoreGameManager>.Instance.AddPoints(-Mathf.RoundToInt(curseToRemove.CurseValue * (Mathf.Clamp(Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7), 1, 99999999) * 15)), 0, true);
             NullscapeInBB.Instance.CursesPicked.Remove(curseToRemove);

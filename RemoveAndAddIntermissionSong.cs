@@ -295,7 +295,7 @@ namespace NullscapeinBB
     [HarmonyPatch]
     static class PatchesJohn
     {
-
+        public static bool IsSavingPossible = false;
         public static int GetNearestLevel(int level)
         {
             int[] targets = { 0, 3, 5, 8, 10 };
@@ -326,7 +326,7 @@ namespace NullscapeinBB
                 foreach (var item in NullscapeInBB.Instance.Cooldowns.Keys.ToList())
                 {
                     NullscapeInBB.Instance.Cooldowns[item] -= 1;
-                    Debug.Log($"Lowered {item.keyDesc} to {NullscapeInBB.Instance.Cooldowns[item]} ");
+                    Debug.Log($"Lowered {item.ToStringExtended()} to {NullscapeInBB.Instance.Cooldowns[item]} ");
                 }
                 var level = NullscapeInBB.Instance.FloorCounter + 1;
                 var poster = ObjectCreators.CreatePosterObject(Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "chk_blank"), [
@@ -484,6 +484,7 @@ namespace NullscapeinBB
                 NullscapeInBB.Instance.QueuedIntermission.Clear();
                 List<string> tempListForEvents = new();
                 var iee = 1;
+                if (ProgEvents.Count > 0) IsSavingPossible = false;
                 foreach (var item in ProgEvents)
                 {
                     tempListForEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText(item)}\n({iee}/{ProgEvents.Count})");
@@ -673,7 +674,7 @@ namespace NullscapeinBB
         static void stopandstart(PitstopGameManager __instance)
         {
 
-            if (__instance is PitstopGameManager && NullscapeInBB.Instance.fakecount % 2 == 1)
+            if (Singleton<BaseGameManager>.Instance is PitstopGameManager)
             {
                 Singleton<MusicManager>.Instance.StopMidi();
 
@@ -711,6 +712,28 @@ namespace NullscapeinBB
             }
 
         }
+        public static IEnumerator SadlyHaveToDoMyOwnIenumeratorUPDATEforDoor(StandardDoor door) {
+            while (true)
+            {
+                if (!IsSavingPossible) {
+                    door.Lock(true);
+                    break;
+                }
+                yield return null;
+            }
+        }
+
+        [HarmonyPatch(typeof(StandardDoor), "Initialize")]
+        [HarmonyPostfix]
+        static void UpdateDoor(StandardDoor __instance) {
+            if (Singleton<BaseGameManager>.Instance is PitstopGameManager) {
+
+                if ( __instance.aTile.room.name == "Room0_Lobby") {
+                    IsSavingPossible = true;
+                    __instance.StartCoroutine(SadlyHaveToDoMyOwnIenumeratorUPDATEforDoor(__instance));
+                }
+            }
+        }
     }
 
 
@@ -718,292 +741,22 @@ namespace NullscapeinBB
     class FinishLevelPatch
     {
         [HarmonyPrefix]
-        static void Prefix()
+        static void Prefix(BaseGameManager __instance)
         {
             NullscapeInBB main = NullscapeInBB.Instance;
-            bool flopthing = main.flop;
 
-            main.fakecount++;
+            
 
-            if (main.fakecount % 2 == 0)
+            if (__instance is PitstopGameManager)
             {
                 main.FloorCounter++;
                 main.F1.previousLevels = [];
                 main.F2.previousLevels = [];
 
-
-                if (main.FloorCounter % 2 == 0 && main.notebookcount >= 7)
-                {
-                    main.notebookcount++;
-                    main.mapprice += 50;
-                }
-                else if (main.notebookcount < 7)
-                {
-                    main.notebookcount += 2;
-                    main.mapprice += 25;
-                    main.levelsize += new IntVector2(1, 2);
-                }
-                if (main.FloorCounter % 2 == 0)
-                {
-                    if (!(((IntVector2)(main.levelsize + new IntVector2(1, 1))).x > 225))
-                    {
-                        main.levelsize += new IntVector2(1, 1);
-                        main.facultycount++;
-                        main.itembudget += 20;
-                        main.mapprice += 50;
-                    }
-                }
-                if (main.FloorCounter % 3 == 0)
-                {
-                    main.plotcount++;
-                }
-                if (main.FloorCounter % 5 == 0)
-                {
-                    main.ForcedStructures.Add(new()
-                    {
-                        parameters = new()
-                        {
-                            minMax = [new(1, 1)]
-                        },
-                        prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
-                    });
-                    
-                    foreach (var item in main.F1.GetCustomLevelObjects())
-                    {
-                        if (item.roomGroup.FirstOrDefault(x => x.name == "LockedRoom") == null)
-                        {
-                            item.roomGroup = item.roomGroup.AddToArray(new()
-                            {
-                                name = "LockedRoom",
-                                ceilingTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "CeilingNoLight"),
-                                            weight = 500
-                                        }
-                                ],
-                                wallTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "SaloonWall"),
-                                            weight = 500
-                                        }
-                                ],
-                                floorTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Carpet"),
-                                            weight = 500
-                                        }
-                                ],
-                                light = [
-                                    new() {
-                                            selection = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "FluorescentLight").transform,
-                                            weight = 500
-                                        }
-                                ],
-                                maxRooms = 1,
-                                minRooms = 1,
-                                potentialRooms = [
-                                    new() {
-                                            selection = Resources.FindObjectsOfTypeAll<RoomAsset>().First(x => ((UnityEngine.Object)x).name == "Room_Faculty_School_Locked_0_HighEndItems"),
-                                            weight = 100
-                                        }
-                                ]
-                            });
-                        }
-                        else
-                        {
-                            item.roomGroup.First(x => x.name == "LockedRoom").maxRooms += 1;
-                        }
-                    }
-                    foreach (var itemm in main.F2.GetCustomLevelObjects())
-                    {
-                        if (itemm.roomGroup.FirstOrDefault(x => x.name == "LockedRoom") == null)
-                        {
-                            itemm.roomGroup = itemm.roomGroup.AddToArray(new()
-                            {
-                                name = "LockedRoom",
-                                ceilingTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "CeilingNoLight"),
-                                            weight = 500
-                                        }
-                                ],
-                                wallTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "SaloonWall"),
-                                            weight = 500
-                                        }
-                                ],
-                                floorTexture = [
-                                    new() {
-                                        selection = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Carpet"),
-                                            weight = 500
-                                        }
-                                ],
-                                light = [
-                                    new() {
-                                            selection = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.name == "FluorescentLight"),
-                                            weight = 500
-                                        }
-                                ],
-                                maxRooms = 1,
-                                minRooms = 1,
-                                potentialRooms = [
-                                    new() {
-                                            selection = Resources.FindObjectsOfTypeAll<RoomAsset>().First(x => ((UnityEngine.Object)x).name == "Room_Faculty_School_Locked_0_HighEndItems"),
-                                            weight = 100
-                                        }
-                                ]
-                            });
-                        }
-                        else
-                        {
-                            itemm.roomGroup.First(x => x.name == "LockedRoom").maxRooms += 1;
-                        }
-                    }
-                }
-
-                if (flopthing == false)
-                {
-
-                    main.F2.previousLevels = [];
-
-
-
-
-                    
-
-                    main.F2.forcedNpcs = main.potentialNPCs.ToArray();
-                    if (main.FloorCounter % 5 == 0)
-                    {
-                        main.F2.additionalNPCs = 0;
-                    }
-                    else
-                    {
-                        main.F2.additionalNPCs = 0;
-                    }
-
-                    main.F2.mapPrice = main.mapprice;
-                    main.F2.levelTitle = "F" + main.FloorCounter;
-                    CustomLevelObject[] customLevelObjects = main.F2.GetCustomLevelObjects();
-                    foreach (CustomLevelObject cuslevob in customLevelObjects)
-                    {
-                        cuslevob.maxSize = main.levelsize;
-                        cuslevob.minSize = main.levelsize;
-                        cuslevob.forcedStructures = main.ForcedStructures.ToArray();
-                        cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = main.notebookcount;
-                        cuslevob.roomGroup.First(x => x.name == "Class").minRooms = main.notebookcount;
-                        cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = main.rooms.ToArray();
-                        cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = main.facultycount + 2;
-                        cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = main.facultycount - 2;
-                        cuslevob.maxItemValue = main.itembudget;
-                        cuslevob.maxPlots = main.plotcount + 1;
-                        cuslevob.minPlots = main.plotcount - 1;
-                        cuslevob.randomEvents.Clear();
-                        foreach (var item in NullscapeInBB.Instance.EventsList)
-                        {
-                            cuslevob.randomEvents.Add(new()
-                            {
-                                selection = item,
-                                weight = 100
-                            });
-                        }
-
-                        if (main.FloorCounter >= 35)
-                        {
-                            cuslevob.exitCount = 4;
-                        }
-                        else if (main.FloorCounter >= 25)
-                        {
-                            cuslevob.exitCount = 3;
-                        }
-                        else if (main.FloorCounter >= 15)
-                        {
-                            cuslevob.exitCount = 2;
-                        }
-                        else
-                        {
-                            cuslevob.exitCount = 1;
-                        }
-
-                    }
-                }
-                else
-                {
-
-                    main.F1.previousLevels = [];
-
-
-                    main.F1.previousLevels = [];
-
-                    main.F1.forcedNpcs = main.potentialNPCs.ToArray();
-                    if (main.FloorCounter % 5 == 0)
-                    {
-                        main.ForcedStructures.Add(new()
-                        {
-                            parameters = new()
-                            {
-                                minMax = [new(1, 1)]
-                            },
-                            prefab = Resources.FindObjectsOfTypeAll<Structure_StudentSpawner>().First()
-                        });
-                    }
-
-                    main.F1.mapPrice = main.mapprice;
-                    main.F1.levelTitle = "F" + main.FloorCounter;
-                    CustomLevelObject[] customLevelObjects = main.F1.GetCustomLevelObjects();
-                    foreach (CustomLevelObject cuslevob in customLevelObjects)
-                    {
-                        cuslevob.maxSize = main.levelsize;
-                        cuslevob.minSize = main.levelsize;
-                        cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = main.notebookcount;
-                        cuslevob.roomGroup.First(x => x.name == "Class").minRooms = main.notebookcount;
-                        cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = main.rooms.ToArray();
-                        cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = main.facultycount + 2;
-                        cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = main.facultycount - 2;
-                        cuslevob.maxItemValue = main.itembudget;
-                        cuslevob.maxPlots = main.plotcount + 1;
-                        cuslevob.forcedStructures = main.ForcedStructures.ToArray();
-                        cuslevob.minPlots = main.plotcount - 1;
-                        cuslevob.randomEvents.Clear();
-                        foreach (var item in NullscapeInBB.Instance.EventsList)
-                        {
-                            cuslevob.randomEvents.Add(new()
-                            {
-                                selection = item,
-                                weight = 100
-                            });
-                        }
-                        if (main.FloorCounter >= 35)
-                        {
-                            cuslevob.exitCount = 4;
-                        }
-                        else if (main.FloorCounter >= 25)
-                        {
-                            cuslevob.exitCount = 3;
-                        }
-                        else if (main.FloorCounter >= 15)
-                        {
-                            cuslevob.exitCount = 2;
-                        }
-                        else
-                        {
-                            cuslevob.exitCount = 1;
-                        }
-                    }
-                }
-
-                bool newflop = false;
-
-                if (main.flop == false)
-                {
-                    newflop = true;
-                }
-                else
-                {
-                    newflop = false;
-                }
-
-                main.flop = newflop;
+                GenerationStuff.GlobalGenStuff();
+                GenerationStuff.GenStuff(main.F2);
+                GenerationStuff.GenStuff(main.F1);
+                
             }
         }
     }
@@ -1015,7 +768,7 @@ namespace NullscapeinBB
         [HarmonyPrefix]
         static void Prefix()
         {
-            NullscapeInBB.Instance.ResetValues();
+            //NullscapeInBB.Instance.ResetValues();
             NullscapeInBB.Instance.F1.previousLevels = new SceneObject[0];
             NullscapeInBB.Instance.F2.previousLevels = new SceneObject[0];
         }

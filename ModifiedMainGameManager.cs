@@ -15,6 +15,7 @@ namespace NullscapeinBB
         private bool spoopmode = false;
         private int BonusactivitiesLeft = 0;
         private int BonusactivitiesMax = 0;
+        public int TempShieldRemaining = 0;
         public float shieldtimeleft = 0f;
         private HudGauge ShieldGauge;
         public bool FindyourflameIsPlaying = false;
@@ -29,7 +30,7 @@ namespace NullscapeinBB
             if (shieldtimeleft > 0) {
                 return false;
             }
-            if (NullscapeInBB.Instance.shields > 0) {
+            if (TempShieldRemaining > 0 || NullscapeInBB.Instance.shields > 0) {
                 if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0)
                 {
                     shieldtimeleft = 2f;
@@ -38,9 +39,11 @@ namespace NullscapeinBB
                     shieldtimeleft = 5f;
                 }
                     
-                NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}");
-                NullscapeInBB.Instance.shields -= 1;
-                if (NullscapeInBB.Instance.shields == 0 && NotebookTotal >= 14 && FoundNotebooks < NotebookTotal / 2) {
+                
+                if (TempShieldRemaining > 0) TempShieldRemaining--;
+                else NullscapeInBB.Instance.shields--;
+                NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}",TempShieldRemaining);
+                if (NullscapeInBB.Instance.shields == 0 && TempShieldRemaining == 0 && NotebookTotal >= 10 && FoundNotebooks < Mathf.FloorToInt(NotebookTotal / 1.5f)) {
                     FindyourflameIsPlaying = true;
                     Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);
                 }
@@ -53,6 +56,7 @@ namespace NullscapeinBB
         {
             defaultLives = 0;
             Song = NullscapeInBB.Instance.IngameSongs.ToArray().GetRandomSongInRange(NullscapeInBB.Instance.FloorCounter);
+            TempShieldRemaining = NullscapeInBB.UpgradesCount(Upgrades.TempShield);
             base.AwakeFunction();
         }
         public override void BeginSpoopMode()

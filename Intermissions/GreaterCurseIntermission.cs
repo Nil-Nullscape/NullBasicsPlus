@@ -14,6 +14,7 @@ namespace NullscapeinBB
     {
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, GreaterCurseItem ei)
         {
+            PatchesJohn.IsSavingPossible = false;
             var npc = NullscapeInBB.Instance.AllGreaterCurses[ei.curse].curse;
             // Only add the NPC once (avoid duplicates across floors)
             var pot = NullscapeInBB.Instance.GreaterCursesPicked;

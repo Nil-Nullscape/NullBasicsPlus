@@ -13,11 +13,11 @@ namespace NullscapeinBB.Structures
     {
         public override int MinFloor => 3;
 
-
+        public override AltarTypes Type => AltarTypes.Chance;
         public WeightedActions[] actions = {
             new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_happyBaldi"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_happyBaldi"));
                     Singleton<BaseGameManager>.Instance.PleaseBaldi(10,false);
 
 
@@ -26,7 +26,7 @@ namespace NullscapeinBB.Structures
              },
              new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_angrierBaldi"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_angrierBaldi"));
                     Singleton<BaseGameManager>.Instance.AngerBaldi(3.5f);
 
 
@@ -35,7 +35,7 @@ namespace NullscapeinBB.Structures
              },
              new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_freeYtps"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_freeYtps"));
                     Singleton<CoreGameManager>.Instance.AddPoints(UnityEngine.Random.Range(1,50)*10,0,true,true,true);
 
 
@@ -44,7 +44,7 @@ namespace NullscapeinBB.Structures
              },
              new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_paidYtps"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_paidYtps"));
                     Singleton<CoreGameManager>.Instance.AddPoints(-(UnityEngine.Random.Range(1,50)*10),0,true,true,true);
 
 
@@ -78,7 +78,7 @@ namespace NullscapeinBB.Structures
                         weight = 100
                     },
                 ];
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_FreeItem"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_FreeItem"));
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.AddItem(WeightedItemObject.RandomSelection(PotentialItems.ToArray()));
 
 
@@ -86,7 +86,7 @@ namespace NullscapeinBB.Structures
                 weight = 90
              },new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_RemoveItem"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_RemoveItem"));
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.RemoveRandomItem();
 
 
@@ -95,7 +95,7 @@ namespace NullscapeinBB.Structures
              }
              ,new() {
                 selection = () => {
-                    NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_ExtraShield"));
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_ExtraShield"));
                     NullscapeInBB.Instance.shields+=1;
 
 

@@ -1,5 +1,6 @@
 ﻿using MTM101BaldAPI;
 using MTM101BaldAPI.Registers;
+using NilLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace NullscapeinBB.Structures
     public class AltarPurgatory : BaseAltar
     {
         public override int MinFloor => 8;
+        public override AltarTypes Type => AltarTypes.Purgatory;
         public override void Animate()
         {
             if (Singleton<BaseGameManager>.Instance.FoundNotebooks > Singleton<BaseGameManager>.Instance.NotebookTotal / 2) {
@@ -22,8 +24,8 @@ namespace NullscapeinBB.Structures
         public override void OnActivate()
         {
             NullscapeInBB.Instance.YtpMultipliers.Add(2.5f);
-            NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Purgatory_Spawned"));
-            NullscapeInBB.SetCooldown<AltarPurgatory>(2);
+            NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Purgatory_Spawned"));
+            NullscapeInBB.SetCooldown(AltarTypes.Purgatory,2);
             var ec = Singleton<BaseGameManager>.Instance.Ec;
                 var numberOfNpcs = 4 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 7f);
                 for (int i = 0; i < numberOfNpcs; i++)

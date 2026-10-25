@@ -56,6 +56,19 @@ namespace NullscapeinBB
 
 
             });
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.TempShield, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(15000 * (NullscapeInBB.UpgradesCount(Upgrades.TempShield) + 1));
+                },
+                curse = Upgrades.TempShield,
+                MaxUpgrades = 2,
+                MinFloor = 9,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
 
         }
     }

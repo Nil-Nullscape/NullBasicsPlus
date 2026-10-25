@@ -24,6 +24,8 @@ using MTM101BaldAPI.OptionsAPI;
 using NullscapeinBB.Structures;
 using NilLib.extension;
 using NilLib.Builders;
+using MTM101BaldAPI.SaveSystem;
+using NullscapeinBB.SaveHandlerStuff;
 
 namespace NullscapeinBB
 {
@@ -176,7 +178,8 @@ namespace NullscapeinBB
         MoreYtps,
         MoreSpeed,
         PlusOneInventorySlot,
-        BaldiPraise
+        BaldiPraise,
+        TempShield
     }
     public enum Curses
     {
@@ -323,7 +326,7 @@ namespace NullscapeinBB
         public int plotcount;
         public int mapprice;
         public int freeRerolls = 3;
-        public int rerollPrice = 500;
+        public int rerollPrice = 100;
         public int cursebreakerprice = 5000;
         public int LastTimeCursebreakerUsed = -99;
         public int itembudget;
@@ -363,10 +366,11 @@ namespace NullscapeinBB
         public ConfigEntry<bool> EnabledNullscapeEntities;
         public ConfigEntry<bool> DisableCopyright;
         public ConfigEntry<bool> EnableChaosMode;
+        public ConfigEntry<bool> EnableQuickStart;
         public List<RoomAsset> GiftsActivityRooms = new();
         public List<AltarData> Altars = new();
         public List<float> YtpMultipliers = new();
-        public Dictionary<BaseAltar, int> Cooldowns = new();
+        public Dictionary<AltarTypes, int> Cooldowns = new();
         public struct AltarData()
         {
             public BaseAltar Altar;
@@ -388,7 +392,7 @@ namespace NullscapeinBB
             AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
             AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
             AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
-
+            
 
             if (EnabledNullscapeEntities.Value)
             {
@@ -437,6 +441,13 @@ namespace NullscapeinBB
                 }
             }
         }
+        public void CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(string nameofitem) {
+            if (!File.Exists(Path.Combine(this.GetModPath(), "items", $"spr_{nameofitem}.png")))
+            {
+                File.Copy(Path.Combine(this.GetModPath(), "items", "placeholder.png"), Path.Combine(this.GetModPath(), "items", $"spr_{nameofitem}.png"));
+                Debug.LogWarning($"{nameofitem}.png didnt exist, so a placeholder image has been made.");
+            }
+        }
 
         public IEnumerator FinalLoad()
         {
@@ -457,6 +468,8 @@ namespace NullscapeinBB
             
             foreach (Curses curse in EnumExtensions.GetValues<Curses>())
             {
+                CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(curse.ToStringExtended());
+                
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
@@ -471,6 +484,7 @@ namespace NullscapeinBB
 
             foreach (GreaterCurses curse in EnumExtensions.GetValues<GreaterCurses>())
             {
+                CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(curse.ToStringExtended());
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
@@ -485,6 +499,7 @@ namespace NullscapeinBB
 
             foreach (Delusions curse in EnumExtensions.GetValues<Delusions>())
             {
+                CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(curse.ToStringExtended());
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
@@ -498,6 +513,7 @@ namespace NullscapeinBB
             }
             foreach (Upgrades curse in EnumExtensions.GetValues<Upgrades>())
             {
+                CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(curse.ToStringExtended());
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
@@ -605,13 +621,13 @@ namespace NullscapeinBB
             }, 3f);
 
         }
-        static public int GetCooldown(BaseAltar altar) {
-            return Instance.Cooldowns.First(x => x.Key.GetType() == altar.GetType()).Value;
+        static public int GetCooldown(AltarTypes altar) {
+            return Instance.Cooldowns[altar];
         }
-        static public void SetCooldown<T>(int cooldown) where T : BaseAltar {
-            NullscapeInBB.Instance.Cooldowns[NullscapeInBB.Instance.Cooldowns.First(x => x.Key is T).Key] = cooldown;
+        static public void SetCooldown(AltarTypes altar,int cooldown) {
+            NullscapeInBB.Instance.Cooldowns[altar] = cooldown;
         } 
-        static public void ShieldEventNotifier(string enemykey)
+        static public void ShieldEventNotifier(string enemykey, int tempShieldRemaining = 0)
         {
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_shieldbreak"));
 
@@ -634,6 +650,43 @@ namespace NullscapeinBB
                 text.rectTransform.offsetMin = new(-0, 0);
                 text.rectTransform.offsetMax = new(0, -0);
                 text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3")}";
+                if (tempShieldRemaining > 0) {
+                    text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3B")} {tempShieldRemaining} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld4B")}";
+
+                }
+                delay(() =>
+                {
+                    Destroy(blackImageThingie.gameObject);
+                }, 4f);
+
+
+            }, 0f);
+
+        }
+
+        static public void AltarEventNotifier(string texyt)
+        {
+            Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_altarSound"));
+
+            delay(() =>
+            {
+                var blackImageThingie = new GameObject("eventthingie").AddComponent<RawImage>();
+                blackImageThingie.transform.SetParent(Singleton<CoreGameManager>.Instance.GetHud(0).Canvas().transform, false);
+                blackImageThingie.rectTransform.anchorMin = new(0, 0f);
+                blackImageThingie.rectTransform.anchorMax = new(1, 0.25f);
+                blackImageThingie.rectTransform.offsetMin = new(-0, 0);
+                blackImageThingie.rectTransform.offsetMax = new(0, -0);
+                blackImageThingie.color = new(0, 0, 0, 0.45f);
+
+                var text = UIHelpers.CreateText<TextMeshProUGUI>(BaldiFonts.ComicSans24, "", blackImageThingie.transform, Vector3.zero, true);
+                text.color = Color.white;
+                text.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                text.verticalAlignment = VerticalAlignmentOptions.Middle;
+                text.rectTransform.anchorMin = new(0f, 1f);
+                text.rectTransform.anchorMax = new(1f, 0f);
+                text.rectTransform.offsetMin = new(-0, 0);
+                text.rectTransform.offsetMax = new(0, -0);
+                text.text = texyt;
                 delay(() =>
                 {
                     Destroy(blackImageThingie);
@@ -691,9 +744,11 @@ namespace NullscapeinBB
             MTM101BaldiDevAPI.AddWarningScreen("If you dont like the nullscape entities and prefer only the vanilla content, feel free to disable them in the config (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             MTM101BaldiDevAPI.AddWarningScreen("also incase you scared of copyrighted songs/sound you can enable the config to switch or mute the copyrighted ones (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
-            MTM101BaldiDevAPI.SaveGamesEnabled = false;
+            // MTM101BaldiDevAPI.SaveGamesEnabled = false;
             CustomOptionsCore.OnMenuInitialize += AddCategory;
+            ModdedSaveGame.AddSaveHandler(new SaveHandler());
             harmony.PatchAll();
+            
         }
         void AddCategory(OptionsMenu __instance, CustomOptionsHandler handler) {
             if (Singleton<CoreGameManager>.Instance != null) return;
@@ -809,6 +864,7 @@ namespace NullscapeinBB
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_shieldbreak", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shield_Break.ogg"), "snd_shieldbreak", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
+            Am.Add("snd_altarSound", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "altars", "Main_Altar_sfx.ogg"), "snd_usedaltar", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
             yield return "Loading textures/Images";
 
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
@@ -956,7 +1012,7 @@ namespace NullscapeinBB
 
             Altars.Add(new()
             {
-                Altar = BaseAltar.CreateAltarPrefab<AltarPurgatory>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "purgatoryAltarItem.png")], "altar_Purgatory", 1, "AltarPurgPre"),
+                Altar = BaseAltar.CreateAltarPrefab<AltarPurgatory>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "Altar_PurgPedestal.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "purgatoryAltarItem.png")], "altar_Purgatory", 1, "AltarPurgPre"),
                 Max = 1,
                 Weight = 999
             });
@@ -965,7 +1021,7 @@ namespace NullscapeinBB
             {
                 Altar = BaseAltar.CreateAltarPrefab<AltarOfDuality>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "delusionAltarItem.png")], "altar_Delusion", 1, "AltarDeluluPre"),
                 Max = 1,
-                Weight = 30
+                Weight = 45
             });
 
             var s = new GameObject("structure");
@@ -995,6 +1051,9 @@ namespace NullscapeinBB
             gcactgameobj.AddComponent<BoxCollider>().size = Vector3.one * 3;
             gcactgameobj.GetComponent<BoxCollider>().isTrigger = true;
             var gcact = gcactgameobj.AddComponent<GiftCollectionActivity>();
+            ObjectCreation.CreateHangingBonusSign(gcact.transform, gcact, Vector3.up);
+            var anim = ObjectCreation.CreateActivityWallSign("Activi", AssetLoader.SpriteFromMod(this, new(1, 0.5f), 35, "activitiesstuff", "giftactivity_right.png"), AssetLoader.SpriteFromMod(this, new(0, 0.5f), 35, "activitiesstuff", "giftactivity_left.png"));
+            gcact.SetCachedReflection("exteriorSignPrefab", anim);
 
             var giftPre = new GameObject("GiftPre").AddComponent<Gift>();
             giftPre.gameObject.ConvertToPrefab(true);
@@ -1639,13 +1698,15 @@ namespace NullscapeinBB
             GreaterCursesPicked.Clear();
             ForcedStructures = new();
             freeRerolls = 3;
-            rerollPrice = 500;
+            rerollPrice = 100;
             cursebreakerprice = 5000;
             LastTimeCursebreakerUsed = -99;
             EventsList.Clear();
             EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent));
             QueuedIntermission.Clear();
             YtpMultipliers.Clear();
+            UpgradesBought.Clear();
+            DelusionsPicked.Clear();
             foreach (var item in Cooldowns.Keys.ToList())
             {
                 Cooldowns[item] = 0;

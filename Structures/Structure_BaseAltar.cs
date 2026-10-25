@@ -16,6 +16,13 @@ using Random = System.Random;
 
 namespace NullscapeinBB.Structures
 {
+    public enum AltarTypes
+    {
+        NULL,
+        Chance,
+        Purgatory,
+        Duality
+    }
     public class BaseAltar : MonoBehaviour
     {
         private class AltarFunction : MonoBehaviour, IClickable<int>
@@ -56,6 +63,7 @@ namespace NullscapeinBB.Structures
         public float animationSpeedMultiplier = 1;
         public Sprite PedestalSprite;
         public bool HasBeenActivated = false;
+        public virtual AltarTypes Type => AltarTypes.NULL;
         public virtual int MinFloor => 0;
         public GameObject pedestalPre;
 
@@ -106,7 +114,7 @@ namespace NullscapeinBB.Structures
             baseAltar.animationSpeedMultiplier = animationSpeed;
             baseAltar.keyDesc = DescKey;
             baseAltar.AltarItemSprites = AltarItemSprites;
-            NullscapeInBB.Instance.Cooldowns.Add(baseAltar, 0);
+            NullscapeInBB.Instance.Cooldowns.Add(baseAltar.Type, 0);
             return baseAltar;
         }
 
@@ -128,11 +136,6 @@ namespace NullscapeinBB.Structures
     {
         public RoomAsset AltarRoom;
 
-        public override void PostOpenCalcGenerate(LevelGenerator lg, Random rng)
-        {
-            base.PostOpenCalcGenerate(lg, rng);
-            
-        }
         public override void PostHallPrep(LevelGenerator lg, Random rng)
         {
             base.PostHallPrep(lg, rng);
@@ -154,7 +157,7 @@ namespace NullscapeinBB.Structures
                 var index = WeightedGameObject.ControlledRandomIndex(parameters.prefab, rng);
                 GameObject chosenAltar = parameters.prefab[index].selection;
 
-                while ((Altars[index].Count >= parameters.minMax[index].z || NullscapeInBB.Instance.FloorCounter < parameters.prefab[index].selection.GetComponent<BaseAltar>().MinFloor || NullscapeInBB.GetCooldown(chosenAltar.GetComponent<BaseAltar>()) > 0 ) && retries < 10)
+                while ((Altars[index].Count >= parameters.minMax[index].z || NullscapeInBB.Instance.FloorCounter < parameters.prefab[index].selection.GetComponent<BaseAltar>().MinFloor || NullscapeInBB.GetCooldown(chosenAltar.GetComponent<BaseAltar>().Type) > 0 ) && retries < 10)
                 {
                     index = WeightedGameObject.ControlledRandomIndex(parameters.prefab, rng);
                     chosenAltar = parameters.prefab[index].selection;
@@ -173,28 +176,12 @@ namespace NullscapeinBB.Structures
                     Altars[index].Add(chosenAltar);
 
 
-
                     totalAltars++;
                 }
 
 
             }
             Debug.Log($"{totalAltars} altars generated.");
-        }
-        public override void PostSpecialRoomPrep(LevelGenerator lg, Random rng)
-        {
-            base.PostSpecialRoomPrep(lg, rng);
-            
-        }
-        public override void Generate(LevelGenerator lg, Random rng)
-        {
-            base.Generate(lg, rng);
-            
-          
-
-
-
-
         }
     }
 }

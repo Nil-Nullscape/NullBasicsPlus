@@ -48,6 +48,8 @@ namespace NullscapeinBB
 
 
     }
+    
+  
     class GiftCollectionActivity : Activity
     {
         public Sprite sprgoldenGift;
@@ -138,9 +140,5 @@ namespace NullscapeinBB
             base.SetBonusMode(val);
         }
         
-        public override void Initialize()
-        {
-            
-        }
     }
 }

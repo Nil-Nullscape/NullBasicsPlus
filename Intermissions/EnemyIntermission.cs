@@ -17,10 +17,11 @@ namespace NullscapeinBB
 
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, EnemItem ei, bool isitquestionmark = false)
         {
+            PatchesJohn.IsSavingPossible = false;
             var npc = NullscapeInBB.Instance.AllEnemies[ei.Enemy].NPCToUse;
             // Only add the NPC once (avoid duplicates across floors)
             var pot = NullscapeInBB.Instance.potentialNPCs;
-
+            
             // Increment selected count for this character so PickThreeEnemies respects MaxEnemies
             var counts = NullscapeInBB.Instance.selectedNPCCounts;
             if (!isitquestionmark)
@@ -115,7 +116,7 @@ namespace NullscapeinBB
                 }
                 else
                 {
-                    NullscapeInBB.Instance.rerollPrice += 500;
+                    NullscapeInBB.Instance.rerollPrice += 100;
                 }
                 Object.Destroy(PickUp1);
                 Object.Destroy(PickUp2);

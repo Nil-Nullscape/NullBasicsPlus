@@ -14,6 +14,7 @@ namespace NullscapeinBB
     {
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, DelusionsItem ei)
         {
+            PatchesJohn.IsSavingPossible = false;
             var npc = NullscapeInBB.Instance.AllDelusions[ei.curse].curse;
             // Only add the NPC once (avoid duplicates across floors)
             var pot = NullscapeInBB.Instance.DelusionsPicked;

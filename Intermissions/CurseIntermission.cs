@@ -16,6 +16,7 @@ namespace NullscapeinBB
 
         public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, CurseItem ei)
         {
+            PatchesJohn.IsSavingPossible = false;
             var CURSETOEXECUTE = NullscapeInBB.Instance.AllCurses[ei.curse];
             // Record that this curse was picked so PickThreeCurses respects MaxCurses
             try
@@ -94,7 +95,7 @@ namespace NullscapeinBB
                 }
                 else
                 {
-                    NullscapeInBB.Instance.rerollPrice += 500;
+                    NullscapeInBB.Instance.rerollPrice += 100;
                 }
                 Object.Destroy(PickUp1);
                 Object.Destroy(PickUp2);

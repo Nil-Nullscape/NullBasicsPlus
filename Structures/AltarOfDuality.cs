@@ -9,11 +9,12 @@ namespace NullscapeinBB.Structures
     public class AltarOfDuality : BaseAltar
     {
         public override int MinFloor => 15;
+        public override AltarTypes Type => AltarTypes.Duality;
         public override void OnActivate()
         {
             NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Delusions);
-            NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Delusion_Activated"));
-            NullscapeInBB.SetCooldown<AltarOfDuality>(8);
+            NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Delusion_Activated"));
+            NullscapeInBB.SetCooldown(AltarTypes.Duality,8);
             base.OnActivate();
         }
     }
