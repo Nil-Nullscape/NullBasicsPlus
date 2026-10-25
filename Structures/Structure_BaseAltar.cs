@@ -115,6 +115,7 @@ namespace NullscapeinBB.Structures
             HasBeenActivated = true;
             func.enabled = false;
             func.gameObject.GetComponent<SphereCollider>().enabled = false;
+            itemRenderer.enabled = false;
             Singleton<CoreGameManager>.Instance.GetHud(0).CloseTooltip(); 
         }
 
@@ -160,7 +161,8 @@ namespace NullscapeinBB.Structures
                     retries++;
                 }
                 if (retries >= 10) continue;
-                lg.UpdatePotentialSpawnsForRooms(true);
+                
+                lg.UpdatePotentialSpawnsForRooms(rng.Next(0,50) < 15);
                 if (lg.RandomlyPlaceRoom(AltarRoom, null, true, out var Room))
                 {
 

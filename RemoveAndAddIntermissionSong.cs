@@ -142,6 +142,22 @@ namespace NullscapeinBB
                     var u3 = main.AllUpgradesItems[rnd3Upg[2].curse];
                     UpgradesIntermission.CreatePickupsUpgrade(u1, u2, u3);
                     break;
+                case IntermissionType.Delusions:
+                    main.Intermissions.RemoveAt(0);
+                    var rnd3del = main.PickThreeDelusions();
+                    if (rnd3del == null || rnd3del.Count < 3)
+                    {
+                        NextIntermission();
+                        // Not enough enemies available; abort safely.
+                        return;
+                    }
+
+
+                    var u10 = main.AllDelusionsItems[rnd3del[0].curse];
+                    var u20 = main.AllDelusionsItems[rnd3del[1].curse];
+                    var u30 = main.AllDelusionsItems[rnd3del[2].curse];
+                    DelusionsIntermission.CreatePickupsDelusions(u10, u20, u30);
+                    break;
                 case IntermissionType.Chaos:
                     main.Intermissions.RemoveAt(0);
                     var random3chaos = main.PickThreeChaos();
@@ -310,7 +326,7 @@ namespace NullscapeinBB
                 foreach (var item in NullscapeInBB.Instance.Cooldowns.Keys.ToList())
                 {
                     NullscapeInBB.Instance.Cooldowns[item] -= 1;
-                    Debug.Log($"Lowered {item.keyDesc} to NullscapeInBB.Instance.Cooldowns[item] ");
+                    Debug.Log($"Lowered {item.keyDesc} to {NullscapeInBB.Instance.Cooldowns[item]} ");
                 }
                 var level = NullscapeInBB.Instance.FloorCounter + 1;
                 var poster = ObjectCreators.CreatePosterObject(Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "chk_blank"), [

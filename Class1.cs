@@ -338,6 +338,7 @@ namespace NullscapeinBB
         public List<CurseData> CursesPicked = new();
 
         public List<GreaterCurseData> GreaterCursesPicked = new();
+        public List<DelusionData> DelusionsPicked = new();
         public List<UpgradeData> UpgradesBought = new();
         public Dictionary<Character, EnemyData> AllModdedEnemies = new();
         public Dictionary<Character, EnemyData> AllEnemies = new Dictionary<Character, EnemyData>();
@@ -353,8 +354,8 @@ namespace NullscapeinBB
         public Dictionary<GreaterCurses, ItemObject> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
         public Dictionary<GreaterCurses, GreaterCurseData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
 
-        public Dictionary<Delusions, DelusionData> AllGreaterCursesItems = new Dictionary<GreaterCurses, ItemObject>();
-        public Dictionary<Delusions, DelusionData> AllGreaterCurses = new Dictionary<GreaterCurses, GreaterCurseData>();
+        public Dictionary<Delusions, ItemObject> AllDelusionsItems = new Dictionary<Delusions, ItemObject>();
+        public Dictionary<Delusions, DelusionData> AllDelusions = new Dictionary<Delusions, DelusionData>();
 
         public Dictionary<Upgrades, ItemObject> AllUpgradesItems = new();
         public Dictionary<Upgrades, UpgradeData> AllUpgrades = new();
@@ -481,13 +482,27 @@ namespace NullscapeinBB
                 ((GreaterCurseItem)ie.item).curse = curse;
                 AllGreaterCursesItems.Add(curse, ie);
             }
+
+            foreach (Delusions curse in EnumExtensions.GetValues<Delusions>())
+            {
+                var ie = new ItemBuilder(this.Info)
+                    .SetAsInstantUse()
+                    .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
+                    .SetSprites(AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
+                    .SetEnum($"itmdelusions_{curse.ToString()}")
+                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetItemComponent<DelusionsItem>()
+                    .Build();
+                ((DelusionsItem)ie.item).curse = curse;
+                AllDelusionsItems.Add(curse, ie);
+            }
             foreach (Upgrades curse in EnumExtensions.GetValues<Upgrades>())
             {
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
-                    .SetEnum($"itmgreatercurse_{curse.ToString()}")
+                    .SetEnum($"itmupgrade_{curse.ToString()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
                     .SetItemComponent<UpgradeItem>()
                     .Build();
@@ -721,6 +736,7 @@ namespace NullscapeinBB
             StuffCreation.AddCurses();
             StuffCreation.AddGreaterCurses();
             StuffCreation.AddUpgrades();
+            StuffCreation.AddDelusions();
 
         }
         IEnumerator Preload()
@@ -943,6 +959,13 @@ namespace NullscapeinBB
                 Altar = BaseAltar.CreateAltarPrefab<AltarPurgatory>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "purgatoryAltarItem.png")], "altar_Purgatory", 1, "AltarPurgPre"),
                 Max = 1,
                 Weight = 999
+            });
+
+            Altars.Add(new()
+            {
+                Altar = BaseAltar.CreateAltarPrefab<AltarOfDuality>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "delusionAltarItem.png")], "altar_Delusion", 1, "AltarDeluluPre"),
+                Max = 1,
+                Weight = 30
             });
 
             var s = new GameObject("structure");
@@ -1249,6 +1272,60 @@ namespace NullscapeinBB
             if (values.Count == 0) return new List<GreaterCurseData>();
 
             List<GreaterCurseData> result = new List<GreaterCurseData>(3);
+            int count = values.Count;
+
+            System.Random rng = new System.Random();
+
+            if (count >= 3)
+            {
+                var indices = Enumerable.Range(0, count).OrderBy(_ => rng.Next()).Take(3);
+                foreach (int i in indices)
+                {
+                    result.Add(values[i]);
+                }
+            }
+            else if (count == 2)
+            {
+                result.Add(values[0]);
+                result.Add(values[1]);
+                result.Add(values[rng.Next(count)]);
+            }
+            else
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    result.Add(values[0]);
+                }
+            }
+
+            return result;
+        }
+
+        public List<DelusionData> PickThreeDelusions()
+        {
+            var values = AllDelusions.Values.ToList();
+
+            values = values.Where(x =>
+            {
+                bool meetsFloor = FloorCounter >= x.MinFloor;
+                int currentCount = DelusionsPicked.Count(c => c.curse == x.curse);
+                bool underMax = currentCount < x.MaxCurses;
+                bool extrarequirement = false;
+                if (x.Requirements != null)
+                {
+                    extrarequirement = x.Requirements();
+                }
+                else extrarequirement = true;
+                return meetsFloor && underMax && extrarequirement;
+            }).ToList();
+
+            // Only consider curses that have a spawnable ItemObject prepared
+            values = values.Where(x => AllDelusionsItems.ContainsKey(x.curse)).ToList();
+
+            // If none are valid, return empty so caller can skip the intermission
+            if (values.Count == 0) return new List<DelusionData>();
+
+            List<DelusionData> result = new List<DelusionData>(3);
             int count = values.Count;
 
             System.Random rng = new System.Random();

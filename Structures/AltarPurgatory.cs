@@ -25,7 +25,7 @@ namespace NullscapeinBB.Structures
             NullscapeInBB.ProgressionEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Purgatory_Spawned"));
             NullscapeInBB.SetCooldown<AltarPurgatory>(2);
             var ec = Singleton<BaseGameManager>.Instance.Ec;
-                var numberOfNpcs = 4 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 9f);
+                var numberOfNpcs = 4 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 7f);
                 for (int i = 0; i < numberOfNpcs; i++)
                 {
                     var randomCell = ec.RandomCell(false, false, true);

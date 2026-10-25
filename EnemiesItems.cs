@@ -42,6 +42,16 @@ namespace NullscapeinBB
 
 
     }
+    public class DelusionsItem : Item
+    {
+        public Delusions curse;
+        public override bool Use(PlayerManager pm)
+        {
+            return base.Use(pm);
+        }
+
+
+    }
     public class ChaosItem : Item
     {
         public enum ChaosType
