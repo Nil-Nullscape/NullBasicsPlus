@@ -147,7 +147,7 @@ namespace NullscapeinBB.Structures
                 Altars.Add(new());
             }
 
-            int MaxAltars = 1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter * 0.15f);
+            int MaxAltars = Mathf.Clamp(1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter * 0.135f),1,5);
 
 
             for (int i = 0; i < MaxAltars; i++)

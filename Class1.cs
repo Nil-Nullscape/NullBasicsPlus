@@ -179,7 +179,8 @@ namespace NullscapeinBB
         MoreSpeed,
         PlusOneInventorySlot,
         BaldiPraise,
-        TempShield
+        TempShield,
+        LongerReach
     }
     public enum Curses
     {
@@ -627,7 +628,7 @@ namespace NullscapeinBB
         static public void SetCooldown(AltarTypes altar,int cooldown) {
             NullscapeInBB.Instance.Cooldowns[altar] = cooldown;
         } 
-        static public void ShieldEventNotifier(string enemykey, int tempShieldRemaining = 0)
+        static public void ShieldEventNotifier(string enemykey, int tempShieldRemaining = 0, bool lostTempShield = false)
         {
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_shieldbreak"));
 
@@ -650,7 +651,7 @@ namespace NullscapeinBB
                 text.rectTransform.offsetMin = new(-0, 0);
                 text.rectTransform.offsetMax = new(0, -0);
                 text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3")}";
-                if (tempShieldRemaining > 0) {
+                if (lostTempShield || tempShieldRemaining > 0) {
                     text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3B")} {tempShieldRemaining} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld4B")}";
 
                 }
@@ -733,6 +734,7 @@ namespace NullscapeinBB
             Instance = this;
             EnabledNullscapeEntities = Config.Bind("Gameplay stuff", "EnableNullscapeEnemies", true, "This enables the enemies from nullscape if you dont want them set this to false");
             EnableChaosMode = Config.Bind("Gameplay stuff", "EnableChaosMode", false, "This enables chaos mode, an extra intermission will be added every level, where greater curses, curses or enemies can all spawn");
+            EnableQuickStart = Config.Bind("Gameplay stuff", "EnableQuickStart", false, "This enables quick start, after you beat level 1 you will be at level 20, you gotta pick every intermission you missed for example and you start with 10k ytps");
             DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (like teledancer's song)");
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);

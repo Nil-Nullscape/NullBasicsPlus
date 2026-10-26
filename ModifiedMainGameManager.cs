@@ -38,11 +38,14 @@ namespace NullscapeinBB
                 else {
                     shieldtimeleft = 5f;
                 }
-                    
-                
-                if (TempShieldRemaining > 0) TempShieldRemaining--;
+
+                bool lostFrom = false;
+                if (TempShieldRemaining > 0) { 
+                TempShieldRemaining--;
+                    lostFrom = true;
+                }
                 else NullscapeInBB.Instance.shields--;
-                NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}",TempShieldRemaining);
+                NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}",TempShieldRemaining,lostFrom);
                 if (NullscapeInBB.Instance.shields == 0 && TempShieldRemaining == 0 && NotebookTotal >= 10 && FoundNotebooks < Mathf.FloorToInt(NotebookTotal / 1.5f)) {
                     FindyourflameIsPlaying = true;
                     Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);

@@ -427,24 +427,10 @@ namespace NullscapeinBB
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) >= 10 && (NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
-                    if (NullscapeInBB.GreaterCurseCount(GreaterCurses.byebyestickystickers) == 0)
-                    {
-                        ProgEvents.Add("pevent_stickerreset");
-                        Singleton<StickerManager>.Instance.ClearAppliedStickers();
-                    } else {
-                        ProgEvents.Add("pevent_stickerreset2");
-                        for (int i = 0; i < Singleton<StickerManager>.Instance.activeStickerData.Length; i++)
-                        {
-
-                            Singleton<StickerManager>.Instance.activeStickerData[i] = new StickerStateData(Sticker.Nothing, 0, opened: true, sticky: false);
-                            
-                        }
-
-                        Singleton<StickerManager>.Instance.ClearAppliedStickers();
-                    }
+                    
 
                 }
-                if ((NullscapeInBB.Instance.FloorCounter + 1) % 7 == 0)
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 12 == 0)
                 {
                     if (NullscapeInBB.Instance.EnabledNullscapeEntities.Value) {
                         ProgEvents.Add("pevent_fastermart");
@@ -457,13 +443,50 @@ namespace NullscapeinBB
                     NullscapeInBB.Instance.shields += 1;
 
                 }
+                if ((NullscapeInBB.Instance.FloorCounter + 1) == 20 && NullscapeInBB.Instance.EnableQuickStart.Value) {
+                    ProgEvents.Add("pevent_fastermart");
+                    ProgEvents.Add("pevent_fasterbaldi");
+                    ProgEvents.Add("pevent_fasterbaldi");
+                    ProgEvents.Add("pevent_freeshield");
+                    NullscapeInBB.Instance.shields += 1;
+                    NullscapeInBB.Instance.CursesPicked.Add(new CurseData()
+                    {
+                        curse = Curses.AngrierBaldi,
+                        MaxCurses = 999,
+                        MinFloor = 0,
+                        CursesAction = () =>
+                        {
+
+                        }
+                    });
+                    NullscapeInBB.Instance.CursesPicked.Add(new CurseData()
+                    {
+                        curse = Curses.AngrierBaldi,
+                        MaxCurses = 999,
+                        MinFloor = 0,
+                        CursesAction = () =>
+                        {
+
+                        }
+                    });
+                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
+                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
+                    ).Take(1).Single());
+                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
+                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
+                    ).Take(1).Single());
+                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
+                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
+                    ).Take(1).Single());
+                }
+
                 if ((NullscapeInBB.Instance.FloorCounter + 1) == 50 || (NullscapeInBB.Instance.FloorCounter + 1) == 150)
                 {
                     ProgEvents.Add("pevent_morecursesandnpcs");
 
                 }
 
-                if ((NullscapeInBB.Instance.FloorCounter + 1) % 4 == 0)
+                if ((NullscapeInBB.Instance.FloorCounter + 1) % 6 == 0)
                 {
                     NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
                         x => !NullscapeInBB.Instance.EventsList.Contains(x)
@@ -537,6 +560,11 @@ namespace NullscapeinBB
             {
                 __result *= item;
             }
+        }
+        [HarmonyPatch(typeof(PlayerClick), "Reach", MethodType.Getter)]
+        [HarmonyPostfix]
+        public static void ReachUpgrade(ref float __result) {
+            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.LongerReach) * 0.35f;
         }
 
         [HarmonyPatch(typeof(Activity), "Initialize")]
@@ -712,10 +740,19 @@ namespace NullscapeinBB
             }
 
         }
+        [HarmonyPatch(typeof(PitstopGameManager),"InPitstop")]
+        [HarmonyPostfix]
+        public static void OverrideThisStupidPitstop(PitstopGameManager __instance, ref bool __result) {
+            if (Singleton<BaseGameManager>.Instance is PitstopGameManager) {
+                if (__instance.FieldTripMode || !IsSavingPossible) __result = false;
+                else __result = true;
+            }
+        }
         public static IEnumerator SadlyHaveToDoMyOwnIenumeratorUPDATEforDoor(StandardDoor door) {
             while (true)
             {
                 if (!IsSavingPossible) {
+                    
                     door.Lock(true);
                     break;
                 }
@@ -757,6 +794,21 @@ namespace NullscapeinBB
                 GenerationStuff.GenStuff(main.F2);
                 GenerationStuff.GenStuff(main.F1);
                 
+            }
+            if (__instance is MainInfiniteGameManager) {
+                if (NullscapeInBB.Instance.EnableQuickStart.Value) {
+                    NullscapeInBB.Instance.FloorCounter = 19;
+                    for (int i = 1; i < 20; i++)
+                    {
+                        if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                    }
+                    for (int i = 1; i < 20; i++)
+                    {
+                        if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
+                    }
+                    NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.GreaterCurse);
+                    Singleton<CoreGameManager>.Instance.AddPoints(10000, 0, true,false,false);
+                }
             }
         }
     }

@@ -13,14 +13,17 @@ namespace NullscapeinBB
         {
             var Chaos = CreateNewModifier("ChaosMode", "set_chaos", "desc_chaosmode", 2);
             var EnabledNullscapeEntities = CreateNewModifier("EnabledNullscapeEntities", "set_entities", "desc_entities", 3);
+            var QuickStart = CreateNewModifier("QuickStartSetting", "set_QuickStart", "desc_QuickStart", 5);
 
             Chaos.Set(NullscapeInBB.Instance.EnableChaosMode.Value);
             EnabledNullscapeEntities.Set(NullscapeInBB.Instance.EnabledNullscapeEntities.Value);
+            QuickStart.Set(NullscapeInBB.Instance.EnableQuickStart.Value);
 
             CreateApplyButton(() =>
             {
                 NullscapeInBB.Instance.EnableChaosMode.Value = Chaos.Value;
                 NullscapeInBB.Instance.EnabledNullscapeEntities.Value = EnabledNullscapeEntities.Value;
+                NullscapeInBB.Instance.EnableQuickStart.Value = QuickStart.Value;
                 NullscapeInBB.Instance.UpdateListOfEnemies();
             });
 

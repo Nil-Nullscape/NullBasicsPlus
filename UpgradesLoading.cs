@@ -37,7 +37,7 @@ namespace NullscapeinBB
                     return 500 * (NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) + 1);
                 },
                 curse = Upgrades.BaldiPraise,
-                MaxUpgrades = 4,
+                MaxUpgrades = 8,
                 MinFloor = 0
 
 
@@ -63,6 +63,19 @@ namespace NullscapeinBB
                 },
                 curse = Upgrades.TempShield,
                 MaxUpgrades = 2,
+                MinFloor = 9,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.LongerReach, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(1250 * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) + 1) * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) / 10f + 1));
+                },
+                curse = Upgrades.LongerReach,
+                MaxUpgrades = 10,
                 MinFloor = 9,
                 OnUpgradeBought = () => {
                 }

@@ -13,6 +13,7 @@ namespace NullscapeinBB
     {
         public static void GenStuff(SceneObject toModify)
         {
+            Debug.Log($"Gen stuff for {toModify.levelTitle}");
             NullscapeInBB main = NullscapeInBB.Instance;
 
 
@@ -34,8 +35,8 @@ namespace NullscapeinBB
                 cuslevob.maxSize = main.levelsize;
                 cuslevob.minSize = main.levelsize;
                 cuslevob.forcedStructures = main.ForcedStructures.ToArray();
-                cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = main.notebookcount;
-                cuslevob.roomGroup.First(x => x.name == "Class").minRooms = main.notebookcount;
+                cuslevob.roomGroup.First(x => x.name == "Class").maxRooms = main.notebookcount + 1 ;
+                cuslevob.roomGroup.First(x => x.name == "Class").minRooms = Mathf.Clamp(main.notebookcount - 1,1,999);
                 cuslevob.roomGroup.First(x => x.name == "Class").potentialRooms = main.rooms.ToArray();
                 cuslevob.roomGroup.First(x => x.name == "Faculty").maxRooms = main.facultycount + 2;
                 cuslevob.roomGroup.First(x => x.name == "Faculty").minRooms = main.facultycount - 2;
@@ -72,36 +73,44 @@ namespace NullscapeinBB
             }
         }
 
+        public static int GetNumberOfNotebooks() {
+            NullscapeInBB main = NullscapeInBB.Instance;
+            if (main.FloorCounter <= 4) {
+                return 1 + (main.FloorCounter - 1) * 2;
+            } else {
+                return 7 + Mathf.FloorToInt((main.FloorCounter - 4) / 2.5f);
+            }
+        }
+        public static int GetNumberOfFaculty() {
+            NullscapeInBB main = NullscapeInBB.Instance;
+            return Mathf.Clamp(Mathf.FloorToInt(1 * (main.FloorCounter - (main.FloorCounter*0.60f))),1,30);
+        }
+        public static int GetItemBudget()
+        {
+            NullscapeInBB main = NullscapeInBB.Instance;
+            return 40 + Mathf.RoundToInt((main.FloorCounter * (Mathf.PI * GetNumberOfNotebooks())) * 0.436661f);
+        }
+        public static int GetPlots() {
+            NullscapeInBB main = NullscapeInBB.Instance;
+            return 4+ Mathf.FloorToInt(main.FloorCounter / 2f);
+        }
+        public static IntVector2 GetLevelSize() {
+            NullscapeInBB main = NullscapeInBB.Instance;
+            var num = Mathf.Clamp((7 + Mathf.FloorToInt(main.FloorCounter / 4.5f)) * Mathf.FloorToInt(main.FloorCounter / (3.1415f + main.FloorCounter / 5.2f)  ),0,239);
+            return  new(14 + num, 14 + num);
+        }
 
         public static void GlobalGenStuff()
         {
+            Debug.Log("Global gen Executed");
             NullscapeInBB main = NullscapeInBB.Instance;
-
-            if (main.FloorCounter % 2 == 0 && main.notebookcount >= 7)
-            {
-                main.notebookcount++;
-                main.mapprice += 50;
-            }
-            else if (main.notebookcount < 7)
-            {
-                main.notebookcount += 2;
-                main.mapprice += 25;
-                main.levelsize += new IntVector2(1, 2);
-            }
-            if (main.FloorCounter % 2 == 0)
-            {
-                if (!(((IntVector2)(main.levelsize + new IntVector2(1, 1))).x > 225))
-                {
-                    main.levelsize += new IntVector2(1, 1);
-                    main.facultycount++;
-                    main.itembudget += 20;
-                    main.mapprice += 50;
-                }
-            }
-            if (main.FloorCounter % 3 == 0)
-            {
-                main.plotcount++;
-            }
+            main.notebookcount = GetNumberOfNotebooks();
+            main.levelsize = GetLevelSize();
+            main.facultycount = GetNumberOfFaculty();
+            main.itembudget = GetItemBudget();
+            main.plotcount = GetPlots();
+         
+           
             if (main.FloorCounter % 5 == 0)
             {
                 main.ForcedStructures.Add(new()
