@@ -180,7 +180,8 @@ namespace NullscapeinBB
         PlusOneInventorySlot,
         BaldiPraise,
         TempShield,
-        LongerReach
+        LongerReach,
+        TeleportRandomInCompletedActivityRoom
     }
     public enum Curses
     {
@@ -858,11 +859,9 @@ namespace NullscapeinBB
             Am.Add("snd_cadencechase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CadenceChase.ogg"), "snd_angrycadence", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, 8));
             Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, 3));
-            if (!DisableCopyright.Value) {
-                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerTheme.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
-            } else {
-                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNew.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
-            }
+            
+                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+            
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_shieldbreak", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shield_Break.ogg"), "snd_shieldbreak", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));

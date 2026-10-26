@@ -8,14 +8,15 @@ namespace NullscapeinBB
 {
     public static partial class StuffCreation
     {
+        public const float InflationPercentage = 0.5f;
         public static void AddUpgrades() {
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.MoreYtps, new()
             {
                 Cost = () => {
-                    return 550 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) + 1);
+                    return Mathf.RoundToInt(750 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage));
                 },
                 curse = Upgrades.MoreYtps,
-                MaxUpgrades = 4,
+                MaxUpgrades = 10,
                 MinFloor = 0
 
 
@@ -23,7 +24,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.MoreSpeed, new()
             {
                 Cost = () => {
-                    return 250 * (NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) + 1);
+                    return Mathf.RoundToInt(250 * (NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage));
                 },
                 curse = Upgrades.MoreSpeed,
                 MaxUpgrades = 6,
@@ -34,7 +35,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.BaldiPraise, new()
             {
                 Cost = () => {
-                    return 500 * (NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) + 1);
+                    return Mathf.RoundToInt(500 * (NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage));
                 },
                 curse = Upgrades.BaldiPraise,
                 MaxUpgrades = 8,
@@ -45,7 +46,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.PlusOneInventorySlot, new()
             {
                 Cost = () => {
-                    return Mathf.CeilToInt(850 * (NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot) * 1.5f + 1));
+                    return Mathf.CeilToInt(850 * (NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot) * 1.5f + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage)) ;
                 },
                 curse = Upgrades.PlusOneInventorySlot,
                 MaxUpgrades = 4,
@@ -59,7 +60,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.TempShield, new()
             {
                 Cost = () => {
-                    return Mathf.CeilToInt(15000 * (NullscapeInBB.UpgradesCount(Upgrades.TempShield) + 1));
+                    return Mathf.CeilToInt(15000 * (NullscapeInBB.UpgradesCount(Upgrades.TempShield) + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage)) ;
                 },
                 curse = Upgrades.TempShield,
                 MaxUpgrades = 2,
@@ -72,11 +73,26 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.LongerReach, new()
             {
                 Cost = () => {
-                    return Mathf.CeilToInt(1250 * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) + 1) * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) / 10f + 1));
+                    return Mathf.CeilToInt(1250 * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) + 1) * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) / 10f + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage));
                 },
                 curse = Upgrades.LongerReach,
                 MaxUpgrades = 10,
                 MinFloor = 9,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
+
+
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.TeleportRandomInCompletedActivityRoom, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(5 * (NullscapeInBB.UpgradesCount(Upgrades.TeleportRandomInCompletedActivityRoom) + 1) * (1 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * InflationPercentage));
+                },
+                curse = Upgrades.TeleportRandomInCompletedActivityRoom,
+                MaxUpgrades = 4,
+                MinFloor = 14,
                 OnUpgradeBought = () => {
                 }
 

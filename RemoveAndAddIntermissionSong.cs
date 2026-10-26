@@ -440,6 +440,7 @@ namespace NullscapeinBB
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 10 == 0)
                 {
                     ProgEvents.Add("pevent_freeshield");
+                    ProgEvents.Add("pevent_inflation");
                     NullscapeInBB.Instance.shields += 1;
 
                 }
@@ -555,7 +556,7 @@ namespace NullscapeinBB
         static void Deez(ref float __result)
         {
             __result *= 1 + NullscapeInBB.CurseCount(Curses.Lap2);
-            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*0.15f;
+            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*0.05f;
             foreach (var item in NullscapeInBB.Instance.YtpMultipliers)
             {
                 __result *= item;

@@ -16,14 +16,14 @@ namespace NullscapeinBB
         public float sizemultiplier = 1f;
         public float aimingtime = 2.694f;
         public float fallingtime = 1.504f;
-        public float explosionTime = 0.4f;
+        public float explosionTime = 0.05f;
         public Vector3 CurrentlyAimedAt = Vector3.zero;
         public SpriteRenderer AimingRenderer;
         public override void Initialize()
         {
-            sizemultiplier = 1 + NullscapeInBB.CurseCount(Curses.BiggerBlast);
+            sizemultiplier = 1 + NullscapeInBB.CurseCount(Curses.BiggerBlast) * 0.5f;
             AimingRenderer.gameObject.SetActive(false);
-            AimingRenderer.transform.localScale *= sizemultiplier;
+            AimingRenderer.transform.localScale *= sizemultiplier * 1.25f;
             AimingRenderer.transform.rotation = Quaternion.Euler(-90,0,0);
             spriteRenderer[0].enabled = false;
             audMan = gameObject.GetComponent<PropagatedAudioManager>();

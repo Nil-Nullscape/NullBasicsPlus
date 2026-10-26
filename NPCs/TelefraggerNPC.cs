@@ -11,7 +11,7 @@ namespace NullscapeinBB
     public class TelefraggerNPC : NPC
     {
         public AudioManager audMan;
-        public float speed = 5f;
+        public float speed = 7.5f;
         public int TheFunValue = 0;
         public bool IsHeDancing = false;
         public int forceValue = -1;
@@ -20,7 +20,7 @@ namespace NullscapeinBB
         public float timeleft = 7f; 
         public override void Initialize()
         {
-            TheFunValue = UnityEngine.Random.Range(0, 100);
+            TheFunValue = UnityEngine.Random.Range(50, 100);
             timeleft = UnityEngine.Random.Range(1f, 12f);
             gameObject.SetActive(false);
             audMan = gameObject.AddComponent<AudioManager>();
@@ -82,7 +82,7 @@ namespace NullscapeinBB
             }
             if (telefragger.timeleft < 0) {
                 telefragger.timeleft = telefragger.timepertps;
-                telefragger.transform.position = Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position + Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.forward * 25;
+                telefragger.transform.position = Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position + Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.forward * 55;
                 didtpsound = false;
             }
 
