@@ -13,10 +13,11 @@ namespace NullscapeinBB
         public float speed = 3.5f;
         public int priority = 0;
         public float timeanim = 0;
+        public Vector3 BaseMartSize => Vector3.one * 4f;
         public override void Initialize()
         {
             priority = UnityEngine.Random.Range(0, 25555555);
-            speed = 3.5f + Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 7);
+            speed = 1.5f + Mathf.Floor(NullscapeInBB.Instance.FloorCounter / 12f);
             gameObject.SetActive(false);
             audMan = gameObject.AddComponent<AudioManager>();
             
@@ -24,8 +25,8 @@ namespace NullscapeinBB
             
             audMan.audioDevice.spatialBlend = 1f;
             gameObject.SetActive(true);
-            audMan.audioSourceManager.minDistance = 5f;
-            audMan.audioSourceManager.maxDistance = 65f;
+            audMan.audioSourceManager.minDistance = 15f;
+            audMan.audioSourceManager.maxDistance = 140f;
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop"), true);
             audMan.SetLoop(true);
             this.behaviorStateMachine.ChangeState(new Mart_StateChase(this));
@@ -35,8 +36,8 @@ namespace NullscapeinBB
         }
         protected override void VirtualUpdate()
         {
-            spriteRenderer[0].transform.localScale = Vector3.Lerp(spriteRenderer[0].transform.localScale, Vector3.one * (speed / 5f), 0.65f*Time.deltaTime);
-            ((CapsuleCollider)baseTrigger[0]).radius = 1 * (speed / 5f);
+            spriteRenderer[0].transform.localScale = Vector3.Lerp(spriteRenderer[0].transform.localScale, BaseMartSize * (speed / 10f), 2f*Time.deltaTime);
+            ((CapsuleCollider)baseTrigger[0]).radius = BaseMartSize.y * (speed / 10f);
             timeanim += Time.deltaTime * 16.7f;
             spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_mart")[Mathf.RoundToInt(Mathf.Repeat(timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_mart").Length-1))];
             base.VirtualUpdate();

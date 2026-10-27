@@ -74,6 +74,25 @@ namespace NullscapeinBB
                         __instance.SpawnNPC(randomNPC, randomCell.position);
                     }
                 }
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter > 0 && NullscapeInBB.Instance.FloorCounter < 20) {
+                    var numberOfNpcs = 2;
+                    for (int i = 0; i < numberOfNpcs; i++)
+                    {
+                        var randomCell = __instance.RandomCell(false, false, true);
+                        var distance = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - randomCell.CenterWorldPosition).magnitude;
+                        while (distance < 120)
+                        {
+                            randomCell = __instance.RandomCell(false, false, true);
+                            distance = (Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position - randomCell.CenterWorldPosition).magnitude;
+                        }
+                        var allNpcsL = NullscapeInBB.Instance.AllEnemies.Values.ToList();
+                        allNpcsL.RemoveAll(x => x.Enemy == EnumExtensions.GetFromExtendedName<Character>("???"));
+                        var allNpcs = allNpcsL.ToArray();
+                        var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].NPCToUse;
+                        __instance.SpawnNPC(randomNPC, randomCell.position);
+                    }
+
+                }
             }
         }
 

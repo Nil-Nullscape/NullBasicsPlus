@@ -24,6 +24,9 @@ namespace NullscapeinBB
                 NullscapeInBB.Instance.EnableChaosMode.Value = Chaos.Value;
                 NullscapeInBB.Instance.EnabledNullscapeEntities.Value = EnabledNullscapeEntities.Value;
                 NullscapeInBB.Instance.EnableQuickStart.Value = QuickStart.Value;
+                GenerationStuff.GlobalGenStuff();
+                GenerationStuff.GenStuff(NullscapeInBB.Instance.F1);
+                GenerationStuff.GenStuff(NullscapeInBB.Instance.F2);
                 NullscapeInBB.Instance.UpdateListOfEnemies();
             });
 

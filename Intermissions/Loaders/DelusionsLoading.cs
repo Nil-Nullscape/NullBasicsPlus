@@ -13,7 +13,8 @@ namespace NullscapeinBB
             {
                 curse = Delusions.baldihappybutapplebye,
                 MaxCurses = 1,
-                MinFloor = 0
+                MinFloor = 0,
+                CursesAction = () => { }
             });
         }
     }

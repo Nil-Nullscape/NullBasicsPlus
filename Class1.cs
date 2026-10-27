@@ -581,6 +581,15 @@ namespace NullscapeinBB
             }
             return e;
         }
+        static public int DelusionsCount(Delusions upg)
+        {
+            var e = 0;
+            foreach (var cur in Instance.DelusionsPicked)
+            {
+                if (cur.curse == upg) e++;
+            }
+            return e;
+        }
 
         static public void ProgressionEventNotifier(params string[] Texts)
         {
@@ -860,7 +869,7 @@ namespace NullscapeinBB
             Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, 8));
             Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, 3));
             
-                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.ogg"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.mp3"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
@@ -892,6 +901,7 @@ namespace NullscapeinBB
             Am.Add("spr_intdelusion", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent7.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
+            Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
             yield return "Adding ingame Songs to the list of lists";
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_lineoffire"), Am.Get<SoundObject>("mus_collapse_lineoffire"), 0, 9));
@@ -1827,6 +1837,9 @@ namespace NullscapeinBB
 
                 F2.levelTitle = "F2";
             }
+            GenerationStuff.GlobalGenStuff();
+            GenerationStuff.GenStuff(F1);
+            GenerationStuff.GenStuff(F2);
         }
 
         private SceneObject DuplicateSceneObject(SceneObject sceneObject)

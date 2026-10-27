@@ -16,6 +16,7 @@ using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace NullscapeinBB
@@ -323,6 +324,17 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.YtpMultipliers.Clear();
             if (__instance is PitstopGameManager)
             {
+                var newCanv = UIHelpers.CreateBlankUIScreen("PitstopCanvas", true);
+                var hud = new GameObject("HudThingie");
+                var hudImg = hud.AddComponent<Image>();
+                hud.transform.SetParent(newCanv.transform);
+                hudImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_hudlist");
+                hudImg.SetNativeSize();
+                hud.transform.localScale = Vector3.one * 20;
+                hud.GetComponent<RectTransform>().anchorMax = new(0.5f,1.1f);
+                hud.GetComponent<RectTransform>().anchorMin = new(0.5f, 1.1f);
+                hud.GetComponent<RectTransform>().anchoredPosition = new(0, 0);
+                hud.AddComponent<PitstopHUDManager>();
                 foreach (var item in NullscapeInBB.Instance.Cooldowns.Keys.ToList())
                 {
                     NullscapeInBB.Instance.Cooldowns[item] -= 1;
@@ -444,42 +456,6 @@ namespace NullscapeinBB
                     NullscapeInBB.Instance.shields += 1;
 
                 }
-                if ((NullscapeInBB.Instance.FloorCounter + 1) == 20 && NullscapeInBB.Instance.EnableQuickStart.Value) {
-                    ProgEvents.Add("pevent_fastermart");
-                    ProgEvents.Add("pevent_fasterbaldi");
-                    ProgEvents.Add("pevent_fasterbaldi");
-                    ProgEvents.Add("pevent_freeshield");
-                    NullscapeInBB.Instance.shields += 1;
-                    NullscapeInBB.Instance.CursesPicked.Add(new CurseData()
-                    {
-                        curse = Curses.AngrierBaldi,
-                        MaxCurses = 999,
-                        MinFloor = 0,
-                        CursesAction = () =>
-                        {
-
-                        }
-                    });
-                    NullscapeInBB.Instance.CursesPicked.Add(new CurseData()
-                    {
-                        curse = Curses.AngrierBaldi,
-                        MaxCurses = 999,
-                        MinFloor = 0,
-                        CursesAction = () =>
-                        {
-
-                        }
-                    });
-                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
-                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
-                    ).Take(1).Single());
-                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
-                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
-                    ).Take(1).Single());
-                    NullscapeInBB.Instance.EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().Where(
-                        x => !NullscapeInBB.Instance.EventsList.Contains(x)
-                    ).Take(1).Single());
-                }
 
                 if ((NullscapeInBB.Instance.FloorCounter + 1) == 50 || (NullscapeInBB.Instance.FloorCounter + 1) == 150)
                 {
@@ -536,6 +512,9 @@ namespace NullscapeinBB
                 Extras.NextIntermission();
             }
 
+            if (__instance is MainInfiniteGameManager) {
+                if ((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3f);
+            }
 
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed)*0.1f, 4.5f));
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 6.5f));
@@ -797,18 +776,58 @@ namespace NullscapeinBB
                 
             }
             if (__instance is MainInfiniteGameManager) {
-                if (NullscapeInBB.Instance.EnableQuickStart.Value) {
-                    NullscapeInBB.Instance.FloorCounter = 19;
-                    for (int i = 1; i < 20; i++)
+                var goal = 0;
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 1)
+                {
+                    goal = 4;
+                    NullscapeInBB.Instance.FloorCounter = goal;
+                    for (int i = 1; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
                     }
-                    for (int i = 1; i < 20; i++)
+                    for (int i = 1; i < goal + 1; i++)
                     {
                         if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
                     }
-                    NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.GreaterCurse);
-                    Singleton<CoreGameManager>.Instance.AddPoints(10000, 0, true,false,false);
+                }
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 5)
+                {
+                    goal = 9;
+                    NullscapeInBB.Instance.FloorCounter = goal;
+                    for (int i = 5; i < goal + 1; i++)
+                    {
+                        if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                    }
+                    for (int i = 5; i < goal + 1; i++)
+                    {
+                        if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
+                    }
+                }
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 10)
+                {
+                    goal = 14;
+                    NullscapeInBB.Instance.FloorCounter = goal;
+                    for (int i = 10; i < goal + 1; i++)
+                    {
+                        if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                    }
+                    for (int i = 10; i < goal + 1; i++)
+                    {
+                        if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
+                    }
+                }
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 15)
+                {
+                    goal = 19;
+                    NullscapeInBB.Instance.FloorCounter = goal;
+                    for (int i = 15; i < goal + 1; i++)
+                    {
+                        if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                    }
+                    for (int i = 15; i < goal + 1; i++)
+                    {
+                        if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
+                    }
                 }
             }
         }

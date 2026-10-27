@@ -11,6 +11,7 @@ namespace NullscapeinBB
 {
     public static class GenerationStuff
     {
+        public static float DifficultyMultiplier => NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter < 19 ? 1.5f : 1f;
         public static void GenStuff(SceneObject toModify)
         {
             Debug.Log($"Gen stuff for {toModify.levelTitle}");
@@ -104,11 +105,11 @@ namespace NullscapeinBB
         {
             Debug.Log("Global gen Executed");
             NullscapeInBB main = NullscapeInBB.Instance;
-            main.notebookcount = GetNumberOfNotebooks();
+            main.notebookcount = Mathf.FloorToInt(GetNumberOfNotebooks() * DifficultyMultiplier);
             main.levelsize = GetLevelSize();
-            main.facultycount = GetNumberOfFaculty();
+            main.facultycount = Mathf.FloorToInt(GetNumberOfFaculty() * DifficultyMultiplier);
             main.itembudget = GetItemBudget();
-            main.plotcount = GetPlots();
+            main.plotcount = Mathf.FloorToInt(GetPlots() * DifficultyMultiplier);
          
            
             if (main.FloorCounter % 5 == 0)

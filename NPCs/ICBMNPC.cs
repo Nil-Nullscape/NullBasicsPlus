@@ -23,7 +23,7 @@ namespace NullscapeinBB
         {
             sizemultiplier = 1 + NullscapeInBB.CurseCount(Curses.BiggerBlast) * 0.5f;
             AimingRenderer.gameObject.SetActive(false);
-            AimingRenderer.transform.localScale *= sizemultiplier * 1.25f;
+            AimingRenderer.transform.localScale *= sizemultiplier;
             AimingRenderer.transform.rotation = Quaternion.Euler(-90,0,0);
             spriteRenderer[0].enabled = false;
             audMan = gameObject.GetComponent<PropagatedAudioManager>();
@@ -166,7 +166,7 @@ namespace NullscapeinBB
                 UnityEngine.Object.Destroy(TempRenderer.gameObject);
                     npc.behaviorStateMachine.ChangeState(new Icbm_StateIdle((IcbmNPC)npc));
                 }
-            if (distance < 15f * icbm.sizemultiplier && !died) {
+            if (distance < 7.5f * icbm.sizemultiplier && !died) {
                 UsefulHelpers.KillPlayer(npc,[
                     new() {
                         selection= NullscapeInBB.Am.Get<SoundObject>("snd_ICBMExplode"),

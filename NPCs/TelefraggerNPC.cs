@@ -29,8 +29,8 @@ namespace NullscapeinBB
 
             audMan.audioDevice.spatialBlend = 1f;
             gameObject.SetActive(true);
-            audMan.audioSourceManager.minDistance = 5f;
-            audMan.audioSourceManager.maxDistance = 65f;
+            audMan.audioSourceManager.minDistance = 15f;
+            audMan.audioSourceManager.maxDistance = 100f;
             if (forceValue > 0) {
                 TheFunValue = forceValue;
             }
@@ -96,7 +96,7 @@ namespace NullscapeinBB
                 e.enabled = false;
                 e.loseSounds = [
                     new() {
-                    selection = NullscapeInBB.Am.Get<SoundObject>("mus_teledance"),
+                    selection = NullscapeInBB.Am.Get<SoundObject>("snd_telefraggertp"),
                     weight = 6969
                     }
                 ];
