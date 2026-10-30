@@ -177,6 +177,8 @@ namespace NullscapeinBB.SaveHandlerStuff
         public List<int> DelusionsPicked = new();
         public List<int> UpgradesBought = new();
 
+        public Classes SelectedClass = Classes.Student;
+
     }
     internal class SaveHandler : ModdedSaveGameIOText
     {
@@ -241,23 +243,11 @@ namespace NullscapeinBB.SaveHandlerStuff
             bool NullscapeEntities = true;
             if (tags.Contains("Nullbasics_ChaosMode")) chaosMode = true;
             if (tags.Contains("Nullbasics_DisabledEntities")) NullscapeEntities = false;
-            if (chaosMode == false && NullscapeEntities == false)
-            {
-                return "No chaos, and no nullscape entities";
-            }
-            if (chaosMode == true && NullscapeEntities == false)
-            {
-                return "Chaotic but no nullscape entities";
-            }
-            if (chaosMode == true && NullscapeEntities == true)
-            {
-                return "Chaotic WITH nullscape entities";
-            }
-            if (chaosMode == false && NullscapeEntities == true)
-            {
-                return "No chaos but with nullscape entities";
-            }
-            return "hi";
+            var text = "";
+            if (chaosMode) text += "Chaos mode enabled\n";
+            if (NullscapeEntities) text += "Nullscape entities Enabled";
+            else text += "Nullscape entities Disabled";
+            return text;
 
 
         }
@@ -310,7 +300,8 @@ namespace NullscapeinBB.SaveHandlerStuff
                 ShieldCost = NullscapeInBB.Instance.shieldcost,
                 Shields = NullscapeInBB.Instance.shields,
                 UpgradesBought = NullscapeInBB.Instance.UpgradesBought.CurseDataToCurses(),
-                selectedNPCCounts = NullscapeInBB.Instance.selectedNPCCounts
+                selectedNPCCounts = NullscapeInBB.Instance.selectedNPCCounts,
+                SelectedClass = NullscapeInBB.Instance.SelectedClass
             },settings);
         }
         public override void OnCGMCreated(CoreGameManager instance, bool isFromSavedGame)
@@ -378,6 +369,7 @@ namespace NullscapeinBB.SaveHandlerStuff
             NullscapeInBB.Instance.UpgradesBought = loadedObject.UpgradesBought.IntListToUpgradeData();
             NullscapeInBB.Instance.selectedNPCCounts = loadedObject.selectedNPCCounts;
             NullscapeInBB.Instance.flop = !Convert.ToBoolean(loadedObject.floorCounter % 2);
+            NullscapeInBB.Instance.SelectedClass = loadedObject.SelectedClass;
 
             GenerationStuff.GenStuff(NullscapeInBB.Instance.F1);
             GenerationStuff.GenStuff(NullscapeInBB.Instance.F2);

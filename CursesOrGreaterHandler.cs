@@ -41,9 +41,9 @@ namespace NullscapeinBB
         {
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.NoMorePraise) >= 1)
             {
-                
+                if (__instance is MainInfiniteGameManager && NullscapeInBB.DelusionsCount(Delusions.baldihappybutapplebye) >= 1) __instance.ConvertType<MainInfiniteGameManager>().BetterPleaseBaldi(2);
             } else {
-                if (__instance is MainInfiniteGameManager) __instance.ConvertType<MainInfiniteGameManager>().BetterPleaseBaldi(time);
+                if (__instance is MainInfiniteGameManager) __instance.ConvertType<MainInfiniteGameManager>().BetterPleaseBaldi(time + NullscapeInBB.DelusionsCount(Delusions.baldihappybutapplebye) * 5f);
             }
             return false;
         }
@@ -107,6 +107,7 @@ namespace NullscapeinBB
         static void TurnTURN(Baldi __instance)
         {
             __instance.appleTime = 10f / (NullscapeInBB.GreaterCurseCount(GreaterCurses.BaldiAppleEatFaster) * 2 + 1);
+            if (NullscapeInBB.DelusionsCount(Delusions.baldihappybutapplebye) >= 1) __instance.appleTime = 0; 
         }
 
         [HarmonyPrefix]
@@ -126,15 +127,22 @@ namespace NullscapeinBB
         [HarmonyPatch(typeof(NPC), "VirtualUpdate")]
         static void byebyedaudio(NPC __instance)
         {
-            if (NullscapeInBB.GreaterCurseCount(GreaterCurses.SilentNpcs) >= 1) {
+            if (NullscapeInBB.GreaterCurseCount(GreaterCurses.SilentNpcs) >= 1)
+            {
                 foreach (var item in __instance.Entity.propagatedAudioManager)
                 {
                     item.volumeModifier = -100f;
                     item.FlushQueue(true);
 
                 }
-                
-            } 
+
+            }
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CoreGameManager), "AddPoints",[typeof(int), typeof(int), typeof(bool), typeof(bool), typeof(bool)])]
+        static void AddPointsGreed(CoreGameManager __instance, int points, bool multiply)
+        {
+            
         }
 
 
@@ -142,7 +150,8 @@ namespace NullscapeinBB
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ItemManager), "UpdateTargetInventorySize")]
         public static bool rewriteOfInventoryUpdat(ItemManager __instance) {
-            __instance.SetCachedReflection("targetInventorySize",__instance.defaultInventorySize + NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot));
+            __instance.SetCachedReflection("targetInventorySize", __instance.defaultInventorySize + NullscapeInBB.UpgradesCount(Upgrades.PlusOneInventorySlot));
+            if (NullscapeInBB.Instance.SelectedClass == Classes.Prisoner) __instance.SetCachedReflection("targetInventorySize", 3);
             __instance.SetCachedReflection("maxItem",Mathf.Max(__instance.GetCachedReflection<int>("targetInventorySize"), Mathf.Max(__instance.TotalItemsInInventory, __instance.MaxSlotWithItem + 1)) - 1);
             Singleton<CoreGameManager>.Instance.GetHud(__instance.pm.playerNumber).UpdateInventorySize(Mathf.Max(__instance.GetCachedReflection<int>("targetInventorySize"), Mathf.Max(__instance.TotalItemsInInventory, __instance.MaxSlotWithItem + 1)));
             if (__instance.selectedItem > __instance.maxItem)

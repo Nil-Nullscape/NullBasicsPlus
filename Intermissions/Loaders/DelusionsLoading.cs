@@ -16,6 +16,13 @@ namespace NullscapeinBB
                 MinFloor = 0,
                 CursesAction = () => { }
             });
+            NullscapeInBB.Instance.AllDelusions.Add(Delusions.MoreShieldButLessShield, new()
+            {
+                curse = Delusions.MoreShieldButLessShield,
+                MaxCurses = 1,
+                MinFloor = 0,
+                CursesAction = () => { }
+            });
         }
     }
 }

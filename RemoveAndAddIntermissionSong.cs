@@ -4,6 +4,7 @@ using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Reflection;
+using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.UI;
 using NilLib;
 using NilLib.Builders;
@@ -453,7 +454,7 @@ namespace NullscapeinBB
                 {
                     ProgEvents.Add("pevent_freeshield");
                     ProgEvents.Add("pevent_inflation");
-                    NullscapeInBB.Instance.shields += 1;
+                    NullscapeInBB.Instance.shields += 1 + NullscapeInBB.DelusionsCount(Delusions.MoreShieldButLessShield) * 2;
 
                 }
 
@@ -499,15 +500,7 @@ namespace NullscapeinBB
                 {
                     __instance.Ec.ElevatorManager.SetAllElevators(ElevatorState.Open);
                 }
-                var calculatedTimeLimit = 45 + (NullscapeInBB.Instance.notebookcount - 1) * 35;
-                foreach (var cuslevob in NullscapeInBB.Instance.F1.GetCustomLevelObjects())
-                {
-                    cuslevob.timeLimit = calculatedTimeLimit;
-                }
-                foreach (var cuslevob in NullscapeInBB.Instance.F2.GetCustomLevelObjects())
-                {
-                    cuslevob.timeLimit = calculatedTimeLimit;
-                }
+                
 
                 Extras.NextIntermission();
             }
@@ -516,9 +509,23 @@ namespace NullscapeinBB
                 if ((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3f);
             }
 
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed)*0.1f, 4.5f));
-            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 6.5f));
+            if (NullscapeInBB.Instance.SelectedClass == Classes.Student)
+            {
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 4.5f));
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 6.5f));
+            }
+            else if (NullscapeInBB.Instance.SelectedClass == Classes.Grappler && __instance is MainInfiniteGameManager)
+            {
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(0.1f + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 0));
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(0.1f + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 0));
+            }
+            else if (NullscapeInBB.Instance.SelectedClass != Classes.Prisoner) {
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 0));
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", new(1 + NullscapeInBB.UpgradesCount(Upgrades.MoreSpeed) * 0.1f, 0));
+            }
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.UpdateTargetInventorySize();
 
+            
         }
         [HarmonyPatch(typeof(NoLateTeacher), "Initialize")]
         [HarmonyPrefix]
@@ -544,7 +551,7 @@ namespace NullscapeinBB
         [HarmonyPatch(typeof(PlayerClick), "Reach", MethodType.Getter)]
         [HarmonyPostfix]
         public static void ReachUpgrade(ref float __result) {
-            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.LongerReach) * 0.35f;
+            if (NullscapeInBB.Instance.SelectedClass != Classes.Prisoner) __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.LongerReach) * 0.35f;
         }
 
         [HarmonyPatch(typeof(Activity), "Initialize")]
@@ -563,6 +570,14 @@ namespace NullscapeinBB
         [HarmonyPrefix]
         static void CoolLight(BaseGameManager __instance)
         {
+            if (NullscapeInBB.Instance.SelectedClass == Classes.Grappler)
+            {
+
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.SetItem(ItemMetaStorage.Instance.FindByEnum(Items.GrapplingHook).itemObjects[5],0);
+                Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.LockSlot(0, true);
+            }
+
+
             if (__instance is PitstopGameManager)
             {
                 if (NullscapeInBB.Instance.FloorCounter + 1 >= 10 && NullscapeInBB.Instance.FloorCounter + 1 < 30)

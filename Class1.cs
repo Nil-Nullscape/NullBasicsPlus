@@ -81,6 +81,15 @@ namespace NullscapeinBB
         public Sprite Icon = null;
         public Action OnUpgradeBought = action;
     }
+
+    public struct ClassData() {
+        public Sprite icon;
+        public string NameKey;
+        public string DescKey;
+        public Classes classEnum;
+        public ItemObject item;
+        public bool usesAbilityKey = false;
+    }
     public struct ChaosCurseData
     {
         public ChaosItem.ChaosType ChaosType;
@@ -221,8 +230,17 @@ namespace NullscapeinBB
         byebyestickystickers
     }
 
+    public enum Classes {
+        Student,
+        Prisoner,
+        Grappler,
+        Spirit,
+        TimeController,
+        Greedy // scrapped due to how bad the idea was
+    }
     public enum Delusions {
-        baldihappybutapplebye
+        baldihappybutapplebye,
+        MoreShieldButLessShield
     }
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
     {
@@ -345,6 +363,8 @@ namespace NullscapeinBB
         public List<GreaterCurseData> GreaterCursesPicked = new();
         public List<DelusionData> DelusionsPicked = new();
         public List<UpgradeData> UpgradesBought = new();
+        public List<ClassData> Classes = new();
+        public Classes SelectedClass = NullscapeinBB.Classes.Student;
         public Dictionary<Character, EnemyData> AllModdedEnemies = new();
         public Dictionary<Character, EnemyData> AllEnemies = new Dictionary<Character, EnemyData>();
         public Dictionary<Character, ItemObject> AllEnemiesItems = new Dictionary<Character, ItemObject>();
@@ -369,6 +389,7 @@ namespace NullscapeinBB
         public ConfigEntry<bool> DisableCopyright;
         public ConfigEntry<bool> EnableChaosMode;
         public ConfigEntry<bool> EnableQuickStart;
+        public ConfigEntry<KeyCode> KeyAbility;
         public List<RoomAsset> GiftsActivityRooms = new();
         public List<AltarData> Altars = new();
         public List<float> YtpMultipliers = new();
@@ -561,6 +582,72 @@ namespace NullscapeinBB
             .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
             .SetItemComponent<Item>()
             .Build();
+
+
+            CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile("ClassStudent");
+            Classes.Add(new()
+            {
+                NameKey = "tClass_Student",
+                DescKey = "dClass_Student",
+                icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassStudent.png"),
+                classEnum = NullscapeinBB.Classes.Student,
+                item = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"Loading..")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassStudent.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassStudent.png"))
+            .SetEnum($"itmClass")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+            .SetItemComponent<Item>()
+            .Build()
+            });
+            CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile("ClassPrisoner");
+            Classes.Add(new()
+            {
+                NameKey = "tClass_Prisoner",
+                DescKey = "dClass_Prisoner",
+                icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassPrisoner.png"),
+                classEnum = NullscapeinBB.Classes.Prisoner,
+                item = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"Loading..")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassPrisoner.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassPrisoner.png"))
+            .SetEnum($"itmClass")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+            .SetItemComponent<Item>()
+            .Build()
+            });
+            CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile("ClassGrappler");
+            Classes.Add(new()
+            {
+                NameKey = "tClass_Grappler",
+                DescKey = "dClass_Grappler",
+                icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassGrappler.png"),
+                classEnum = NullscapeinBB.Classes.Grappler,
+                item = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"Loading..")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassGrappler.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassGrappler.png"))
+            .SetEnum($"itmClass")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+            .SetItemComponent<Item>()
+            .Build()
+            });
+            CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile("ClassTimeController");
+            Classes.Add(new()
+            {
+                NameKey = "tClass_TimeController",
+                DescKey = "dClass_TimeController",
+                icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassTimeController.png"),
+                classEnum = NullscapeinBB.Classes.TimeController,
+                item = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"Loading..")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassTimeController.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassTimeController.png"))
+            .SetEnum($"itmClass")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+            .SetItemComponent<Item>()
+            .Build()
+            });
         }
         static public int CurseCount(Curses curse)
         {
@@ -746,6 +833,7 @@ namespace NullscapeinBB
             EnableChaosMode = Config.Bind("Gameplay stuff", "EnableChaosMode", false, "This enables chaos mode, an extra intermission will be added every level, where greater curses, curses or enemies can all spawn");
             EnableQuickStart = Config.Bind("Gameplay stuff", "EnableQuickStart", false, "This enables quick start, after you beat level 1 you will be at level 20, you gotta pick every intermission you missed for example and you start with 10k ytps");
             DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (like teledancer's song)");
+            KeyAbility = Config.Bind("Keybinds", "AbilityKey", KeyCode.R);
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, Preload(), LoadingEventOrder.Pre);
@@ -753,8 +841,7 @@ namespace NullscapeinBB
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, FinalLoad(), LoadingEventOrder.Final);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, PostLoad(), LoadingEventOrder.Post);
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
-            MTM101BaldiDevAPI.AddWarningScreen("If you dont like the nullscape entities and prefer only the vanilla content, feel free to disable them in the config (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
-            MTM101BaldiDevAPI.AddWarningScreen("also incase you scared of copyrighted songs/sound you can enable the config to switch or mute the copyrighted ones (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
+            MTM101BaldiDevAPI.AddWarningScreen("Check the config to modify keybinds, or settings that arent editable ingame. (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
             // MTM101BaldiDevAPI.SaveGamesEnabled = false;
             CustomOptionsCore.OnMenuInitialize += AddCategory;
@@ -811,6 +898,8 @@ namespace NullscapeinBB
             yield return 8;
             #region assets stuff
             yield return "Preloading audios (this might take a bit)";
+            Am.Add("mus_class", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Your_New_Prision.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+
             Am.Add("mus_i1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss1.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_findyourflame", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Find-your-Flame.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss2.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
@@ -901,6 +990,7 @@ namespace NullscapeinBB
             Am.Add("spr_intdelusion", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent7.png"));
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
+            Am.Add("spr_slowtime", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_timeability.png"));
             Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
             yield return "Adding ingame Songs to the list of lists";
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
@@ -1032,7 +1122,7 @@ namespace NullscapeinBB
             {
                 Altar = BaseAltar.CreateAltarPrefab<AltarOfDuality>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "delusionAltarItem.png")], "altar_Delusion", 1, "AltarDeluluPre"),
                 Max = 1,
-                Weight = 45
+                Weight = 80
             });
 
             var s = new GameObject("structure");
@@ -1054,8 +1144,19 @@ namespace NullscapeinBB
             Am.Add("altar", s.GetComponent<Structure_AltarBuilder>());
             
             
-               
+            
 
+            using (BinaryReader reader = new BinaryReader(File.OpenRead(Path.Combine(this.GetModPath(),"ClassesRoom.bpl")))) {
+                Am.Add("scene_classes", LevelImporter.CreateSceneObject(BaldiLevel.Read(reader)));
+            }
+            var scene = Am.Get<SceneObject>("scene_classes");
+            scene.baldiPrefab = null;
+            scene.manager = new BaseGameManagerBuilder<ClassesGameManager>()
+            .Build();
+            scene.levelTitle = "G";
+            scene.nextLevel = F1;
+            scene.usesMap = false;
+            
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
             gcactgameobj.ConvertToPrefab(true);
@@ -1495,6 +1596,7 @@ namespace NullscapeinBB
                 if (scene.levelTitle == "F1")
                 {
                     F1 = scene;
+                    Am.Get<SceneObject>("scene_classes").nextLevel = F1;
                     F1Clone = DuplicateSceneObject(F1);
                     F1.additionalNPCs = 0;
                     F1.totalShopItems = 12;

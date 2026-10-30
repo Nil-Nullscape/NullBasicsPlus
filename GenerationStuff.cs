@@ -33,6 +33,7 @@ namespace NullscapeinBB
             CustomLevelObject[] customLevelObjects = toModify.GetCustomLevelObjects();
             foreach (CustomLevelObject cuslevob in customLevelObjects)
             {
+                cuslevob.timeLimit = GetTimeLimit();
                 cuslevob.maxSize = main.levelsize;
                 cuslevob.minSize = main.levelsize;
                 cuslevob.forcedStructures = main.ForcedStructures.ToArray();
@@ -72,6 +73,16 @@ namespace NullscapeinBB
                 }
 
             }
+        }
+        public static float GetTimeLimit() {
+            var currFloor = NullscapeInBB.Instance.FloorCounter;
+            if (currFloor <= 4) {
+                return 60 + currFloor * 20 + GetNumberOfNotebooks() * 6.5f;
+            } else {
+                return 60 + (currFloor * 10 + GetNumberOfNotebooks() * 3.5f) * Mathf.Clamp(1 - Mathf.Floor(currFloor / 8f)*0.05f,0.01f,1f);
+            }
+
+
         }
 
         public static int GetNumberOfNotebooks() {

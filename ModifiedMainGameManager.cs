@@ -1,10 +1,13 @@
 using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
+using NilLib;
 using NilLib.extension;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Windows.Speech;
 
 namespace NullscapeinBB
 {
@@ -18,7 +21,15 @@ namespace NullscapeinBB
         public int TempShieldRemaining = 0;
         public float shieldtimeleft = 0f;
         private HudGauge ShieldGauge;
+        private HudGauge AbilityGauge;
+        public float AbilityGaugeMaxTime = 0f;
+        public float AbilityTimeLeft = 0f;
+        public bool AbilityEnabled = false;
+        public TimeScaleModifier SlowMo;
+        public bool isSlowed = false;
         public bool FindyourflameIsPlaying = false;
+        public float MaxTime = 5f;
+
         public override void AngerBaldi(float val)
         {
             
@@ -30,12 +41,16 @@ namespace NullscapeinBB
             if (shieldtimeleft > 0) {
                 return false;
             }
+            
             if (TempShieldRemaining > 0 || NullscapeInBB.Instance.shields > 0) {
                 if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0)
                 {
+                    MaxTime = 2f;
                     shieldtimeleft = 2f;
+                    
                 }
                 else {
+                    MaxTime = 5f;
                     shieldtimeleft = 5f;
                 }
 
@@ -117,6 +132,11 @@ namespace NullscapeinBB
         }
         public override void ActivityCompleted(bool correct, Activity activity)
         {
+            if (correct) {
+                if (NullscapeInBB.Instance.SelectedClass == Classes.TimeController) {
+                    AbilityTimeLeft = Mathf.Clamp(AbilityTimeLeft + 1.5f, 0, AbilityGaugeMaxTime);
+                }
+            }
             if (allNotebooksFound && NullscapeInBB.CurseCount(Curses.Lap2) >= 1) {
                 BonusactivitiesLeft -= 1;
                 if (BonusactivitiesLeft <= 0) {
@@ -137,6 +157,25 @@ namespace NullscapeinBB
                     val1.text = $"{BonusactivitiesMax - BonusactivitiesLeft}";
                     val2.text = $"{BonusactivitiesMax}";
 
+                }
+            }
+
+            if (Random.Range(0, 100) > (100 - NullscapeInBB.UpgradesCount(Upgrades.TeleportRandomInCompletedActivityRoom) * 10)) {
+                RoomController nextRoom = null;
+                foreach (var item in ec.rooms)
+                {
+                    if (item.HasIncompleteActivity && ec.activities.FirstOrDefault(x => x.room == item))
+                    {
+                        nextRoom = item;
+                        break;
+                    }
+                }
+                if (nextRoom) {
+                    CollectNotebook(activity.GetCachedReflection<Notebook>("notebook"));
+                    activity.GetCachedReflection<Notebook>("notebook").Hide(true);
+                    Singleton<CoreGameManager>.Instance.GetPlayer(0).Teleport(nextRoom.RandomEntitySafeCellNoGarbage().CenterWorldPosition);
+                    shieldtimeleft = 5f;
+                    MaxTime = 5f;
                 }
             }
             base.ActivityCompleted(correct, activity);
@@ -162,12 +201,18 @@ namespace NullscapeinBB
                 cell.SetSilence(true);
             }
             ec.AddTimeScale(new(1 + (NullscapeInBB.CurseCount(Curses.FasterNPCs) * 0.25f), 1 + (NullscapeInBB.CurseCount(Curses.FasterEnviromnent) * 0.25f), 1));
+            if (NullscapeInBB.Instance.SelectedClass == Classes.TimeController) {
+                AbilityGaugeMaxTime = 20f;
+                AbilityTimeLeft = 10f;
+                AbilityGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_slowtime"), 10f);
+                SlowMo = new(0.1f, 0.1f, 1f);
+            }
             base.BeginPlay();
         }
         bool ShouldForceOpenExit = false;
         protected override void VirtualUpdate()
         {
-            
+            if (spoopmode) Singleton<MusicManager>.Instance.StopMidi();
             var plr = Singleton<CoreGameManager>.Instance.GetPlayer(0);
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.OmniscientBaldi) > 0)
             {
@@ -200,19 +245,49 @@ namespace NullscapeinBB
             }
             if (ShieldGauge) {
                 if (shieldtimeleft > 0) {
-                    
-                    if (NullscapeInBB.GreaterCurseCount(GreaterCurses.LessShield) > 0) {
-                        ShieldGauge.SetValue(2f, shieldtimeleft);
-                    } else {
-                        ShieldGauge.SetValue(5f, shieldtimeleft);
-                    }
-                    shieldtimeleft -= Time.deltaTime;
+                    ShieldGauge.SetValue(MaxTime, shieldtimeleft);
+                   
+                    shieldtimeleft -= Time.deltaTime * (1 + 1.75f * NullscapeInBB.DelusionsCount(Delusions.MoreShieldButLessShield));
                 } else {
                     shieldtimeleft = -1;
                     ShieldGauge.Deactivate();
                     ShieldGauge = null;
                 }
             }
+
+            
+
+            if (AbilityTimeLeft <= 0) {
+                AbilityEnabled = false;
+            }
+            if (AbilityEnabled) {
+                if ( NullscapeInBB.Instance.SelectedClass == Classes.TimeController) {
+                    AbilityTimeLeft -= Time.deltaTime;
+                    if (!isSlowed) {
+                        isSlowed = true;
+                        ec.AddTimeScale(SlowMo);
+                    }
+                }
+            } else {
+                if (NullscapeInBB.Instance.SelectedClass == Classes.TimeController)
+                {
+                    if (isSlowed)
+                    {
+                        isSlowed = false;
+                        ec.RemoveTimeScale(SlowMo);
+                    }
+                }
+            }
+
+            if (AbilityGauge)
+            {
+                AbilityGauge.SetValue(AbilityGaugeMaxTime, AbilityTimeLeft);
+            }
+            if (Input.GetKeyDown(NullscapeInBB.Instance.KeyAbility.Value)) {
+                if (AbilityTimeLeft > 0 && NullscapeInBB.Instance.SelectedClass == Classes.TimeController) AbilityEnabled = !AbilityEnabled;
+            }
+
+
             base.VirtualUpdate();
         }
 
