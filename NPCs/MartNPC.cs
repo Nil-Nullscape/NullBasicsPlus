@@ -14,6 +14,16 @@ namespace NullscapeinBB
         public int priority = 0;
         public float timeanim = 0;
         public Vector3 BaseMartSize => Vector3.one * 4f;
+
+        public Queue<MartState> QueuedStates = new();
+
+        public enum MartState
+        {
+            Idle,
+            WowStart,
+            WowIdle
+        }
+        public MartState CurrentState = MartState.Idle;
         public override void Initialize()
         {
             priority = UnityEngine.Random.Range(0, 25555555);
@@ -34,12 +44,28 @@ namespace NullscapeinBB
 
             
         }
+        public void QueueMartState(MartState NextState,bool instant) {
+            if (instant) {
+                CurrentState = NextState;
+                timeanim = 1;
+            } else {
+                QueuedStates.Enqueue(NextState);
+            }
+        }
         protected override void VirtualUpdate()
         {
             spriteRenderer[0].transform.localScale = Vector3.Lerp(spriteRenderer[0].transform.localScale, BaseMartSize * (speed / 10f), 2f*Time.deltaTime);
             ((CapsuleCollider)baseTrigger[0]).radius = BaseMartSize.y * (speed / 10f);
-            timeanim += Time.deltaTime * 16.7f;
-            spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>("sprsheet_mart")[Mathf.RoundToInt(Mathf.Repeat(timeanim, NullscapeInBB.Am.Get<Sprite[]>("sprsheet_mart").Length-1))];
+            timeanim += Time.deltaTime * 25f;
+            spriteRenderer[0].sprite = NullscapeInBB.Am.Get<Sprite[]>($"sprsheet_mart-{CurrentState}")[Mathf.FloorToInt(Mathf.Repeat(timeanim, NullscapeInBB.Am.Get<Sprite[]>($"sprsheet_mart-{CurrentState}").Length))];
+            if (Mathf.FloorToInt(Mathf.Repeat(timeanim, NullscapeInBB.Am.Get<Sprite[]>($"sprsheet_mart-{CurrentState}").Length)) == 0) {
+                if (QueuedStates.Count > 0) {
+                    var next = QueuedStates.Dequeue();
+                    CurrentState = next;
+                    timeanim = 1;
+                }
+            }
+            
             base.VirtualUpdate();
         }
     }

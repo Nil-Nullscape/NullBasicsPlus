@@ -107,7 +107,16 @@ namespace NullscapeinBB
             }
 
             base.AllNotebooks();
-            
+
+
+
+            foreach (var item in ec.Npcs)
+            {
+                if (item is MartNPC mart) {
+                    mart.QueueMartState(MartNPC.MartState.WowStart, true);
+                    mart.QueueMartState(MartNPC.MartState.WowIdle, false);
+                }
+            }
             
             foreach (var activity in ec.activities)
             {

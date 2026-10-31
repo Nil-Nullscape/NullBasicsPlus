@@ -961,7 +961,11 @@ namespace NullscapeinBB
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
             Am.Add<Sprite>("spr_icbmmarker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBM_Marker.png"));
             Am.Add<Sprite>("spr_icbm", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBMAnimated.png"));
-            Am.Add("sprsheet_mart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 84, 84, 20, 24));
+
+            Am.Add("sprsheet_mart-Idle", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 200, 200, 60, 80));
+            Am.Add("sprsheet_mart-WowStart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowStart.png"), 200, 200, 60, 40));
+            Am.Add("sprsheet_mart-WowIdle", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowIdle.png"), 200, 200, 60, 80));
+
             Am.Add("sprsheet_tele", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Telefragger_Spritesheet.png"), 100, 100, 30, 2));
             Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200, 200, 35, 12));
             Am.Add("sprsheet_teledance", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Teledance_spritesheet.png"), 480, 480, 100, 441));
