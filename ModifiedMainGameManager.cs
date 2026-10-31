@@ -171,11 +171,9 @@ namespace NullscapeinBB
                     }
                 }
                 if (nextRoom) {
-                    CollectNotebook(activity.GetCachedReflection<Notebook>("notebook"));
-                    activity.GetCachedReflection<Notebook>("notebook").Hide(true);
+                    activity.GetCachedReflection<Notebook>("notebook").Clicked(0);
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).Teleport(nextRoom.RandomEntitySafeCellNoGarbage().CenterWorldPosition);
-                    shieldtimeleft = 5f;
-                    MaxTime = 5f;
+                    shieldtimeleft += 2.5f;
                 }
             }
             base.ActivityCompleted(correct, activity);

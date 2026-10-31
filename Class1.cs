@@ -321,7 +321,7 @@ namespace NullscapeinBB
 
     [BepInDependency("Nil.Library", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "1.0.1.0")]
+    [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "2.0.0.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
         public static NullscapeInBB Instance;
@@ -394,6 +394,7 @@ namespace NullscapeinBB
         public List<AltarData> Altars = new();
         public List<float> YtpMultipliers = new();
         public Dictionary<AltarTypes, int> Cooldowns = new();
+        public const bool PlaytestBuild = true;
         public struct AltarData()
         {
             public BaseAltar Altar;
@@ -639,6 +640,7 @@ namespace NullscapeinBB
                 DescKey = "dClass_TimeController",
                 icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassTimeController.png"),
                 classEnum = NullscapeinBB.Classes.TimeController,
+                usesAbilityKey = true,
                 item = new ItemBuilder(this.Info)
             .SetAsInstantUse()
             .SetNameAndDescription($"itm_unused", $"Loading..")
@@ -832,7 +834,7 @@ namespace NullscapeinBB
             EnabledNullscapeEntities = Config.Bind("Gameplay stuff", "EnableNullscapeEnemies", true, "This enables the enemies from nullscape if you dont want them set this to false");
             EnableChaosMode = Config.Bind("Gameplay stuff", "EnableChaosMode", false, "This enables chaos mode, an extra intermission will be added every level, where greater curses, curses or enemies can all spawn");
             EnableQuickStart = Config.Bind("Gameplay stuff", "EnableQuickStart", false, "This enables quick start, after you beat level 1 you will be at level 20, you gotta pick every intermission you missed for example and you start with 10k ytps");
-            DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (like teledancer's song)");
+            DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (currently does nothing)");
             KeyAbility = Config.Bind("Keybinds", "AbilityKey", KeyCode.R);
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);
@@ -841,6 +843,12 @@ namespace NullscapeinBB
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, FinalLoad(), LoadingEventOrder.Final);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, PostLoad(), LoadingEventOrder.Post);
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
+            if (PlaytestBuild) {
+
+                MTM101BaldiDevAPI.AddWarningScreen("Hello, this is a playtester build so many things are subject to change, and a lot of placeholders are still in here", false);
+                MTM101BaldiDevAPI.AddWarningScreen("If there are bugs, report it to the github repo, If you have a feedback then send it in the discord channel made for it.", false);
+                MTM101BaldiDevAPI.AddWarningScreen("Again, be aware this is early access, so lots of unfinished stuff and unpolished stuff, thanks for playing!", false);
+            }
             MTM101BaldiDevAPI.AddWarningScreen("Check the config to modify keybinds, or settings that arent editable ingame. (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
             // MTM101BaldiDevAPI.SaveGamesEnabled = false;
@@ -924,24 +932,6 @@ namespace NullscapeinBB
             Am.Add("snd_martkill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "MartKill.mp3"), "snd_martkill", SoundType.Effect, UnityEngine.Color.cyan, 1f));
             Am.Add("snd_martmerge", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Mart_Merge.ogg"), "snd_martmerge", SoundType.Effect, UnityEngine.Color.cyan, 1f));
             Am.Add("snd_computercount10", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ComputerCount_10.ogg"), "comp_10", SoundType.Voice, UnityEngine.Color.white, 4f));
-            Am.Add("mus_normal_domasp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Domasp-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_domasp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Domasp-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_lineoffire", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Line_of_Fire-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_lineoffire", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Line_of_Fire-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_icbm", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "ICBM-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_icbm", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "ICBM-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_sygt", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Sygt-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_sygt", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Sygt-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_formergarden", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Former-Gardens-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_formergarden", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Former-Gardens-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_cadence", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "cadence-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_cadence", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "cadence-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_deathdefiance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Death-Defiance-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_deathdefiance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Death-Defiance-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_congaline", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Congaline-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_congaline", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "Congaline-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_normal_babyface", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "BabyFace-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
-            Am.Add("mus_collapse_babyface", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", "BabyFace-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_cadenceP1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv1.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv2.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv3.wav"), "snd_cadenceintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
@@ -992,15 +982,43 @@ namespace NullscapeinBB
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             Am.Add("spr_slowtime", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_timeability.png"));
             Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
-            yield return "Adding ingame Songs to the list of lists";
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_domasp"), Am.Get<SoundObject>("mus_collapse_domasp"), 0, 15));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_lineoffire"), Am.Get<SoundObject>("mus_collapse_lineoffire"), 0, 9));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_icbm"), Am.Get<SoundObject>("mus_collapse_icbm"), 0, 15));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_sygt"), Am.Get<SoundObject>("mus_collapse_sygt"), 4, 20));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_formergarden"), Am.Get<SoundObject>("mus_collapse_formergarden"), 20, 100000));
+            yield return "Adding and loading ingame Songs to the list of lists";
+            string[] SongsToLoad = [
+            "Domasp","Sygt","Line_of_Fire","ICBM","Former-Gardens","Death-Defiance","Congaline","cadence",
+            "BabyFace","aero","determination","inescapable","TWWC","Cognition","CYBT","Conviction","FoS","IA",
+            "Keno","Monolith","Paradox","SelfDestruct","TempTena","VeinBlood","VoidBreaker"
+            ];
+            foreach (var item in SongsToLoad)
+            {
+                Am.Add($"mus_normal_{item}", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", $"{item}-normal.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+                Am.Add($"mus_collapse_{item}", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Ingame", $"{item}-collapse.ogg"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+            }
+
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Domasp"), Am.Get<SoundObject>("mus_collapse_Domasp"), 0, 9));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Line_of_Fire"), Am.Get<SoundObject>("mus_collapse_Line_of_Fire"), 10, 19));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_ICBM"), Am.Get<SoundObject>("mus_collapse_ICBM"), 0, 9));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Sygt"), Am.Get<SoundObject>("mus_collapse_Sygt"), 4, 10));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Former-Gardens"), Am.Get<SoundObject>("mus_collapse_Former-Gardens"), 20, 100000));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_cadence"), Am.Get<SoundObject>("mus_collapse_cadence"), 25, 100000000));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_congaline"), Am.Get<SoundObject>("mus_collapse_congaline"), 10, 1000000));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_babyface"), Am.Get<SoundObject>("mus_collapse_babyface"), 5, 20));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Congaline"), Am.Get<SoundObject>("mus_collapse_Congaline"), 10, 1000000));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_BabyFace"), Am.Get<SoundObject>("mus_collapse_BabyFace"), 5, 15));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Death-Defiance"), Am.Get<SoundObject>("mus_collapse_Death-Defiance"), 20, 29));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_aero"), Am.Get<SoundObject>("mus_collapse_aero"), 30, 9999));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_determination"), Am.Get<SoundObject>("mus_collapse_determination"), 25, 9999));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_inescapable"), Am.Get<SoundObject>("mus_collapse_inescapable"), 20, 9999));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_TWWC"), Am.Get<SoundObject>("mus_collapse_TWWC"), 30, 9999));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Cognition"), Am.Get<SoundObject>("mus_collapse_Cognition"), 25, 40));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Conviction"), Am.Get<SoundObject>("mus_collapse_Conviction"), 20, 50));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_CYBT"), Am.Get<SoundObject>("mus_collapse_CYBT"), 10, 19));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_FoS"), Am.Get<SoundObject>("mus_collapse_FoS"), 10, 25));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_IA"), Am.Get<SoundObject>("mus_collapse_IA"), 30, 9999));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Keno"), Am.Get<SoundObject>("mus_collapse_Keno"),0, 9));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Monolith"), Am.Get<SoundObject>("mus_collapse_Monolith"), 12, 35));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Paradox"), Am.Get<SoundObject>("mus_collapse_Paradox"), 0, 9));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_SelfDestruct"), Am.Get<SoundObject>("mus_collapse_SelfDestruct"), 5, 15));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_TempTena"), Am.Get<SoundObject>("mus_collapse_TempTena"), 20, 10000));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_VeinBlood"), Am.Get<SoundObject>("mus_collapse_VeinBlood"), 15, 25));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_VoidBreaker"), Am.Get<SoundObject>("mus_collapse_VoidBreaker"), 20, 1000000));
             yield return "Adding Intermission songs";
             
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i1"), 1, 2));
@@ -1121,6 +1139,12 @@ namespace NullscapeinBB
             Altars.Add(new()
             {
                 Altar = BaseAltar.CreateAltarPrefab<AltarOfDuality>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "delusionAltarItem.png")], "altar_Delusion", 1, "AltarDeluluPre"),
+                Max = 1,
+                Weight = 80
+            });
+            Altars.Add(new()
+            {
+                Altar = BaseAltar.CreateAltarPrefab<AltarOfInvincibility>(pedestalPre, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "altar_pedestalPlaceholder.png"), [AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "altars", "InvicibilityAltarItem.png")], "altar_Invincibility", 1, "AltarInvinciPre"),
                 Max = 1,
                 Weight = 80
             });
@@ -1832,7 +1856,7 @@ namespace NullscapeinBB
             flop = false;
             foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())
             {
-                if (room.activity.prefab is NoActivity)
+                if (room.activity != null && room.activity.prefab is NoActivity)
                 {
                     rooms.Add(new()
                     {

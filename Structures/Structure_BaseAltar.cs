@@ -21,7 +21,8 @@ namespace NullscapeinBB.Structures
         NULL,
         Chance,
         Purgatory,
-        Duality
+        Duality,
+        Invincibility
     }
     public class BaseAltar : MonoBehaviour
     {

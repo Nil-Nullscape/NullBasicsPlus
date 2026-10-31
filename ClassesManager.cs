@@ -75,7 +75,8 @@ namespace NullscapeinBB
                 PickUp1.GetComponent<Pickup>().AssignItem(classs.item);
                 classs.item.descKey = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText(classs.NameKey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText(classs.DescKey)}";
                 if (classs.usesAbilityKey) {
-                    classs.item.descKey += $"\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_AbilityKeyWarning")}";
+                    classs.item.descKey += $"\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_AbilityKeyWarning")}{NullscapeInBB.Instance.KeyAbility.Value.ToString()}";
+                    
                 }
                 PickUp1.transform.position = ec.rooms[0].objectObject.transform.GetChild(i).transform.position + (Vector3.up * 5);
                 pickups.Add(PickUp1.GetComponent<Pickup>());

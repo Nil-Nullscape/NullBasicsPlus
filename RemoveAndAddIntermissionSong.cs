@@ -506,7 +506,7 @@ namespace NullscapeinBB
             }
 
             if (__instance is MainInfiniteGameManager) {
-                if ((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3f);
+                if ((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3.5f);
             }
 
             if (NullscapeInBB.Instance.SelectedClass == Classes.Student)
