@@ -1,5 +1,6 @@
 ﻿using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
+using NullscapeinBB.NPCs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,7 +14,7 @@ namespace NullscapeinBB
         public float speed = 3.5f;
         public int priority = 0;
         public float timeanim = 0;
-        public Vector3 BaseMartSize => Vector3.one * 4f;
+        virtual public Vector3 BaseMartSize => Vector3.one * 4f;
 
         public Queue<MartState> QueuedStates = new();
 
@@ -21,7 +22,9 @@ namespace NullscapeinBB
         {
             Idle,
             WowStart,
-            WowIdle
+            WowIdle,
+            Waterplanet_Blue,
+            Waterplanet_Pink
         }
         public MartState CurrentState = MartState.Idle;
         public override void Initialize()
@@ -40,6 +43,17 @@ namespace NullscapeinBB
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop"), true);
             audMan.SetLoop(true);
             this.behaviorStateMachine.ChangeState(new Mart_StateChase(this));
+            if (!this.GetType().IsSubclassOf(typeof(MartNPC)))
+            {
+                if (NullscapeInBB.GreaterCurseCount(GreaterCurses.MartWaterPlanet) >0) {
+                    ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_Mart2"), ec.RandomCell(true, true, false).position);
+                    ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_Mart2"), ec.RandomCell(true, true, false).position);
+                    ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_Mart2"), ec.RandomCell(true, true, false).position);
+                    var mart = ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_Mart2"), ec.RandomCell(true, true, false).position) as Mart_Waterplanet;
+                    mart.SetMartColor(Mart_Waterplanet.WaterplanetColor.Pink);
+                    Despawn();
+                }
+            }
             base.Initialize();
 
             

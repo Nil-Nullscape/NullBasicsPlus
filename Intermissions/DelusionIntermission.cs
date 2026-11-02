@@ -34,7 +34,7 @@ namespace NullscapeinBB
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
             var PickUp1 = Object.Instantiate(PickupPrefab, new Vector3(35, -0f, -40), Quaternion.identity);
             PickUp1.GetComponent<Pickup>().showDescription = true;
-            PickUp1.GetComponent<Pickup>().AssignItem(i1);
+            PickUp1.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.ContinueItem);
             var PickUp2 = Object.Instantiate(PickupPrefab, new Vector3(30, -0f, -42.5f), Quaternion.identity);
             PickUp2.GetComponent<Pickup>().showDescription = true;
             PickUp2.GetComponent<Pickup>().AssignItem(i2);
@@ -56,10 +56,32 @@ namespace NullscapeinBB
             renderer.transform.localPosition = new Vector3(335, 12.5f, 60);
             renderer.gameObject.AddComponent<IntermissionMovementStuff>();
 
+            var Reroll = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
+            Reroll.GetComponent<Pickup>().showDescription = true;
+            NullscapeInBB.Instance.RerollItem.descKey = $"desc_reroll_delu";
+
+            Reroll.GetComponent<Pickup>().AssignItem(NullscapeInBB.Instance.RerollItem);
+
+            Reroll.GetComponent<Pickup>().free = false;
+            Reroll.GetComponent<Pickup>().price = 1000;
+
+
+            Reroll.transform.parent = Singleton<BaseGameManager>.Instance.Ec.transform;
+            Reroll.transform.localPosition = new Vector3(350, 5, 57.5f);
+
+
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
-                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem1);
+                Object.Destroy(PickUp1);
+                Object.Destroy(PickUp2);
+                Object.Destroy(PickUp3);
+                Object.Destroy(renderer.gameObject);
+                // Object.Destroy(Reroll);
+                NullscapeInBB.delay(() =>
+                {
+                    Extras.NextIntermission();
+                }, 0.5f);
             };
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
             {
@@ -69,7 +91,27 @@ namespace NullscapeinBB
             {
                 OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject }, pckup, enemItem3);
             };
-            ;
+
+            Reroll.GetComponent<Pickup>().OnItemPurchased += (pckup, plr) =>
+            {
+                Object.Destroy(PickUp1);
+                Object.Destroy(PickUp2);
+                Object.Destroy(PickUp3);
+                Object.Destroy(renderer.gameObject);
+                Object.Destroy(Reroll);
+                NullscapeInBB.delay(() =>
+                {
+                    var random3 = NullscapeInBB.Instance.PickThreeDelusions();
+                    if (random3.Count > 0)
+                    {
+                        CreatePickupsDelusions(NullscapeInBB.Instance.AllDelusionsItems[random3[0].curse], NullscapeInBB.Instance.AllDelusionsItems[random3[1].curse], NullscapeInBB.Instance.AllDelusionsItems[random3[2].curse]);
+                    }
+                    else
+                    {
+                        Extras.NextIntermission();
+                    }
+                }, 0.5f);
+            };
         }
 
     }

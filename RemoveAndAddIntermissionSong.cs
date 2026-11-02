@@ -542,7 +542,7 @@ namespace NullscapeinBB
         static void Deez(ref float __result)
         {
             __result *= 1 + NullscapeInBB.CurseCount(Curses.Lap2);
-            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*0.05f;
+            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*(0.05f + NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) * 0.02f);
             foreach (var item in NullscapeInBB.Instance.YtpMultipliers)
             {
                 __result *= item;

@@ -26,6 +26,7 @@ using NilLib.extension;
 using NilLib.Builders;
 using MTM101BaldAPI.SaveSystem;
 using NullscapeinBB.SaveHandlerStuff;
+using NullscapeinBB.NPCs;
 
 namespace NullscapeinBB
 {
@@ -190,7 +191,8 @@ namespace NullscapeinBB
         BaldiPraise,
         TempShield,
         LongerReach,
-        TeleportRandomInCompletedActivityRoom
+        TeleportRandomInCompletedActivityRoom,
+        ExtraMoreYtps
     }
     public enum Curses
     {
@@ -227,7 +229,8 @@ namespace NullscapeinBB
         BaldiAppleEatFaster,
         LessShield,
         SilentNpcs,
-        byebyestickystickers
+        byebyestickystickers,
+        MartWaterPlanet
     }
 
     public enum Classes {
@@ -444,7 +447,7 @@ namespace NullscapeinBB
                     .SetSprites(enemy.Icon != null ? enemy.Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"), enemy.Icon != null ? enemy.Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{enemy.NPCToUse.name}.png"))
                     .SetEnum($"itmenemy_{enemy.NPCToUse.name}")
                     .SetItemComponent<EnemItem>()
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickenemy"))
                     .Build();
                         ((EnemItem)ie.item).Enemy = enemy.Enemy;
                         AllEnemiesItems.Add(enemy.Enemy, ie);
@@ -457,7 +460,7 @@ namespace NullscapeinBB
                         .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_random.png"))
                         .SetEnum($"itmenemy_random")
                         .SetItemComponent<EnemItem>()
-                        .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                        .SetPickupSound(Am.Get<SoundObject>("snd_pickenemy"))
                         .Build();
                         ((EnemItem)ie.item).Enemy = enemy.Enemy;
                         AllEnemiesItems.Add(enemy.Enemy, ie);
@@ -499,7 +502,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllCurses[curse].Icon != null ? AllCurses[curse].Icon :  AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllCurses[curse].Icon != null ? AllCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmcurse_{curse.ToStringExtended()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickcurse"))
                     .SetItemComponent<CurseItem>()
                     .Build();
                 ((CurseItem)ie.item).curse = curse;
@@ -514,7 +517,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmgreatercurse_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickgcurse"))
                     .SetItemComponent<GreaterCurseItem>()
                     .Build();
                 ((GreaterCurseItem)ie.item).curse = curse;
@@ -529,7 +532,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmdelusions_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickdelusion"))
                     .SetItemComponent<DelusionsItem>()
                     .Build();
                 ((DelusionsItem)ie.item).curse = curse;
@@ -543,7 +546,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllUpgrades[curse].Icon != null ? AllUpgrades[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
                     .SetEnum($"itmupgrade_{curse.ToString()}")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickupgrade"))
                     .SetItemComponent<UpgradeItem>()
                     .Build();
                 ((UpgradeItem)ie.item).curse = curse;
@@ -555,7 +558,7 @@ namespace NullscapeinBB
                     .SetNameAndDescription($"itm_reroll", $"desc_reroll")
                     .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_Reroll.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_Reroll.png"))
                     .SetEnum($"itmreroll")
-                    .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+                    .SetPickupSound(Am.Get<SoundObject>("snd_pickupgrade"))
                     .SetItemComponent<Item>()
                     .Build();
             CursebreakerItem = new ItemBuilder(this.Info)
@@ -563,7 +566,7 @@ namespace NullscapeinBB
             .SetNameAndDescription($"itm_unused", $"desc_cursebreakeritm")
             .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_CurseBreaker.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_CurseBreaker.png"))
             .SetEnum($"itmcursebreaker")
-            .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+            .SetPickupSound(Am.Get<SoundObject>("snd_pickupgrade"))
             .SetItemComponent<Item>()
             .Build();
             ShieldItem = new ItemBuilder(this.Info)
@@ -571,7 +574,7 @@ namespace NullscapeinBB
             .SetNameAndDescription($"itm_unused", $"desc_shielditm")
             .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_shield.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_shield.png"))
             .SetEnum($"itmshield")
-            .SetPickupSound(Am.Get<SoundObject>("snd_purchase2"))
+            .SetPickupSound(Am.Get<SoundObject>("snd_pickupgrade"))
             .SetItemComponent<Item>()
             .Build();
 
@@ -751,7 +754,7 @@ namespace NullscapeinBB
                 text.rectTransform.offsetMax = new(0, -0);
                 text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3")}";
                 if (lostTempShield || tempShieldRemaining > 0) {
-                    text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3B")} {tempShieldRemaining} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld4B")}";
+                    text.text = $"{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld1")} {Singleton<LocalizationManager>.Instance.GetLocalizedText(enemykey)}\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld2")} {Instance.shields} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld3B")} {tempShieldRemaining} {Singleton<LocalizationManager>.Instance.GetLocalizedText("Shld4B")}";
 
                 }
                 delay(() =>
@@ -926,9 +929,19 @@ namespace NullscapeinBB
             Am.Add("mus_nil", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Nil.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_purchase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_purchase2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase2.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+
+
+            Am.Add("snd_pickcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-Curse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_pickgcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-greatercurse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_pickenemy", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-enemy.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_pickdelusion", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-delusion.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+            Am.Add("snd_pickupgrade", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-upgrade.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
+
             Am.Add("snd_allnb", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "BAL_AllNotebooks.ogg"), "nbal_all1", SoundType.Voice, UnityEngine.Color.green, 16f));
             Am.Add("snd_event", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "EventStartBell.wav"), "snd_progressionEvent", SoundType.Effect, UnityEngine.Color.white, 4f));
             Am.Add("snd_martloop", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "MartLoop.mp3"), "snd_mart", SoundType.Effect, UnityEngine.Color.cyan, int.MaxValue));
+
+            Am.Add("snd_martloop2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Water_Planet_Ambience.ogg"), "snd_mart", SoundType.Effect, UnityEngine.Color.cyan, int.MaxValue));
             Am.Add("snd_martkill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "MartKill.mp3"), "snd_martkill", SoundType.Effect, UnityEngine.Color.cyan, 1f));
             Am.Add("snd_martmerge", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Mart_Merge.ogg"), "snd_martmerge", SoundType.Effect, UnityEngine.Color.cyan, 1f));
             Am.Add("snd_computercount10", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ComputerCount_10.ogg"), "comp_10", SoundType.Voice, UnityEngine.Color.white, 4f));
@@ -966,6 +979,9 @@ namespace NullscapeinBB
             Am.Add("sprsheet_mart-WowStart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowStart.png"), 200, 200, 60, 40));
             Am.Add("sprsheet_mart-WowIdle", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowIdle.png"), 200, 200, 60, 80));
 
+            Am.Add("sprsheet_mart-Waterplanet_Blue", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WaterplanetBlue.png"), 200, 200, 60, 100));
+            Am.Add("sprsheet_mart-Waterplanet_Pink", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WaterplanetPink.png"), 200, 200, 60, 100));
+
             Am.Add("sprsheet_tele", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Telefragger_Spritesheet.png"), 100, 100, 30, 2));
             Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200, 200, 35, 12));
             Am.Add("sprsheet_teledance", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Teledance_spritesheet.png"), 480, 480, 100, 441));
@@ -986,6 +1002,11 @@ namespace NullscapeinBB
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             Am.Add("spr_slowtime", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_timeability.png"));
             Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
+
+            foreach (var item in Enum.GetNames(typeof(MainInfiniteGameManager.StatusEffectsTypes)))
+            {
+                Am.Add($"Status_{item}", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "statusEffects", $"{item}.png"));
+            }
             yield return "Adding and loading ingame Songs to the list of lists";
             string[] SongsToLoad = [
             "Domasp","Sygt","Line_of_Fire","ICBM","Former-Gardens","Death-Defiance","Congaline","cadence",
@@ -1072,7 +1093,15 @@ namespace NullscapeinBB
                 .SetName("Mart")
                 .Build());
             Am.Get<NPC>("npc_Mart").spriteRenderer[0].sprite = Am.Get<Sprite>("spr_mart");
+            Am.Add("npc_Mart2", new NPCBuilder<Mart_Waterplanet>(this.Info)
+                .AddTrigger()
+                .SetAirborne()
+                .SetEnum(Am.Get<NPC>("npc_Mart").Character)
+                .SetStationary()
+                .SetName("WaterPlanetMart")
+                .Build());
             Destroy(Am.Get<MartNPC>("npc_Mart").GetComponent<PropagatedAudioManager>());
+            Destroy(Am.Get<MartNPC>("npc_Mart2").GetComponent<PropagatedAudioManager>());
             Am.Add("npc_Tele", new NPCBuilder<TelefraggerNPC>(this.Info)
                 .AddTrigger()
                 .SetAirborne()

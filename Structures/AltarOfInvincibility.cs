@@ -25,8 +25,7 @@ namespace NullscapeinBB.Structures
             NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Invincibility_Activated"));
             NullscapeInBB.SetCooldown(AltarTypes.Invincibility,15);
             if (Singleton<BaseGameManager>.Instance is MainInfiniteGameManager Igm) {
-                Igm.shieldtimeleft = 60f;
-                Igm.MaxTime = 60f;
+                Igm.NewStatusEffect(MainInfiniteGameManager.StatusEffectsTypes.Invicibility, 60);
             }
             base.OnActivate();
         }

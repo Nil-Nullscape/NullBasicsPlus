@@ -7,13 +7,50 @@ using System.Linq;
 using System.Security.Policy;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Windows.Speech;
 
 namespace NullscapeinBB
 {
     class MainInfiniteGameManager : MainGameManager
     {
-     
+        public enum StatusEffectsTypes {
+            TimeSlow,
+            TimeFast,
+            Invicibility
+        }
+        public class StatusEffect(StatusEffectsTypes type, float maxTime = 5f)
+        {
+            private HudGauge gauge;
+            private float Timeleft = 0f;
+            private readonly float MaxTime = maxTime;
+            private bool isdone = false;
+            public bool IsDone => isdone;
+            public readonly StatusEffectsTypes EffectType = type;
+            public void Init() {
+                var sprite = NullscapeInBB.Am.Get<Sprite>($"Status_{EffectType.ToString()}");
+                Timeleft = MaxTime;
+                gauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(sprite, MaxTime);
+
+            }
+
+
+
+
+            public void UpdateGaugeTimer() {
+                if (isdone) return;
+                Timeleft -= Time.deltaTime;
+                gauge.SetValue(MaxTime, Timeleft);
+
+                if (Timeleft <= 0) {
+                    gauge.Deactivate();
+                    isdone = true;
+                }
+            }
+
+
+        }
+        private List<StatusEffect> StatusEffects = new();
         private IngameSong Song;
         private bool spoopmode = false;
         private int BonusactivitiesLeft = 0;
@@ -30,6 +67,33 @@ namespace NullscapeinBB
         public bool FindyourflameIsPlaying = false;
         public float MaxTime = 5f;
 
+
+        public void NewStatusEffect(StatusEffectsTypes type, float EffectTime) {
+            var statusEffect = new StatusEffect(type, EffectTime);
+            statusEffect.Init();
+            StatusEffects.Add(statusEffect);
+        }
+
+        public StatusEffect GetFirstStatusEffect(StatusEffectsTypes type) => StatusEffects.FirstOrDefault(x => x.EffectType == type);
+     
+
+        public bool IsStatusEffectDone(StatusEffectsTypes type) {
+            var status = GetFirstStatusEffect(type);
+            if (status != null) {
+                return status.IsDone;
+            } else {
+                return true;
+            }
+        } 
+        public bool CheckMultipleStatusEffectsIfDone(params StatusEffectsTypes[] type) {
+            bool isalldone = true;
+            foreach (var item in type)
+            {
+                if (!IsStatusEffectDone(item)) isalldone = false;
+            }
+            return isalldone;
+        }
+
         public override void AngerBaldi(float val)
         {
             
@@ -38,7 +102,7 @@ namespace NullscapeinBB
         }
 
         public bool canDie(Baldi inst) {
-            if (shieldtimeleft > 0) {
+            if (shieldtimeleft > 0 || !IsStatusEffectDone(StatusEffectsTypes.Invicibility)) {
                 return false;
             }
             
@@ -112,7 +176,7 @@ namespace NullscapeinBB
 
             foreach (var item in ec.Npcs)
             {
-                if (item is MartNPC mart) {
+                if (item is MartNPC mart && mart.CurrentState == MartNPC.MartState.Idle) {
                     mart.QueueMartState(MartNPC.MartState.WowStart, true);
                     mart.QueueMartState(MartNPC.MartState.WowIdle, false);
                 }
@@ -180,7 +244,10 @@ namespace NullscapeinBB
                     }
                 }
                 if (nextRoom) {
-                    activity.GetCachedReflection<Notebook>("notebook").Clicked(0);
+                    CollectNotebook(activity.GetCachedReflection<Notebook>("notebook"));
+                    activity.GetCachedReflection<Notebook>("notebook").SetCachedReflection("collected", true);
+                    activity.GetCachedReflection<Notebook>("notebook").Hide(true);
+                    
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).Teleport(nextRoom.RandomEntitySafeCellNoGarbage().CenterWorldPosition);
                     shieldtimeleft += 2.5f;
                 }
@@ -294,6 +361,18 @@ namespace NullscapeinBB
                 if (AbilityTimeLeft > 0 && NullscapeInBB.Instance.SelectedClass == Classes.TimeController) AbilityEnabled = !AbilityEnabled;
             }
 
+
+            foreach (var item in StatusEffects.ToList())
+            {
+                if (item.IsDone) {
+                    StatusEffects.Remove(item);
+                    continue;
+                } else {
+                    item.UpdateGaugeTimer();
+                }
+
+
+            }
 
             base.VirtualUpdate();
         }

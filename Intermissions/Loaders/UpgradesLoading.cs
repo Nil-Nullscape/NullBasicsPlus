@@ -96,6 +96,23 @@ namespace NullscapeinBB
 
             });
 
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.ExtraMoreYtps, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(5000 * (NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) + 1)  * GetInflationPercentage());
+                },
+                curse = Upgrades.LongerReach,
+                MaxUpgrades = 10,
+                MinFloor = 19,
+                OnUpgradeBought = () => {
+                },
+                Requirements = () => {
+                    return NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) > 0;
+                }
+
+
+            });
+
 
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.TeleportRandomInCompletedActivityRoom, new()
             {
@@ -104,12 +121,12 @@ namespace NullscapeinBB
                 },
                 curse = Upgrades.TeleportRandomInCompletedActivityRoom,
                 MaxUpgrades = 4,
-                MinFloor = 14,
+                MinFloor = 99999,
                 OnUpgradeBought = () => {
                 }
 
 
-            });
+            }); 
 
         }
     }

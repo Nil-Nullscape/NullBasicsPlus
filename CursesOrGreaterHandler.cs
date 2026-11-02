@@ -138,13 +138,6 @@ namespace NullscapeinBB
 
             }
         }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CoreGameManager), "AddPoints",[typeof(int), typeof(int), typeof(bool), typeof(bool), typeof(bool)])]
-        static void AddPointsGreed(CoreGameManager __instance, int points, bool multiply)
-        {
-            
-        }
-
 
 
         [HarmonyPrefix]
