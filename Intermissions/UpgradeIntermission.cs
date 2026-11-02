@@ -130,7 +130,7 @@ namespace NullscapeinBB
 
             PickUp3.GetComponent<Pickup>().OnItemPurchased += (pckup, plr) =>
             {
-                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, plr, enemItem1);
+                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, plr, enemItem3);
             };
             ;
         }
