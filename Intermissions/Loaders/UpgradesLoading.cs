@@ -99,7 +99,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.ExtraMoreYtps, new()
             {
                 Cost = () => {
-                    return Mathf.CeilToInt(5000 * (NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) + 1)  * GetInflationPercentage());
+                    return Mathf.CeilToInt(5000 * (NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) + 1) * GetInflationPercentage());
                 },
                 curse = Upgrades.LongerReach,
                 MaxUpgrades = 10,
@@ -108,6 +108,20 @@ namespace NullscapeinBB
                 },
                 Requirements = () => {
                     return NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) > 0;
+                }
+
+
+            });
+
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.AllNotebooksPower, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(10000 * GetInflationPercentage());
+                },
+                curse = Upgrades.AllNotebooksPower,
+                MaxUpgrades = 1,
+                MinFloor = 24,
+                OnUpgradeBought = () => {
                 }
 
 

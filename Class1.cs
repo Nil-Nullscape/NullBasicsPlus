@@ -50,6 +50,7 @@ namespace NullscapeinBB
         // used for cursebreaker
         public int CurseValue = value;
         public Action CursesAction = action;
+        public bool ExecuteActionOnLoad = true;
     }
 
     public struct GreaterCurseData(GreaterCurses GreaterCurse, int minFloor, int StackSize = 1, Action action = null)
@@ -60,6 +61,7 @@ namespace NullscapeinBB
         public Func<bool> Requirements = null;
         public Sprite Icon = null;
         public Action CursesAction = action;
+        public bool ExecuteActionOnLoad = true;
     }
 
     public struct DelusionData(Delusions delusion, int minFloor, int StackSize = 1, Action action = null)
@@ -70,6 +72,7 @@ namespace NullscapeinBB
         public Func<bool> Requirements = null;
         public Sprite Icon = null;
         public Action CursesAction = action;
+        public bool ExecuteActionOnLoad = true;
     }
 
     public struct UpgradeData(Upgrades Upgrade, int minFloor, Func<int> cost, int StackSize = 1, Action action = null)
@@ -81,6 +84,7 @@ namespace NullscapeinBB
         public Func<bool> Requirements = null;
         public Sprite Icon = null;
         public Action OnUpgradeBought = action;
+        public bool ExecuteActionOnLoad = true;
     }
 
     public struct ClassData() {
@@ -191,8 +195,9 @@ namespace NullscapeinBB
         BaldiPraise,
         TempShield,
         LongerReach,
-        TeleportRandomInCompletedActivityRoom,
-        ExtraMoreYtps
+        TeleportRandomInCompletedActivityRoom, // currently broken, gotta fix that
+        ExtraMoreYtps,
+        AllNotebooksPower
     }
     public enum Curses
     {

@@ -310,20 +310,24 @@ namespace NullscapeinBB.SaveHandlerStuff
                 Debug.Log("Reexecuting all curses,greater curses, upgrades and delusions");
                 foreach (var item in NullscapeInBB.Instance.CursesPicked)
                 {
-                    if (item.CursesAction != null) item.CursesAction();
+                    if (item.CursesAction != null && item.ExecuteActionOnLoad) item.CursesAction();
                 }
                 foreach (var item in NullscapeInBB.Instance.GreaterCursesPicked)
                 {
-                    if (item.CursesAction != null) item.CursesAction();
+                    if (item.CursesAction != null && item.ExecuteActionOnLoad) item.CursesAction();
                 }
                 foreach (var item in NullscapeInBB.Instance.DelusionsPicked)
                 {
-                    if (item.CursesAction != null) item.CursesAction();
+                    if (item.CursesAction != null && item.ExecuteActionOnLoad) item.CursesAction();
                 }
                 foreach (var item in NullscapeInBB.Instance.UpgradesBought)
                 {
-                    if (item.OnUpgradeBought != null) item.OnUpgradeBought();
+                    if (item.OnUpgradeBought != null && item.ExecuteActionOnLoad) item.OnUpgradeBought();
                 }
+
+                GenerationStuff.GenStuff(NullscapeInBB.Instance.F1);
+                GenerationStuff.GenStuff(NullscapeInBB.Instance.F2);
+                GenerationStuff.GlobalGenStuff();
             } else {
                 NullscapeInBB.Instance.ResetValues();
                 GenerationStuff.GenStuff(NullscapeInBB.Instance.F1);

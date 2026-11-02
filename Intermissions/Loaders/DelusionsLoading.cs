@@ -21,7 +21,10 @@ namespace NullscapeinBB
                 curse = Delusions.MoreShieldButLessShield,
                 MaxCurses = 1,
                 MinFloor = 0,
-                CursesAction = () => { }
+                ExecuteActionOnLoad = false,
+                CursesAction = () => {
+                    NullscapeInBB.Instance.shields += 2;
+                }
             });
         }
     }

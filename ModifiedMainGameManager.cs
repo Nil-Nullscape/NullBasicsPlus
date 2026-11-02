@@ -1,7 +1,10 @@
 using MTM101BaldAPI;
+using MTM101BaldAPI.Components;
+using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Reflection;
 using NilLib;
 using NilLib.extension;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
@@ -17,7 +20,8 @@ namespace NullscapeinBB
         public enum StatusEffectsTypes {
             TimeSlow,
             TimeFast,
-            Invicibility
+            Invicibility,
+            SpeedUp
         }
         public class StatusEffect(StatusEffectsTypes type, float maxTime = 5f)
         {
@@ -162,6 +166,14 @@ namespace NullscapeinBB
             base.BeginSpoopMode();
         }
 
+        public IEnumerator SpeedTemp() {
+            var speed = new ValueModifier(0, 15);
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", speed);
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", speed);
+            yield return new WaitForSeconds(45);
+            Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().RemoveModifier(speed);
+        }
+
         protected override void AllNotebooks()
         {
             if (!allNotebooksFound && spoopmode && !FindyourflameIsPlaying) {
@@ -172,7 +184,12 @@ namespace NullscapeinBB
 
             base.AllNotebooks();
 
-
+            if (NullscapeInBB.UpgradesCount(Upgrades.AllNotebooksPower) > 0) {
+                NewStatusEffect(StatusEffectsTypes.Invicibility, 10);
+                NewStatusEffect(StatusEffectsTypes.SpeedUp, 45);
+                StartCoroutine(SpeedTemp());
+                
+            }
 
             foreach (var item in ec.Npcs)
             {
