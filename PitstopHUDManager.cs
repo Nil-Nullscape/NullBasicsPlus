@@ -160,9 +160,6 @@ namespace NullscapeinBB
                 }
             }
 
-            if (hoveredObject == currentObject)
-                return;
-
             if (hoveredObject != null && tooltip != null)
                 tooltip.CloseTooltip();
 
@@ -172,7 +169,7 @@ namespace NullscapeinBB
             {
                 var hover = hoveredObject.GetComponent<PitstopIconHover>();
 
-                
+
 
                 if (!string.IsNullOrEmpty(hover.descriptionKey))
                     tooltip.UpdateTooltip(hover.descriptionKey);
