@@ -14,6 +14,7 @@ namespace NullscapeinBB
                 curse = Curses.MathMachine,
                 MaxCurses = 1,
                 MinFloor = 0,
+                ExecuteActionOnLoad = true,
                 CursesAction = () =>
                 {
                     foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())
@@ -34,6 +35,7 @@ namespace NullscapeinBB
                 curse = Curses.GiftActivity,
                 MaxCurses = 1,
                 MinFloor = 0,
+                ExecuteActionOnLoad = true,
                 CursesAction = () =>
                 {
                     foreach (var room in NullscapeInBB.Instance.GiftsActivityRooms)
@@ -53,6 +55,7 @@ namespace NullscapeinBB
                 curse = Curses.BalloonBuster,
                 MaxCurses = 1,
                 MinFloor = 0,
+                ExecuteActionOnLoad = true,
                 CursesAction = () =>
                 {
                     foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())
@@ -73,6 +76,7 @@ namespace NullscapeinBB
                 curse = Curses.MatchMachine,
                 MaxCurses = 1,
                 MinFloor = 0,
+                ExecuteActionOnLoad = true,
                 CursesAction = () =>
                 {
                     foreach (var room in Resources.FindObjectsOfTypeAll<RoomAsset>())

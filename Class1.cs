@@ -248,7 +248,8 @@ namespace NullscapeinBB
     }
     public enum Delusions {
         baldihappybutapplebye,
-        MoreShieldButLessShield
+        MoreShieldButLessShield,
+        MoreplaytimeYTPSButForcedPlaytimeMinigame
     }
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
     {

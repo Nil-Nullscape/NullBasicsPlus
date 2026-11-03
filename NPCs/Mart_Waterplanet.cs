@@ -43,8 +43,8 @@ namespace NullscapeinBB.NPCs
             speed = 1;
             spriteRenderer[0].gameObject.layer = UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay);
             
-            audMan.audioSourceManager.minDistance = 50f;
-            audMan.audioSourceManager.maxDistance = 300f;
+            audMan.audioSourceManager.minDistance = 10f;
+            audMan.audioSourceManager.maxDistance = 100;
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop2"), true);
             audMan.SetLoop(true);
             this.behaviorStateMachine.ChangeState(new Waterplanet_Chase(this));

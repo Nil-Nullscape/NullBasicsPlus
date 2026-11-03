@@ -26,6 +26,15 @@ namespace NullscapeinBB
                     NullscapeInBB.Instance.shields += 2;
                 }
             });
+
+            NullscapeInBB.Instance.AllDelusions.Add(Delusions.MoreplaytimeYTPSButForcedPlaytimeMinigame, new()
+            {
+                curse = Delusions.MoreplaytimeYTPSButForcedPlaytimeMinigame,
+                MaxCurses = 1,
+                MinFloor = 0,
+                CursesAction = () => {
+                }
+            });
         }
     }
 }

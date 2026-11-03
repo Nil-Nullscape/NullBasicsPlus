@@ -13,7 +13,7 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.MoreYtps, new()
             {
                 Cost = () => {
-                    return Mathf.RoundToInt(750 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) + 1) * GetInflationPercentage());
+                    return Mathf.RoundToInt(750 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) * 0.5f + 1) * GetInflationPercentage());
                 },
                 curse = Upgrades.MoreYtps,
                 MaxUpgrades = 10,
