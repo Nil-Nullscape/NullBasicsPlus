@@ -35,7 +35,7 @@ namespace NullscapeinBB
     static class Extras
     {
 
-        
+
         public static void NextIntermission()
         {
             var main = NullscapeInBB.Instance;
@@ -269,15 +269,15 @@ namespace NullscapeinBB
 
 
 
-        
 
 
-           
+
+
 
     }
     public class ShieldNumberUpdater : MonoBehaviour {
         public TextMeshPro text;
-        
+
     void Update() {
             var shields = NullscapeInBB.Instance.shields;
             var shstring = shields.ToString();
@@ -290,7 +290,7 @@ namespace NullscapeinBB
                 } else {
                     text.text = $"<sprite={shstring[0]}><sprite={shstring[1]}><sprite={shstring[2]}>";
                 }
-                }    
+                }
         }
     }
 
@@ -365,7 +365,7 @@ namespace NullscapeinBB
                 }
             ]);
                 __instance.Ec.BuildPoster(poster, __instance.Ec.CellFromPosition(new IntVector2(32, 9)), Direction.North);
-                
+
                 List<string> ProgEvents = new();
                 NullscapeInBB.Instance.Intermissions.Clear();
                 var extraNPCIntermission = 0;
@@ -382,7 +382,7 @@ namespace NullscapeinBB
                     extraCurseIntermission += 1;
                 }
                 extraNPCIntermission += NullscapeInBB.Instance.extraenemyintermission;
-                
+
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
                 {
                     for (int i = 0; i < 1 + extraNPCIntermission; i++)
@@ -400,9 +400,9 @@ namespace NullscapeinBB
                 }
                 if ((level % 10 == 3 || level % 10 == 5 || level % 10 == 8 || level % 10 == 0))
                 {
-                    
+
                    NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Upgrades);
-                    
+
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
@@ -440,7 +440,7 @@ namespace NullscapeinBB
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) >= 10 && (NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
                 {
-                    
+
 
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 12 == 0)
@@ -471,7 +471,7 @@ namespace NullscapeinBB
                     ).Take(1).Single());
                 }
 
-               
+
 
                 if (NullscapeInBB.Instance.FloorCounter + 1 - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
                 {
@@ -500,7 +500,7 @@ namespace NullscapeinBB
                 {
                     __instance.Ec.ElevatorManager.SetAllElevators(ElevatorState.Open);
                 }
-                
+
 
                 Extras.NextIntermission();
             }
@@ -525,7 +525,7 @@ namespace NullscapeinBB
             }
             Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.UpdateTargetInventorySize();
 
-            
+
         }
         [HarmonyPatch(typeof(NoLateTeacher), "Initialize")]
         [HarmonyPrefix]
@@ -533,7 +533,7 @@ namespace NullscapeinBB
         {
             if (NullscapeInBB.CurseCount(Curses.OneMinutePomp) >= 1)
             {
-                
+
                 __instance.ReflectionSetVariable("classTime", 60);
             }
         }
@@ -728,7 +728,7 @@ namespace NullscapeinBB
         {
             if (Singleton<BaseGameManager>.Instance is PitstopGameManager)
             {
-                
+
 
                 __instance.Room.objectObject.transform.Find("RoomBase").Find("Stickers").gameObject.SetActive(false);
                 __instance.Room.objectObject.transform.Find("RoomBase").Find("MiscPurchases").gameObject.SetActive(false);
@@ -747,7 +747,7 @@ namespace NullscapeinBB
             while (true)
             {
                 if (!IsSavingPossible) {
-                    
+
                     door.Lock(true);
                     break;
                 }
@@ -766,6 +766,26 @@ namespace NullscapeinBB
                 }
             }
         }
+
+        [HarmonyPatch(typeof(Pickup), "ClickableSighted")]
+        [HarmonyPostfix]
+        static void UpgradeSighted(Pickup __instance, int player)
+        {
+            if (__instance.item != null && __instance.item.item is UpgradeItem)
+            {
+                Singleton<CoreGameManager>.Instance.GetHud(player).PointsAnimator.ShowDisplay(true);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pickup), "ClickableUnsighted")]
+        [HarmonyPostfix]
+        static void UpgradeUnsighted(Pickup __instance, int player)
+        {
+            if (__instance.item != null && __instance.item.item is UpgradeItem)
+            {
+                Singleton<CoreGameManager>.Instance.GetHud(player).PointsAnimator.ShowDisplay(false);
+            }
+        }
     }
 
 
@@ -777,7 +797,7 @@ namespace NullscapeinBB
         {
             NullscapeInBB main = NullscapeInBB.Instance;
 
-            
+
 
             if (__instance is PitstopGameManager)
             {
@@ -788,7 +808,7 @@ namespace NullscapeinBB
                 GenerationStuff.GlobalGenStuff();
                 GenerationStuff.GenStuff(main.F2);
                 GenerationStuff.GenStuff(main.F1);
-                
+
             }
             if (__instance is MainInfiniteGameManager) {
                 var goal = 0;

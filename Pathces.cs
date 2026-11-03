@@ -44,32 +44,5 @@ namespace NullscapeinBB
 
             });
         }
-
-        [HarmonyPatch(typeof(Pickup), "ClickableSighted")]
-        [HarmonyPostfix]
-        static void UpgradeSighted(Pickup __instance, int player)
-        {
-            // Only show the counter for upgrade pickups.
-            if (__instance.item != null &&
-                __instance.item.item is UpgradeItem)
-            {
-                Singleton<CoreGameManager>.Instance
-                    .GetHud(player).PointsAnimator.ShowDisplay(true);
-            }
-        }
-
-        [HarmonyPatch(typeof(Pickup), "ClickableUnsighted")]
-        [HarmonyPostfix]
-        static void UpgradeUnsighted(Pickup __instance, int player)
-        {
-            // Only hide it for upgrade pickups.
-            if (__instance.item != null &&
-                __instance.item.item is UpgradeItem)
-            {
-                Singleton<CoreGameManager>.Instance
-                    .GetHud(player).PointsAnimator.ShowDisplay(false);
-            }
-        }
-
     }
 }

@@ -329,6 +329,7 @@ namespace NullscapeinBB
 
     [BepInDependency("Nil.Library", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "2.0.0.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
@@ -362,7 +363,7 @@ namespace NullscapeinBB
         public int fakecount;
         public List<IntermissionType> QueuedIntermission = new();
         public int extraenemyintermission = 0;
-        
+
         public List<IntermissionType> Intermissions = new();
 
         public List<RandomEvent> EventsList = new();
@@ -424,7 +425,7 @@ namespace NullscapeinBB
             AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
             AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
             AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
-            
+
 
             if (EnabledNullscapeEntities.Value)
             {
@@ -497,11 +498,11 @@ namespace NullscapeinBB
 
             }
             yield return "Making all items for curses and stuff";
-            
+
             foreach (Curses curse in EnumExtensions.GetValues<Curses>())
             {
                 CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile(curse.ToStringExtended());
-                
+
                 var ie = new ItemBuilder(this.Info)
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
@@ -734,7 +735,7 @@ namespace NullscapeinBB
         }
         static public void SetCooldown(AltarTypes altar,int cooldown) {
             NullscapeInBB.Instance.Cooldowns[altar] = cooldown;
-        } 
+        }
         static public void ShieldEventNotifier(string enemykey, int tempShieldRemaining = 0, bool lostTempShield = false)
         {
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Am.Get<SoundObject>("snd_shieldbreak"));
@@ -863,7 +864,7 @@ namespace NullscapeinBB
             CustomOptionsCore.OnMenuInitialize += AddCategory;
             ModdedSaveGame.AddSaveHandler(new SaveHandler());
             harmony.PatchAll();
-            
+
         }
         void AddCategory(OptionsMenu __instance, CustomOptionsHandler handler) {
             if (Singleton<CoreGameManager>.Instance != null) return;
@@ -953,7 +954,7 @@ namespace NullscapeinBB
             Am.Add("snd_cadenceP1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv1.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv2.wav"), "snd_cadenceticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_cadenceP3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv3.wav"), "snd_cadenceintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
-            
+
             Am.Add("snd_cadenceP4", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "Cad_lv4.wav"), "snd_cadenceveryintenseticking", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_harpInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "HarpAmbience.wav"), "snd_harpambience", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_violinInst", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "ViolinAmbience.wav"), "snd_violinambience", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
@@ -965,9 +966,9 @@ namespace NullscapeinBB
             Am.Add("snd_cadencechase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "cadence", "CadenceChase.ogg"), "snd_angrycadence", SoundType.Effect, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, 8));
             Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, 3));
-            
+
                 Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.mp3"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
-            
+
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_shieldbreak", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shield_Break.ogg"), "snd_shieldbreak", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
@@ -1050,7 +1051,7 @@ namespace NullscapeinBB
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_VeinBlood"), Am.Get<SoundObject>("mus_collapse_VeinBlood"), 15, 25));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_VoidBreaker"), Am.Get<SoundObject>("mus_collapse_VoidBreaker"), 20, 1000000));
             yield return "Adding Intermission songs";
-            
+
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i1"), 1, 2));
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i2"), 3, 4));
             IntermissionSongs.Add(new IntermissionSong(Am.Get<SoundObject>("mus_i3"), 5, 6));
@@ -1190,11 +1191,11 @@ namespace NullscapeinBB
             var s = new GameObject("structure");
             s.ConvertToPrefab(true);
             s.AddComponent<Structure_AltarBuilder>()
-            
-            
-            
-            
-            
+
+
+
+
+
             ;
 
             var AltarRoom = LevelImporter.CreateVanillaRoomAsset(NilLib.FormatLoaderExtension.LoadRoom(Path.Combine(this.GetModPath(), "rooms", "AltarRoom.rbpl")));
@@ -1204,9 +1205,9 @@ namespace NullscapeinBB
             AltarRoom.doorMats = ObjectCreators.CreateDoorDataObject("dor", AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Opened.png"), AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Closed.png"));
             s.GetComponent<Structure_AltarBuilder>().AltarRoom = AltarRoom;
             Am.Add("altar", s.GetComponent<Structure_AltarBuilder>());
-            
-            
-            
+
+
+
 
             using (BinaryReader reader = new BinaryReader(File.OpenRead(Path.Combine(this.GetModPath(),"ClassesRoom.bpl")))) {
                 Am.Add("scene_classes", LevelImporter.CreateSceneObject(BaldiLevel.Read(reader)));
@@ -1218,7 +1219,7 @@ namespace NullscapeinBB
             scene.levelTitle = "G";
             scene.nextLevel = F1;
             scene.usesMap = false;
-            
+
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
             gcactgameobj.ConvertToPrefab(true);

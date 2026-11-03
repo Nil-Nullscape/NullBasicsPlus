@@ -14,12 +14,15 @@ namespace NullscapeinBB
 {
     public static class UpgradesIntermission
     {
-        public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, UpgradeItem ei)
+        public static void OnCollectIntermission(GameObject[] pickups, Pickup currpck, int plr, UpgradeItem ei)
         {
+            Singleton<CoreGameManager>.Instance.GetHud(plr).PointsAnimator.ShowDisplay(false);
+
             PatchesJohn.IsSavingPossible = false;
             var upg = NullscapeInBB.Instance.AllUpgrades[ei.curse];
             NullscapeInBB.Instance.UpgradesBought.Add(upg);
-                if (upg.OnUpgradeBought != null) upg.OnUpgradeBought();
+            if (upg.OnUpgradeBought != null) upg.OnUpgradeBought();
+
             foreach (var item in pickups)
             {
                 Object.Destroy(item);
@@ -41,7 +44,7 @@ namespace NullscapeinBB
             var PickUp3 = Object.Instantiate(PickupPrefab, new Vector3(40, -0f, -42.5f), Quaternion.identity);
             PickUp3.GetComponent<Pickup>().showDescription = true;
             PickUp3.GetComponent<Pickup>().AssignItem(i3);
-            
+
 
             UpgradeItem enemItem1 = (UpgradeItem)i1.item;
             UpgradeItem enemItem2 = (UpgradeItem)i2.item;
@@ -99,8 +102,8 @@ namespace NullscapeinBB
 
             };
 
-            
-            
+
+
 
             // Add a small 3D text label above the middle pedestal indicating the intermission type
 
@@ -109,8 +112,7 @@ namespace NullscapeinBB
             // I do not even know what the fucking point of pckup is, I DONT EVEN USE IT :sob:
             PickUp1.GetComponent<Pickup>().OnItemPurchased += (pckup, plr) =>
             {
-                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem1);
-                
+                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, plr, enemItem1);
             };
 
             PickUp2.GetComponent<Pickup>().OnItemCollected += (pckup, plr) =>
@@ -125,10 +127,10 @@ namespace NullscapeinBB
                     Extras.NextIntermission();
                 }, 0.5f);
             };
-                
+
             PickUp3.GetComponent<Pickup>().OnItemPurchased += (pckup, plr) =>
             {
-                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, enemItem3);
+                OnCollectIntermission(new GameObject[] { PickUp1, PickUp2, PickUp3, renderer.gameObject, Reroll }, pckup, plr, enemItem3);
             };
             ;
         }
