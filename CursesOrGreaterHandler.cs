@@ -23,7 +23,7 @@ namespace NullscapeinBB
 
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.HarderPlaytime) >= 1) {
                 pre.ReflectionSetVariable("maxJumps", 10);
-                
+
             }
             if (NullscapeInBB.DelusionsCount(Delusions.MoreplaytimeYTPSButForcedPlaytimeMinigame) > 0)
             {
@@ -35,64 +35,29 @@ namespace NullscapeinBB
             return true;
         }
 
-        [HarmonyPrefix]
+        private static int GetValidJumpropeCount(PlayerManager pm)
+        {
+            if (NullscapeInBB.DelusionsCount(Delusions.MoreplaytimeYTPSButForcedPlaytimeMinigame) > 0)
+                return 0;
+            return pm.jumpropes.Count;
+        }
+
         [HarmonyPatch(typeof(ITM_Scissors), "Use")]
-        static bool IgotFuckingTiredOfTranspilersSoImRewritingTheCodeYeah(ITM_Scissors __instance, PlayerManager pm, ref bool __result) {
-            bool flag = false;
-            if (pm.jumpropes.Count > 0 && NullscapeInBB.DelusionsCount(Delusions.MoreplaytimeYTPSButForcedPlaytimeMinigame) == 0)
-            {
-                while (pm.jumpropes.Count > 0)
-                {
-                    pm.jumpropes[0].End(success: false);
-                }
-
-                flag = true;
-            }
-
-            if (Gum.playerGum.Count > 0)
-            {
-                foreach (Gum item in Gum.playerGum)
-                {
-                    item.Cut();
-                }
-
-                flag = true;
-            }
-
-            if (Physics.Raycast(pm.transform.position, Singleton<CoreGameManager>.Instance.GetCamera(pm.playerNumber).transform.forward, out RaycastHit hit, pm.pc.Reach, __instance.GetCachedReflection<LayerMask>("clickMask")))
-            {
-                IItemAcceptor component = hit.transform.GetComponent<IItemAcceptor>();
-                if (component != null && component.ItemFits(Items.Scissors))
-                {
-                    component.InsertItem(pm, pm.ec);
-                    flag = true;
-                }
-            }
-            else
-            {
-                Collider[] array = new Collider[16];
-                int num = Physics.OverlapSphereNonAlloc(pm.transform.position, 4f, array, 131072, QueryTriggerInteraction.Collide);
-                for (int i = 0; i < num; i++)
-                {
-                    if (array[i].isTrigger && array[i].CompareTag("NPC"))
-                    {
-                        FirstPrize component2 = array[i].GetComponent<FirstPrize>();
-                        if (component2 != null)
-                        {
-                            component2.CutWires();
-                            flag = true;
-                        }
-                    }
-                }
-            }
-
-            Object.Destroy(__instance.gameObject);
-            if (flag)
-            {
-                Singleton<CoreGameManager>.Instance.audMan.PlaySingle(__instance.GetCachedReflection<SoundObject>("audSnip"));
-            }
-            __result = flag;
-            return false;
+        [HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> YouWillUseTheTranspilersWhetherYouLikeItOrNot(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchStartForward(
+                    new CodeMatch(OpCodes.Ldarg_1),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerManager), nameof(PlayerManager.jumpropes))),
+                    new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(List<Jumprope>), "get_Count"))
+                )
+                .RemoveInstructions(3)
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_1),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(CursesOrGreaterHandler), nameof(GetValidJumpropeCount)))
+                )
+                .InstructionEnumeration();
         }
 
         [HarmonyPatch(typeof(MathMachine), "Start")]
@@ -118,7 +83,7 @@ namespace NullscapeinBB
             return false;
         }
 
-        
+
 
 
         [HarmonyPrefix]
@@ -177,7 +142,7 @@ namespace NullscapeinBB
         static void TurnTURN(Baldi __instance)
         {
             __instance.appleTime = 10f / (NullscapeInBB.GreaterCurseCount(GreaterCurses.BaldiAppleEatFaster) * 2 + 1);
-            if (NullscapeInBB.DelusionsCount(Delusions.baldihappybutapplebye) >= 1) __instance.appleTime = 0; 
+            if (NullscapeInBB.DelusionsCount(Delusions.baldihappybutapplebye) >= 1) __instance.appleTime = 0;
         }
 
         [HarmonyPrefix]
