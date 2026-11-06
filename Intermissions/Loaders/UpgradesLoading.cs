@@ -140,7 +140,35 @@ namespace NullscapeinBB
                 }
 
 
-            }); 
+            });
+
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.SlowerBaldi, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(Mathf.Pow(1500, 1.1f + NullscapeInBB.UpgradesCount(Upgrades.SlowerBaldi) * 0.1f) * GetInflationPercentage());
+                },
+                curse = Upgrades.SlowerBaldi,
+                MaxUpgrades = 5,
+                MinFloor = 24,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
+
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.Blossom, new() // dont mention this either
+            {
+                Cost = () => {
+                    return 0;
+                },
+                curse = Upgrades.Blossom,
+                MaxUpgrades = 1,
+                MinFloor = 99999999,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
 
         }
     }

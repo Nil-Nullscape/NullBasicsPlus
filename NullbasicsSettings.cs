@@ -13,25 +13,34 @@ namespace NullscapeinBB
         {
             var Chaos = CreateNewModifier("ChaosMode", "set_chaos", "desc_chaosmode", 2);
             var EnabledNullscapeEntities = CreateNewModifier("EnabledNullscapeEntities", "set_entities", "desc_entities", 3);
-            var QuickStart = CreateNewModifier("QuickStartSetting", "set_QuickStart", "desc_QuickStart", 5);
+            
 
             Chaos.Set(NullscapeInBB.Instance.EnableChaosMode.Value);
             EnabledNullscapeEntities.Set(NullscapeInBB.Instance.EnabledNullscapeEntities.Value);
+
+            var QuickStart = CreateNewModifier("QuickStartSetting", "set_QuickStart", "desc_QuickStart", 5);
             QuickStart.Set(NullscapeInBB.Instance.EnableQuickStart.Value);
 
+            var QuickStartPlus = CreateNewModifier("QuickStartSetting", "set_QuickStartPlus", "desc_QuickStartPlus", 6);
+            QuickStartPlus.Set(NullscapeInBB.Instance.EnableQuickStart.Value);
+            if (NullscapeInBB.CurrentSave.GetInt("MaxLevelNormalReached", 0) < 35) QuickStartPlus.Set(false);
             CreateApplyButton(() =>
             {
                 NullscapeInBB.Instance.EnableChaosMode.Value = Chaos.Value;
                 NullscapeInBB.Instance.EnabledNullscapeEntities.Value = EnabledNullscapeEntities.Value;
+                if (NullscapeInBB.CurrentSave.GetInt("MaxLevelNormalReached", 0) < 35) QuickStartPlus.Set(false);
+                NullscapeInBB.Instance.EnableQuickStartPlus.Value = QuickStartPlus.Value;
                 NullscapeInBB.Instance.EnableQuickStart.Value = QuickStart.Value;
+
+               
                 GenerationStuff.GlobalGenStuff();
                 GenerationStuff.GenStuff(NullscapeInBB.Instance.F1);
                 GenerationStuff.GenStuff(NullscapeInBB.Instance.F2);
                 NullscapeInBB.Instance.UpdateListOfEnemies();
             });
-
+            
         }
-
+        
         public MenuToggle CreateNewModifier(string id, string name, string tooltipKey, int order)
         {
             Vector3 originVec = new Vector3(40f, 85f, 0f);

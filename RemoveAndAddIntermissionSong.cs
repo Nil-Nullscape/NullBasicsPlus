@@ -371,6 +371,10 @@ namespace NullscapeinBB
                 var extraNPCIntermission = 0;
                 var extraCurseIntermission = 0;
                 extraNPCIntermission += NullscapeInBB.GreaterCurseCount(GreaterCurses.TwiceMoreNpcs);
+                if (NullscapeInBB.CurrentSave.GetInt("MaxLevelNormalReached",0) < NullscapeInBB.Instance.FloorCounter) {
+                    NullscapeInBB.CurrentSave.SetData("MaxLevelNormalReached", NullscapeInBB.Instance.FloorCounter);
+                    NullscapeInBB.CurrentSave.Save();
+                }
                 if (NullscapeInBB.Instance.FloorCounter + 1 >= 50)
                 {
                     extraNPCIntermission += 1;
@@ -506,7 +510,7 @@ namespace NullscapeinBB
             }
 
             if (__instance is MainInfiniteGameManager) {
-                if ((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3.5f);
+                if (((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) || NullscapeInBB.Instance.EnableQuickStartPlus.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3.5f);
             }
 
             if (NullscapeInBB.Instance.SelectedClass == Classes.Student)
@@ -825,41 +829,29 @@ namespace NullscapeinBB
                         if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
                     }
                 }
-                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 5)
+                if (NullscapeInBB.Instance.EnableQuickStart.Value && (NullscapeInBB.Instance.FloorCounter % 5) == 0 && NullscapeInBB.Instance.FloorCounter < 20)
                 {
-                    goal = 9;
+                    goal = NullscapeInBB.Instance.FloorCounter + 4;
                     NullscapeInBB.Instance.FloorCounter = goal;
-                    for (int i = 5; i < goal + 1; i++)
+                    for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
                     }
-                    for (int i = 5; i < goal + 1; i++)
+                    for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
                     }
                 }
-                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 10)
+
+                if (NullscapeInBB.Instance.EnableQuickStartPlus.Value && (NullscapeInBB.Instance.FloorCounter % 5) == 0 && NullscapeInBB.Instance.FloorCounter >= 20)
                 {
-                    goal = 14;
+                    goal = NullscapeInBB.Instance.FloorCounter + 4;
                     NullscapeInBB.Instance.FloorCounter = goal;
-                    for (int i = 10; i < goal + 1; i++)
+                    for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
                     }
-                    for (int i = 10; i < goal + 1; i++)
-                    {
-                        if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
-                    }
-                }
-                if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 15)
-                {
-                    goal = 19;
-                    NullscapeInBB.Instance.FloorCounter = goal;
-                    for (int i = 15; i < goal + 1; i++)
-                    {
-                        if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
-                    }
-                    for (int i = 15; i < goal + 1; i++)
+                    for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 3 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Curse);
                     }

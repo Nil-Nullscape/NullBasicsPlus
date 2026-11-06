@@ -7,11 +7,8 @@ using NilLib.extension;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Windows.Speech;
 
 namespace NullscapeinBB
 {
@@ -167,7 +164,7 @@ namespace NullscapeinBB
         }
 
         public IEnumerator SpeedTemp() {
-            var speed = new ValueModifier(0, 15);
+            var speed = new ValueModifier(1, 25);
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("walkSpeed", speed);
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().AddModifier("runSpeed", speed);
             yield return new WaitForSeconds(45);

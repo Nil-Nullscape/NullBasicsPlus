@@ -27,6 +27,7 @@ using NilLib.Builders;
 using MTM101BaldAPI.SaveSystem;
 using NullscapeinBB.SaveHandlerStuff;
 using NullscapeinBB.NPCs;
+using NilLib.Save;
 
 namespace NullscapeinBB
 {
@@ -197,7 +198,9 @@ namespace NullscapeinBB
         LongerReach,
         TeleportRandomInCompletedActivityRoom, // currently broken, gotta fix that
         ExtraMoreYtps,
-        AllNotebooksPower
+        AllNotebooksPower,
+        SlowerBaldi ,
+        Blossom // Please do NOT mention this
     }
     public enum Curses
     {
@@ -236,6 +239,8 @@ namespace NullscapeinBB
         SilentNpcs,
         byebyestickystickers,
         MartWaterPlanet
+
+
     }
 
     public enum Classes {
@@ -334,6 +339,14 @@ namespace NullscapeinBB
     [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "2.0.0.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
+        static bool GetCheatingMods() {
+            foreach(var item in Chainloader.PluginInfos)
+            {
+                if (item.Value.Metadata.GUID == "alexbw145.baldiplus.pinedebug") return true;
+            }
+            return false;
+        }
+
         public static NullscapeInBB Instance;
         public static AssetManager Am;
         public List<IntermissionSong> IntermissionSongs = new List<IntermissionSong>();
@@ -347,6 +360,7 @@ namespace NullscapeinBB
         public bool flop;
         public int FloorCounter;
         public List<WeightedRoomAsset> rooms = new List<WeightedRoomAsset>();
+        bool HasCheatingMods => GetCheatingMods();
         public List<NPC> potentialNPCs = new List<NPC>();
         // Tracks how many times each enemy (Character) has been selected during intermissions
         public Dictionary<Character, int> selectedNPCCounts = new Dictionary<Character, int>();
@@ -399,11 +413,13 @@ namespace NullscapeinBB
         public ConfigEntry<bool> DisableCopyright;
         public ConfigEntry<bool> EnableChaosMode;
         public ConfigEntry<bool> EnableQuickStart;
+        public ConfigEntry<bool> EnableQuickStartPlus;
         public ConfigEntry<KeyCode> KeyAbility;
         public List<RoomAsset> GiftsActivityRooms = new();
         public List<AltarData> Altars = new();
         public List<float> YtpMultipliers = new();
         public Dictionary<AltarTypes, int> Cooldowns = new();
+        public static Saveable CurrentSave;
         public const bool PlaytestBuild = true;
         public struct AltarData()
         {
@@ -844,6 +860,7 @@ namespace NullscapeinBB
             EnabledNullscapeEntities = Config.Bind("Gameplay stuff", "EnableNullscapeEnemies", true, "This enables the enemies from nullscape if you dont want them set this to false");
             EnableChaosMode = Config.Bind("Gameplay stuff", "EnableChaosMode", false, "This enables chaos mode, an extra intermission will be added every level, where greater curses, curses or enemies can all spawn");
             EnableQuickStart = Config.Bind("Gameplay stuff", "EnableQuickStart", false, "This enables quick start, after you beat level 1 you will be at level 20, you gotta pick every intermission you missed for example and you start with 10k ytps");
+            EnableQuickStartPlus = Config.Bind("Gameplay stuff", "EnableQuickStartPlus", false, "Basically quick start but infinite");
             DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (currently does nothing)");
             KeyAbility = Config.Bind("Keybinds", "AbilityKey", KeyCode.R);
             Am = new AssetManager();
@@ -861,6 +878,12 @@ namespace NullscapeinBB
             }
             MTM101BaldiDevAPI.AddWarningScreen("Check the config to modify keybinds, or settings that arent editable ingame. (BepInEx/config/Nil.NullscapeinBB.cfg)", false);
             Harmony harmony = new Harmony("Nil.NullscapeinBB");
+
+            CurrentSave = Saveable.LoadOrDefault(this.Info);
+
+            if (CurrentSave.GetInt("MaxLevelNormalReached", 0) < 35) EnableQuickStartPlus.Value = false;
+
+
             // MTM101BaldiDevAPI.SaveGamesEnabled = false;
             CustomOptionsCore.OnMenuInitialize += AddCategory;
             ModdedSaveGame.AddSaveHandler(new SaveHandler());

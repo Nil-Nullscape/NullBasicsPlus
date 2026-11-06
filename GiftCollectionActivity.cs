@@ -98,7 +98,7 @@ namespace NullscapeinBB
         }
         public override void ReInit()
         {
-            SpawnGifts(false);
+            SpawnGifts(InBonusMode);
             completed = false;
             notebook.Hide(true);
             base.ReInit();
@@ -134,10 +134,11 @@ namespace NullscapeinBB
         }
         public override void SetBonusMode(bool val)
         {
-            if (true) {
-                SpawnGifts(true);
-            }
             base.SetBonusMode(val);
+            if (val) {
+                ReInit();
+            }
+            
         }
         
     }

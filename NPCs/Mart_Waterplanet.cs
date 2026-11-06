@@ -79,7 +79,7 @@ namespace NullscapeinBB.NPCs
             npc.ec.RemoveTimeScale(npc.ConvertType<Mart_Waterplanet>().blueMartTime);
         }
 
-        public override void OnStateTriggerEnter(Entity otherEntity, Collider other, bool validCollision)
+        public override void OnStateTriggerStay(Entity otherEntity, Collider other, bool validCollision)
         {
             if (Singleton<BaseGameManager>.Instance is MainInfiniteGameManager Migm)
             {
