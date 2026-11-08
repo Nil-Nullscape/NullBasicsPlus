@@ -128,8 +128,13 @@ namespace NullscapeinBB
                 NullscapeInBB.ShieldEventNotifier($"shld_{inst.gameObject.GetComponent<NPC>().Character.ToStringExtended()}",TempShieldRemaining,lostFrom);
                 if (NullscapeInBB.Instance.shields == 0 && TempShieldRemaining == 0 && NotebookTotal >= 10 && FoundNotebooks < Mathf.FloorToInt(NotebookTotal / 1.5f)) {
                     FindyourflameIsPlaying = true;
-                    Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true,true,true);
-                }
+                    if (NullscapeInBB.Instance.FloorCounter < 30)
+                    {
+                        Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_findyourflame", true, true, true);
+                    } else {
+                        Singleton<CoreGameManager>.Instance.musicMan.QueueaudioViaAssetManExt(NullscapeInBB.Am, "mus_ideh", true, true, true);
+                    }
+                    }
                 return false;
             }
             return true;

@@ -27,6 +27,7 @@ namespace NullscapeinBB
             Waterplanet_Pink
         }
         public MartState CurrentState = MartState.Idle;
+
         public override void Initialize()
         {
             priority = UnityEngine.Random.Range(0, 25555555);
@@ -85,7 +86,10 @@ namespace NullscapeinBB
     }
 
     class Mart_statebase(MartNPC npc) : NpcState(npc) {
-        
+        public override void DoorHit(StandardDoor door)
+        {
+            
+        }
     }
 
     class Mart_StateChase(MartNPC npc) : Mart_statebase(npc) {

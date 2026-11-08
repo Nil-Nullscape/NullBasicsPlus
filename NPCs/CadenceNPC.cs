@@ -136,7 +136,10 @@ namespace NullscapeinBB
     }
 
     class CadenceNPC_statebase(CadenceNPC npc) : NpcState(npc) {
-        
+        public override void DoorHit(StandardDoor door)
+        {
+
+        }
     }
 
     class CadenceNPC_stateidle(CadenceNPC npc) : CadenceNPC_statebase(npc) {

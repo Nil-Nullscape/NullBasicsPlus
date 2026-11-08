@@ -39,7 +39,10 @@ namespace NullscapeinBB
     }
 
     class Icbm_StateBase(IcbmNPC npc) : NpcState(npc) {
-        
+        public override void DoorHit(StandardDoor door)
+        {
+
+        }
     }
 
     class Icbm_StateIdle(IcbmNPC npc) : Icbm_StateBase(npc)

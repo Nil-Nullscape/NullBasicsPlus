@@ -447,9 +447,10 @@ namespace NullscapeinBB
             if (EnabledNullscapeEntities.Value)
             {
                 AllEnemies.Add(Am.Get<NPC>("npc_Mart").Character, new(Am.Get<NPC>("npc_Mart").Character, 0, 2, Am.Get<NPC>("npc_Mart"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 9, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Cadence").Character, new(Am.Get<NPC>("npc_Cadence").Character, 15, 1, Am.Get<NPC>("npc_Cadence"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_NIL").Character, new(Am.Get<NPC>("npc_NIL").Character, 5, 4, Am.Get<NPC>("npc_NIL"), "Baldi."));
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -943,6 +944,7 @@ namespace NullscapeinBB
 
             Am.Add("mus_i1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss1.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_findyourflame", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "Find-your-Flame.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
+            Am.Add("mus_ideh", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "ItDoesntEndHere.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss2.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss3.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
             Am.Add("mus_i4", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "music", "intermiss4.mp3"), "mus_intermission", SoundType.Music, UnityEngine.Color.black, 0.01f));
@@ -991,7 +993,21 @@ namespace NullscapeinBB
             Am.Add("snd_ICBMaim", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeBegin.ogg"), "snd_icbmAiming", SoundType.Effect, UnityEngine.Color.red, 8));
             Am.Add("snd_ICBMExplode", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "ICBMStrikeKABOOM.ogg"), "snd_icbmBoom", SoundType.Effect, UnityEngine.Color.red, 3));
 
-                Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.mp3"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
+            Am.Add("snd_NilLoop", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Nilloop.ogg"), "snd_nilloop", SoundType.Effect, UsefulHelpers.GetColorFromRgb(128, 0, 128)));
+            Am.Add("snd_NilKill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Nilkill.mp3"), "snd_nilkill", SoundType.Effect, UsefulHelpers.GetColorFromRgb(128, 0, 128)));
+            Am.Add("snd_NilDash", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Nildash.mp3"), "snd_nildash", SoundType.Effect, UsefulHelpers.GetColorFromRgb(128, 0, 128)));
+
+            Am.Get<SoundObject>("snd_NilLoop").volumeMultiplier = 0.5f;
+            Am.Get<SoundObject>("snd_NilLoop").subtitle = false;
+
+
+            foreach (var item in Am.GetAll<SoundObject>())
+            {
+                if (item.soundKey == "mus_intermission") item.subtitle = false;
+            }
+
+
+            Am.Add("mus_teledance", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "TeledancerThemeNewer.mp3"), "mus_teledance", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
 
             Am.Add("snd_telefraggertp", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Teleport.mp3"), "snd_telefraggertp", SoundType.Voice, UnityEngine.Color.gray, 1f));
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
@@ -1011,6 +1027,10 @@ namespace NullscapeinBB
 
             Am.Add("sprsheet_mart-Waterplanet_Blue", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WaterplanetBlue.png"), 200, 200, 60, 100));
             Am.Add("sprsheet_mart-Waterplanet_Pink", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WaterplanetPink.png"), 200, 200, 60, 100));
+
+            Am.Add("sprsheet_Nil", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Nil.png"), 200, 200, 40, 4));
+
+
 
             Am.Add("sprsheet_tele", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Telefragger_Spritesheet.png"), 100, 100, 30, 2));
             Am.Add("sprsheet_cadence", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "CadenceSpritesheet.png"), 200, 200, 35, 12));
@@ -1177,6 +1197,18 @@ namespace NullscapeinBB
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay),Am.Get<IcbmNPC>("npc_ICBM").transform, false, "AimICBMPre");
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.sprite = Am.Get<Sprite>("spr_icbmmarker");
             Am.Get<IcbmNPC>("npc_ICBM").AimingRenderer.transform.localScale = Vector2.one * 1.5f;
+
+
+            Am.Add("npc_NIL", new NPCBuilder<NilNPC>(this.Info)
+                .AddTrigger()
+                .SetAirborne()
+                .SetEnum("NIL")
+                .SetStationary()
+                .SetName("NIL")
+                .IgnorePlayerOnSpawn()
+                .SetMinMaxAudioDistance(15, 100)
+                .Build());
+            
             yield return "Creating all altars";
             var pedestalPre = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Decor_Pedestal");
 

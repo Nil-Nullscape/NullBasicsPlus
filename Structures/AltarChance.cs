@@ -92,6 +92,17 @@ namespace NullscapeinBB.Structures
 
                 },
                 weight = 100
+             },new() {
+                selection = () => {
+                    NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("chance_NilInvasion"));
+                    for (int i = 0; i < 6; i++)
+            {
+                Singleton<BaseGameManager>.Instance.Ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_NIL"),Singleton<BaseGameManager>.Instance.Ec.RandomCell(true,true,false).position);
+			}
+
+
+                },
+                weight = 85
              }
              ,new() {
                 selection = () => {

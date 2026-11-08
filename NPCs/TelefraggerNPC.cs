@@ -88,7 +88,10 @@ namespace NullscapeinBB
 
             base.Update();
         }
+        public override void DoorHit(StandardDoor door)
+        {
 
+        }
         public override void OnStateTriggerEnter(Entity otherEntity, Collider other, bool validCollision)
         {
             if (otherEntity == Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.Entity) {
