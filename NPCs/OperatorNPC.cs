@@ -59,7 +59,7 @@ namespace NullscapeinBB.NPCs
         protected override void VirtualUpdate()
         {
             OperatorImg.gameObject.SetActive(!Singleton<CoreGameManager>.Instance.Paused && behaviorStateMachine.currentState is Operator_Counting);
-            
+            OperatorImg.rectTransform.anchoredPosition = new(0, Mathf.Sin(Time.time) * 25f);
         }
     }
 
@@ -77,8 +77,11 @@ namespace NullscapeinBB.NPCs
         {
             timeRemaining -= Time.deltaTime;
             if (timeRemaining < 0) {
-                Operator.behaviorStateMachine.ChangeState(new Operator_Counting(Operator));
+                SwitchToCount();
             }
+        }
+        public virtual void SwitchToCount() {
+            Operator.behaviorStateMachine.ChangeState(new Operator_Counting(Operator));
         }
     }
 

@@ -451,7 +451,7 @@ namespace NullscapeinBB
                 AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_NIL").Character, new(Am.Get<NPC>("npc_NIL").Character, 5, 4, Am.Get<NPC>("npc_NIL"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 0, 4, Am.Get<NPC>("npc_Operator"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 0, 1, Am.Get<NPC>("npc_Operator"), "Baldi."));
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -970,6 +970,13 @@ namespace NullscapeinBB
             Am.Add("snd_OperatorSuccess", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Success.ogg"), "snd_operatorSuccess", SoundType.Effect, UnityEngine.Color.green));
             Am.Add("snd_OperatorKill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Fail.ogg"), "snd_operatorFail", SoundType.Effect, UnityEngine.Color.green));
 
+            Am.Add("snd_VboTick", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Tick.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboSpawn", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Spawn.ogg"), "snd_vboperatorSpawn", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboGood1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Success.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboGood2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Cleared.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboAttack", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Attacking.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboFail", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Fail.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+
 
             Am.Add("snd_pickcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-Curse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_pickgcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-greatercurse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
@@ -1033,6 +1040,11 @@ namespace NullscapeinBB
             Am.Add("spr_operatorYellow", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Waiting.png"));
             Am.Add("spr_operatorRed1", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Danger.png"));
             Am.Add("spr_operatorRed2", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Killing.png"));
+
+
+            Am.Add("spr_vboIdle", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "VbOperator_Idle.png"));
+            Am.Add("spr_vboCheck", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "VbOperator_Check.png"));
+            Am.Add("spr_vboKill", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "VbOperator_Kill.png"));
 
             Am.Add("sprsheet_mart-Idle", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 200, 200, 60, 80));
             Am.Add("sprsheet_mart-WowStart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowStart.png"), 200, 200, 60, 40));
@@ -1226,6 +1238,14 @@ namespace NullscapeinBB
             .SetEnum("Operator")
             .SetStationary()
             .SetName("Operator")
+            .IgnorePlayerOnSpawn()
+            .SetMinMaxAudioDistance(15, 100)
+            .Build());
+
+            Am.Add("npc_VbOperator", new NPCBuilder<OperatorNPC>(this.Info)
+            .SetEnum("Operator")
+            .SetStationary()
+            .SetName("VoidboundOperator")
             .IgnorePlayerOnSpawn()
             .SetMinMaxAudioDistance(15, 100)
             .Build());
