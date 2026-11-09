@@ -451,6 +451,7 @@ namespace NullscapeinBB
                 AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_NIL").Character, new(Am.Get<NPC>("npc_NIL").Character, 5, 4, Am.Get<NPC>("npc_NIL"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 0, 4, Am.Get<NPC>("npc_Operator"), "Baldi."));
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -962,6 +963,13 @@ namespace NullscapeinBB
             Am.Add("snd_purchase", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_purchase2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Purchase2.mp3"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
 
+            Am.Add("snd_OperatorTick1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "OperatorTick1.ogg"), "snd_operatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_OperatorTick2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "OperatorTick2.ogg"), "snd_operatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_OperatorTick3", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "OperatorTick3.ogg"), "snd_operatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_OperatorSpawn", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Spawn.ogg"), "snd_operatorSpawn", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_OperatorSuccess", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Success.ogg"), "snd_operatorSuccess", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_OperatorKill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Fail.ogg"), "snd_operatorFail", SoundType.Effect, UnityEngine.Color.green));
+
 
             Am.Add("snd_pickcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-Curse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
             Am.Add("snd_pickgcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-greatercurse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
@@ -1020,6 +1028,11 @@ namespace NullscapeinBB
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
             Am.Add<Sprite>("spr_icbmmarker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBM_Marker.png"));
             Am.Add<Sprite>("spr_icbm", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBMAnimated.png"));
+
+            Am.Add("spr_operatorGreen", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Idle.png"));
+            Am.Add("spr_operatorYellow", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Waiting.png"));
+            Am.Add("spr_operatorRed1", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Danger.png"));
+            Am.Add("spr_operatorRed2", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "Operator_Killing.png"));
 
             Am.Add("sprsheet_mart-Idle", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet.png"), 200, 200, 60, 80));
             Am.Add("sprsheet_mart-WowStart", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "martSpritesheet-WowStart.png"), 200, 200, 60, 40));
@@ -1208,7 +1221,15 @@ namespace NullscapeinBB
                 .IgnorePlayerOnSpawn()
                 .SetMinMaxAudioDistance(15, 100)
                 .Build());
-            
+
+            Am.Add("npc_Operator", new NPCBuilder<OperatorNPC>(this.Info)
+            .SetEnum("Operator")
+            .SetStationary()
+            .SetName("Operator")
+            .IgnorePlayerOnSpawn()
+            .SetMinMaxAudioDistance(15, 100)
+            .Build());
+
             yield return "Creating all altars";
             var pedestalPre = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Decor_Pedestal");
 

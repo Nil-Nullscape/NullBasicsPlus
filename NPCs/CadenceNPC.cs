@@ -219,7 +219,7 @@ namespace NullscapeinBB
             }
             base.Update();
         }
-        public override void OnStateTriggerEnter(Entity otherEntity, Collider other, bool validCollision)
+        public override void OnStateTriggerStay(Entity otherEntity, Collider other, bool validCollision)
         {
             if (otherEntity == Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.Entity)
             {
@@ -234,7 +234,7 @@ namespace NullscapeinBB
                 e.CaughtPlayer(Singleton<CoreGameManager>.Instance.GetPlayer(0));
                 UnityEngine.Object.Destroy(e);
             }
-            base.OnStateTriggerEnter(otherEntity, other, validCollision);
+            base.OnStateTriggerStay(otherEntity, other, validCollision);
         }
 
     }
