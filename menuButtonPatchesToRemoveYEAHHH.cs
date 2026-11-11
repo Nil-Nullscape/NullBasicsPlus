@@ -19,6 +19,7 @@ namespace NullscapeinBB
             if (namesToCheck.Contains(__instance.gameObject.name))
             {
                 __instance.GetComponent<TextLocalizer>().key = "Mode_Nullbasics";
+                __instance.GetComponent<TextLocalizer>().GetLocalizedText("Mode_Nullbasics");
             }
         }
 

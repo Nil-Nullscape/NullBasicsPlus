@@ -165,10 +165,23 @@ namespace NullscapeinBB
                 MaxCurses = 1,
                 MinFloor = 0,
                 CursesAction = () =>
-                { 
+                {
                 },
                 Requirements = () => {
                     return NullscapeInBB.Instance.EnabledNullscapeEntities.Value && NullscapeInBB.EnemyCount(NullscapeInBB.Am.Get<NPC>("npc_Mart").Character) > 0;
+                }
+            });
+
+            NullscapeInBB.Instance.AllGreaterCurses.Add(GreaterCurses.Malfunction, new()
+            {
+                curse = GreaterCurses.Malfunction,
+                MaxCurses = 1,
+                MinFloor = 0,
+                CursesAction = () =>
+                {
+                },
+                Requirements = () => {
+                    return NullscapeInBB.EnemyCount(NullscapeInBB.Am.Get<NPC>("npc_Operator").Character) > 0;
                 }
             });
         }

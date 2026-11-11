@@ -1,4 +1,5 @@
-﻿using NilLib;
+﻿using MTM101BaldAPI.AssetTools;
+using NilLib;
 using NilLib.extension;
 using System;
 using System.Collections;
@@ -42,7 +43,8 @@ namespace NullscapeinBB.NPCs
             base.Initialize();
             speed = 1;
             spriteRenderer[0].gameObject.layer = UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Overlay);
-            
+            spriteRenderer[0].material.SetTexture("_LightMap", AssetLoader.TextureFromMod(NullscapeInBB.Instance, "textures", "whiteTex.png"));
+
             audMan.audioSourceManager.minDistance = 10f;
             audMan.audioSourceManager.maxDistance = 100;
             audMan.QueueAudio(NullscapeInBB.Am.Get<SoundObject>("snd_martloop2"), true);

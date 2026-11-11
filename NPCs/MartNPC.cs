@@ -28,6 +28,8 @@ namespace NullscapeinBB
         }
         public MartState CurrentState = MartState.Idle;
 
+        MaterialPropertyBlock m = new();
+
         public override void Initialize()
         {
             priority = UnityEngine.Random.Range(0, 25555555);
@@ -80,7 +82,9 @@ namespace NullscapeinBB
                     timeanim = 1;
                 }
             }
-            
+            spriteRenderer[0].GetPropertyBlock(m);
+            m.SetFloat("_PercentInvisible", 0);
+            spriteRenderer[0].SetPropertyBlock(m);
             base.VirtualUpdate();
         }
     }

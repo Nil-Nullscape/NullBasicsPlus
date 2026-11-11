@@ -24,10 +24,14 @@ namespace NullscapeinBB.NPCs
 
         public Dictionary<int, SoundObject> SpecialSoundAtTick = new();
         public Image OperatorImg;
-
         public override void Initialize()
         {
             base.Initialize();
+            if (NullscapeInBB.GreaterCurseCount(GreaterCurses.Malfunction) >0 &&    !this.GetType().IsSubclassOf(typeof(OperatorNPC))) {
+                ec.SpawnNPC(NullscapeInBB.Am.Get<NPC>("npc_VbOperator"), new(10, 10));
+                Despawn();
+                return;
+            }
             spriteRenderer[0].enabled = false;
             AudMan = ObjectCreation.CreateAudioManager(1, 1, false, gameObject);
             DefaultTickSound = NullscapeInBB.Am.Get<SoundObject>("snd_OperatorTick1");
@@ -59,7 +63,7 @@ namespace NullscapeinBB.NPCs
         protected override void VirtualUpdate()
         {
             OperatorImg.gameObject.SetActive(!Singleton<CoreGameManager>.Instance.Paused && behaviorStateMachine.currentState is Operator_Counting);
-            OperatorImg.rectTransform.anchoredPosition = new(0, Mathf.Sin(Time.time) * 25f);
+            OperatorImg.rectTransform.anchoredPosition = new(0, Mathf.Sin(Time.time) * 10);
         }
     }
 

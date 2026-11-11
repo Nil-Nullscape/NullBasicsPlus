@@ -12,7 +12,7 @@ namespace NullscapeinBB.NPCs
 {
     public class VoidboundOperatorNPC : OperatorNPC
     {
-        public int[] TicksToAttackAt = [15, 12, 12];
+        public int[] TicksToAttackAt = [21, 12, 12];
         public SoundObject Success2;
         public override void Initialize()
         {
@@ -24,6 +24,11 @@ namespace NullscapeinBB.NPCs
 
             SpecialSoundAtTick.Clear();
             behaviorStateMachine.ChangeState(new VBOperator_Cooldown(15, this));
+        }
+        protected override void VirtualUpdate()
+        {
+            OperatorImg.gameObject.SetActive(!Singleton<CoreGameManager>.Instance.Paused && behaviorStateMachine.currentState is VBOperator_Counting);
+            OperatorImg.rectTransform.anchoredPosition = new(0, Mathf.Sin(Time.time) * 10f);
         }
     }
     public class VBOperator_BaseState(VoidboundOperatorNPC npc) : NpcState(npc)
@@ -53,6 +58,7 @@ namespace NullscapeinBB.NPCs
         {
             Operator.OperatorImg.gameObject.SetActive(true);
             Operator.OperatorImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_vboIdle");
+            Operator.OperatorImg.SetNativeSize();
             Operator.AudMan.PlaySingle(Operator.Spawn);
         }
         public override void Exit()
@@ -62,26 +68,31 @@ namespace NullscapeinBB.NPCs
         }
         public bool CheckCurrentTick()
         {
-            if (CurrentTick < Operator.TicksToAttackAt[currentRound] - 2)
-            {
+           
                 Operator.AudMan.PlaySingle(Operator.DefaultTickSound);
-            }
+            if (CurrentTick >= Operator.TicksToAttackAt[currentRound] - 2) Operator.OperatorImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_vboCheck");
+            else Operator.OperatorImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_vboIdle");
+
             if (CurrentTick == Operator.TicksToAttackAt[currentRound] - 2) {
                 Operator.AudMan.PlaySingleViaAssetMan(NullscapeInBB.Am, "snd_VboAttack");
+
             }
 
-            if (Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.RealVelocity < Mathf.Epsilon && CurrentTick <= Operator.TicksToAttackAt[currentRound] - 2 && currentRound != 3)
+            if (Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.RealVelocity < Mathf.Epsilon && CurrentTick >= Operator.TicksToAttackAt[currentRound] - 2 && currentRound != 2)
             {
                 Operator.AudMan.PlaySingle(Operator.Success);
+
+                Operator.OperatorImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_vboIdle");
                 return true;
             }
-            if (Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.RealVelocity < Mathf.Epsilon && CurrentTick <= Operator.TicksToAttackAt[currentRound] - 2 && currentRound == 3)
+            if (Singleton<CoreGameManager>.Instance.GetPlayer(0).plm.RealVelocity < Mathf.Epsilon && CurrentTick >= Operator.TicksToAttackAt[currentRound] - 2 && currentRound == 2)
             {
                 Operator.AudMan.PlaySingle(Operator.Success2);
                 return true;
             }
 
             if (CurrentTick == Operator.TicksToAttackAt[currentRound]) {
+                Operator.OperatorImg.sprite = NullscapeInBB.Am.Get<Sprite>("spr_vboKill");
                 UsefulHelpers.KillPlayer(npc, [
                     new() {
                         selection = NullscapeInBB.Am.Get<SoundObject>("snd_VboFail")
@@ -105,7 +116,7 @@ namespace NullscapeinBB.NPCs
                 {
                     currentRound++;
 
-                    if (currentRound >= 4) {
+                    if (currentRound >= 3) {
                         Operator.behaviorStateMachine.ChangeState(new VBOperator_Cooldown(15, Operator));
 
                     }

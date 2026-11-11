@@ -238,7 +238,8 @@ namespace NullscapeinBB
         LessShield,
         SilentNpcs,
         byebyestickystickers,
-        MartWaterPlanet
+        MartWaterPlanet,
+        Malfunction
 
 
     }
@@ -451,7 +452,7 @@ namespace NullscapeinBB
                 AllEnemies.Add(Am.Get<NPC>("npc_ICBM").Character, new(Am.Get<NPC>("npc_ICBM").Character, 0, 2, Am.Get<NPC>("npc_ICBM"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_NIL").Character, new(Am.Get<NPC>("npc_NIL").Character, 5, 4, Am.Get<NPC>("npc_NIL"), "Baldi."));
-                AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 0, 1, Am.Get<NPC>("npc_Operator"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 9, 1, Am.Get<NPC>("npc_Operator"), "Baldi."));
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -678,6 +679,11 @@ namespace NullscapeinBB
             .SetItemComponent<Item>()
             .Build()
             });
+
+
+
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.pinedebug")) PineDebugShit.PinedebugSupport.addsupport();
+
         }
         static public int CurseCount(Curses curse)
         {
@@ -1242,7 +1248,7 @@ namespace NullscapeinBB
             .SetMinMaxAudioDistance(15, 100)
             .Build());
 
-            Am.Add("npc_VbOperator", new NPCBuilder<OperatorNPC>(this.Info)
+            Am.Add("npc_VbOperator", new NPCBuilder<VoidboundOperatorNPC>(this.Info)
             .SetEnum("Operator")
             .SetStationary()
             .SetName("VoidboundOperator")
