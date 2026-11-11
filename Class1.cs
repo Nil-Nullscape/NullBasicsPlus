@@ -28,6 +28,7 @@ using MTM101BaldAPI.SaveSystem;
 using NullscapeinBB.SaveHandlerStuff;
 using NullscapeinBB.NPCs;
 using NilLib.Save;
+using NullscapeinBB.Misc;
 
 namespace NullscapeinBB
 {
@@ -1070,6 +1071,15 @@ namespace NullscapeinBB
             Am.Add("sprsheet_ggift", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "activitiesstuff", "newgoldgift.png"), 150, 150, 55, 23));
             Am.Add("sprsheet_cadence2", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "AngryCadenceSpritesheet.png"), 120, 120, 20, 24));
             Am.Add("sprsheet_explode", AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "Explostion_Sheet.png"), 128, 128, 5, 9));
+
+
+            Am.Add(ModAssetNames.SprSheetBabyIdle, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "BabyIdle.png"), 200, 200, 35, 8));
+            Am.Add(ModAssetNames.SprSheetBabyLocked, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "BabyLocked.png"), 200, 200, 35, 15));
+            Am.Add(ModAssetNames.SprSheetBabyDash, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "BabyCharge.png"), 200, 200, 35, 13));
+
+            Am.Add(ModAssetNames.SprSheetBabyTrans, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "BabyTrans.png"), 200, 200, 35, 4));
+
+
             Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceHarpInstrument.png"));
             Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceViolinInstrument.png"));
             Am.Add("spr_intenemy", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent1.png"));
