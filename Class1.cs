@@ -438,12 +438,12 @@ namespace NullscapeinBB
             AllEnemies.Add(Character.Bully, new(Character.Bully, 5, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Bully"), "Baldi."));
             AllEnemies.Add(Character.Pomp, new(Character.Pomp, 5, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Mrs Pomp"), "Baldi."));
             AllEnemies.Add(Character.Sweep, new(Character.Sweep, 0, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Gotta Sweep"), "Baldi."));
-            AllEnemies.Add(Character.Cumulo, new(Character.Cumulo, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "CloudyCopter"), "Baldi."));
-            AllEnemies.Add(Character.DrReflex, new(Character.DrReflex, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "DrReflex"), "Baldi."));
-            AllEnemies.Add(Character.LookAt, new(Character.LookAt, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "LookAt"), "Baldi."));
-            AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 10, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
-            AllEnemies.Add(Character.Beans, new(Character.Beans, 10, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
-            AllEnemies.Add(Character.Crafters, new(Character.Crafters, 10, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
+            AllEnemies.Add(Character.Cumulo, new(Character.Cumulo, 9, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "CloudyCopter"), "Baldi."));
+            AllEnemies.Add(Character.DrReflex, new(Character.DrReflex, 9, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "DrReflex"), "Baldi."));
+            AllEnemies.Add(Character.LookAt, new(Character.LookAt, 9, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "LookAt"), "Baldi."));
+            AllEnemies.Add(Character.Chalkles, new(Character.Chalkles, 9, 1, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "ChalkFace"), "Baldi."));
+            AllEnemies.Add(Character.Beans, new(Character.Beans, 9, 3, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Beans"), "Baldi."));
+            AllEnemies.Add(Character.Crafters, new(Character.Crafters, 9, 2, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
 
 
             if (EnabledNullscapeEntities.Value)
@@ -454,6 +454,13 @@ namespace NullscapeinBB
                 AllEnemies.Add(Am.Get<NPC>("npc_Tele").Character, new(Am.Get<NPC>("npc_Tele").Character, 9, 2, Am.Get<NPC>("npc_Tele"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_NIL").Character, new(Am.Get<NPC>("npc_NIL").Character, 5, 4, Am.Get<NPC>("npc_NIL"), "Baldi."));
                 AllEnemies.Add(Am.Get<NPC>("npc_Operator").Character, new(Am.Get<NPC>("npc_Operator").Character, 9, 1, Am.Get<NPC>("npc_Operator"), "Baldi."));
+
+                AllEnemies.Add(Am.Get<NPC>("npc_Baby").Character, new(Am.Get<NPC>("npc_Baby").Character, 5, 3, Am.Get<NPC>("npc_Baby"), "Baldi."));
+                AllEnemies.Add(Am.Get<NPC>("npc_VBBaby").Character, new(Am.Get<NPC>("npc_VBBaby").Character, 15, 3, Am.Get<NPC>("npc_VBBaby"), "Baldi.") {
+                    Requirements = () => {
+                        return EnemyCount(Am.Get<NPC>("npc_VBBaby").Character) >= 2;
+                    }
+                });
             }
             // gets used when no more enemies
             AllEnemies.Add(EnumExtensions.ExtendEnum<Character>("???"), new(EnumExtensions.ExtendEnum<Character>("???"), int.MaxValue, int.MaxValue, Resources.FindObjectsOfTypeAll<NPC>().First(x => x.name == "Arts and Crafters"), "Baldi."));
@@ -1035,6 +1042,12 @@ namespace NullscapeinBB
             Am.Add("snd_telefraggerwalk", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Telefragger_Walk_Patch5.ogg"), "snd_telefraggerwalk", SoundType.Voice, UnityEngine.Color.gray, int.MaxValue));
             Am.Add("snd_shieldbreak", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shield_Break.ogg"), "snd_shieldbreak", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
             Am.Add("snd_altarSound", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "altars", "Main_Altar_sfx.ogg"), "snd_usedaltar", SoundType.Effect, UnityEngine.Color.cyan, 0.01f));
+
+
+            Am.Add(ModAssetNames.SndBabyWarn, MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Baby_Alarm.ogg"), "snd_BabyWarn", SoundType.Effect, UnityEngine.Color.magenta));
+            Am.Add(ModAssetNames.SndBabyDash, MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Baby_Scream.ogg"), "snd_BabyDash", SoundType.Effect, UnityEngine.Color.magenta));
+            Am.Add(ModAssetNames.SndvbBabyWarn, MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shadow_Baby_Alarm.ogg"), "snd_BabyWarn", SoundType.Effect, UnityEngine.Color.magenta));
+            Am.Add(ModAssetNames.SndvbBabyDash, MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Shadow_Baby_Scream.ogg"), "snd_BabyDash", SoundType.Effect, UnityEngine.Color.magenta));
             yield return "Loading textures/Images";
 
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
@@ -1080,6 +1093,15 @@ namespace NullscapeinBB
             Am.Add(ModAssetNames.SprSheetBabyTrans, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "BabyTrans.png"), 200, 200, 35, 4));
 
 
+
+
+            Am.Add(ModAssetNames.SprSheetvbBabyIdle, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "VBBabyIdle.png"), 200, 200, 35, 18));
+            Am.Add(ModAssetNames.SprSheetvbBabyLocked, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "VBBabyLocked.png"), 200, 200, 35, 7));
+            Am.Add(ModAssetNames.SprSheetvbBabyDash, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "VBBabyCharge.png"), 200, 200, 35, 6));
+
+            Am.Add(ModAssetNames.SprSheetvbBabyTrans, AssetLoader.SpritesFromSpriteSheetCount(AssetLoader.TextureFromMod(this, "newenemies", "VBBabyTrans.png"), 200, 200, 35, 4));
+
+
             Am.Add("spr_harpinst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceHarpInstrument.png"));
             Am.Add("spr_violininst", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 100, "newenemies", "CadenceViolinInstrument.png"));
             Am.Add("spr_intenemy", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 25, "intermissionText", "NULLBASIC_text_transparent1.png"));
@@ -1093,6 +1115,9 @@ namespace NullscapeinBB
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             Am.Add("spr_slowtime", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_timeability.png"));
             Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
+
+
+            Am.Add(ModAssetNames.tex_WhiteTex, AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "textures", "whiteTex.png"));
 
             foreach (var item in Enum.GetNames(typeof(MainInfiniteGameManager.StatusEffectsTypes)))
             {
@@ -1262,6 +1287,22 @@ namespace NullscapeinBB
             .SetEnum("Operator")
             .SetStationary()
             .SetName("VoidboundOperator")
+            .IgnorePlayerOnSpawn()
+            .SetMinMaxAudioDistance(15, 100)
+            .Build());
+
+            Am.Add("npc_Baby", new NPCBuilder<BabyNPC>(this.Info)
+            .SetEnum("Baby")
+            .SetStationary()
+            .SetName("Baby")
+            .IgnorePlayerOnSpawn()
+            .SetMinMaxAudioDistance(15, 100)
+            .Build());
+
+            Am.Add("npc_VBBaby", new NPCBuilder<VoidboundBabyNPC>(this.Info)
+            .SetEnum("VoidboundBaby")
+            .SetStationary()
+            .SetName("VoidboundBaby")
             .IgnorePlayerOnSpawn()
             .SetMinMaxAudioDistance(15, 100)
             .Build());

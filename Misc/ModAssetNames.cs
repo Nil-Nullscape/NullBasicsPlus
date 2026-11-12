@@ -8,7 +8,7 @@ namespace NullscapeinBB.Misc
 {
     public static class ModAssetNames
     {
-        // Music
+        #region Music
         public const string MusClass = "mus_class";
         public const string MusI1 = "mus_i1";
         public const string MusFindyourflame = "mus_findyourflame";
@@ -29,7 +29,11 @@ namespace NullscapeinBB.Misc
         public const string MusNil = "mus_nil";
         public const string MusTeledance = "mus_teledance";
 
+        #endregion
+
         // Sound Effects & Voices
+
+        #region SFX
         public const string SndPurchase = "snd_purchase";
         public const string SndPurchase2 = "snd_purchase2";
         public const string SndOperatorTick1 = "snd_OperatorTick1";
@@ -78,11 +82,24 @@ namespace NullscapeinBB.Misc
         public const string SndShieldbreak = "snd_shieldbreak";
         public const string SndAltarSound = "snd_altarSound";
 
+        public const string SndBabyWarn = "snd_babywarn";
+        public const string SndBabyDash = "snd_babydash";
+        public const string SndvbBabyWarn = "snd_vbbabywarn";
+        public const string SndvbBabyDash = "snd_vbbabydash";
+
+        #endregion
         // Textures & Posters
+
+        #region Textures
         public const string TexPoster1 = "tex_poster1";
         public const string TexPoster2 = "tex_poster2";
 
+        public const string tex_WhiteTex = "WhiteTex";
+
+        #endregion
         // Sprites
+
+        #region Sprites
         public const string SprMart = "spr_mart";
         public const string SprIcbmmarker = "spr_icbmmarker";
         public const string SprIcbm = "spr_icbm";
@@ -107,7 +124,10 @@ namespace NullscapeinBB.Misc
         public const string SprSlowtime = "spr_slowtime";
         public const string SprHudlist = "spr_hudlist";
 
+        #endregion
         // Sprite Sheets
+
+        #region SpriteSheets
         public const string SprsheetMartIdle = "sprsheet_mart-Idle";
         public const string SprsheetMartWowStart = "sprsheet_mart-WowStart";
         public const string SprsheetMartWowIdle = "sprsheet_mart-WowIdle";
@@ -126,6 +146,15 @@ namespace NullscapeinBB.Misc
         public const string SprSheetBabyLocked = "sprsheet_babyLocked";
         public const string SprSheetBabyTrans = "sprsheet_babyTrans";
         public const string SprSheetBabyDash = "sprsheet_babyDash";
+
+        public const string SprSheetvbBabyIdle = "sprsheet_vbbabyIdle";
+        public const string SprSheetvbBabyLocked = "sprsheet_vbbabyLocked";
+        public const string SprSheetvbBabyTrans = "sprsheet_vbbabyTrans";
+        public const string SprSheetvbBabyDash = "sprsheet_vbbabyDash";
+
+        #endregion
+
+
 
     }
 }

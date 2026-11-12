@@ -39,7 +39,7 @@ namespace NullscapeinBB.Misc
         }
 
         public void Update() {
-            currentTime = Time.deltaTime * framesPerSeconds;
+            currentTime += Time.deltaTime * framesPerSeconds;
             if (Mathf.Round(currentTime) >= CurrentAnimation.Length) {
                 currentTime = 0;
                 OnAnimationFinished();
@@ -73,7 +73,7 @@ namespace NullscapeinBB.Misc
             var anim = renderer.gameObject.AddComponent<AnimatorBBP>();
             anim.CurrentAnimation = DefaultAnimation;
             anim.framesPerSeconds = framesPerSeconds;
-
+            anim.renderer = renderer;
             anim.AnimationsStorage.Add("Default", new() {
                 speed = framesPerSeconds,
                 animation = DefaultAnimation
