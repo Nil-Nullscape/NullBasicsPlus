@@ -584,13 +584,25 @@ namespace NullscapeinBB
 
             if (__instance is PitstopGameManager)
             {
-                if (NullscapeInBB.Instance.FloorCounter + 1 >= 10 && NullscapeInBB.Instance.FloorCounter + 1 < 30)
+                if (NullscapeInBB.Instance.FloorCounter + 1 < 10)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(128f / 255f, 0, 128f / 255f), new Color(35f / 255f, 4f / 255f, 67f / 255f), Mathf.Abs(Mathf.Sin(__instance.realTime / 2 + i / 10)));
+                        light.lightColor = Color.Lerp(new Color(0f, 0.3f, 0.8f), new Color(0f, 0.9f, 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
+                }
+                if (NullscapeInBB.Instance.FloorCounter +1 >= 10 && NullscapeInBB.Instance.FloorCounter+1 < 30)
+                {
+                    var i = 0;
+                    foreach (var light in __instance.Ec.lights)
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(0.5f, 0, 0.5f), new Color(1f, 0, 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                     __instance.Ec.UpdateQueuedLightChanges();
@@ -602,45 +614,47 @@ namespace NullscapeinBB
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(1, 0f, 0), new Color(1f, 0.6f, 0f), Mathf.Abs(Mathf.Sin(__instance.realTime / 3 + i / 10)));
+                        light.lightColor = Color.Lerp(new Color(0f, 0f, 0.4f), new Color(0f, 0, 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
                 }
-                if (NullscapeInBB.Instance.FloorCounter + 1 >= 40 && NullscapeInBB.Instance.FloorCounter + 1 < 50)
+                if (NullscapeInBB.Instance.FloorCounter + 1 >= 40 && NullscapeInBB.Instance.FloorCounter + 1 < 100)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(0.5f, 0.5f, 1), new Color(0, 0, 0.25f), Mathf.Abs(Mathf.Tan(__instance.realTime / 6 + i / 100)));
+                        light.lightColor = Color.Lerp(new Color(0.25f, 0.25f, 0.25f), new Color(1f,1, 1f), Mathf.Sin(Time.time * 0.75f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                     __instance.Ec.UpdateQueuedLightChanges();
 
                 }
 
-                if (NullscapeInBB.Instance.FloorCounter + 1 >= 50 && NullscapeInBB.Instance.FloorCounter + 1 < 10000)
-                {
-                    var i = 0;
-                    foreach (var light in __instance.Ec.lights)
-                    {
-                        i++;
-                        light.lightColor = Color.Lerp(new Color(1, 1, 1), new Color(0.05f, 0.05f, 0.05f), Mathf.Abs(Mathf.Sin(__instance.realTime / 10 + i / 100)));
-                        __instance.Ec.QueueLightSourceForRegenerate(light);
-                    }
-                    __instance.Ec.UpdateQueuedLightChanges();
-
-                }
             }
             if (__instance is MainInfiniteGameManager)
             {
+                if (NullscapeInBB.Instance.FloorCounter < 10)
+                {
+                    var i = 0;
+                    foreach (var light in __instance.Ec.lights)
+                    {
+                        i++;
+                        light.lightColor = Color.Lerp(new Color(0f, 0.3f, 0.8f), new Color(0f, 0.9f, 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
+                        __instance.Ec.QueueLightSourceForRegenerate(light);
+                    }
+                    __instance.Ec.UpdateQueuedLightChanges();
+
+                }
                 if (NullscapeInBB.Instance.FloorCounter >= 10 && NullscapeInBB.Instance.FloorCounter < 30)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(128f / 255f, 0, 128f / 255f), new Color(35f / 255f, 4f / 255f, 67f / 255f), Mathf.Abs(Mathf.Sin(__instance.realTime / 2 + i / 10)));
+                        light.lightColor = Color.Lerp(new Color(0.5f, 0, 0.5f), new Color(1f, 0, 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                     __instance.Ec.UpdateQueuedLightChanges();
@@ -652,30 +666,19 @@ namespace NullscapeinBB
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(1, 0f, 0), new Color(1f, 0.6f, 0f), Mathf.Abs(Mathf.Sin(__instance.realTime / 3 + i / 10)));
-                        __instance.Ec.QueueLightSourceForRegenerate(light);
-                    }
-                }
-                if (NullscapeInBB.Instance.FloorCounter >= 40 && NullscapeInBB.Instance.FloorCounter < 50)
-                {
-                    var i = 0;
-                    foreach (var light in __instance.Ec.lights)
-                    {
-                        i++;
-                        light.lightColor = Color.Lerp(new Color(0.5f, 0.5f, 1), new Color(0, 0, 0.25f), Mathf.Abs(Mathf.Tan(__instance.realTime / 6 + i / 100)));
+                        light.lightColor = Color.Lerp(new Color(0f, 0f, 0.4f), new Color(0f,0 , 1f), Mathf.Sin(Time.time * 1.5f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                     __instance.Ec.UpdateQueuedLightChanges();
 
                 }
-
-                if (NullscapeInBB.Instance.FloorCounter >= 50 && NullscapeInBB.Instance.FloorCounter < 10000)
+                if (NullscapeInBB.Instance.FloorCounter >= 40 && NullscapeInBB.Instance.FloorCounter < 100)
                 {
                     var i = 0;
                     foreach (var light in __instance.Ec.lights)
                     {
                         i++;
-                        light.lightColor = Color.Lerp(new Color(1, 1, 1), new Color(0.05f, 0.05f, 0.05f), Mathf.Abs(Mathf.Sin(__instance.realTime / 10 + i / 100)));
+                        light.lightColor = Color.Lerp(new Color(0.25f, 0.25f, 0.25f), new Color(1f, 1, 1f), Mathf.Sin(Time.time * 0.75f + i * 0.01f) / 2f);
                         __instance.Ec.QueueLightSourceForRegenerate(light);
                     }
                     __instance.Ec.UpdateQueuedLightChanges();
@@ -823,6 +826,7 @@ namespace NullscapeinBB
                     for (int i = 1; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                        if (NullscapeInBB.Instance.EnableChaosMode.Value) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Chaos);
                     }
                     for (int i = 1; i < goal + 1; i++)
                     {
@@ -836,6 +840,7 @@ namespace NullscapeinBB
                     for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                        if (NullscapeInBB.Instance.EnableChaosMode.Value) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Chaos);
                     }
                     for (int i = goal - 4; i < goal + 1; i++)
                     {
@@ -850,6 +855,7 @@ namespace NullscapeinBB
                     for (int i = goal - 4; i < goal + 1; i++)
                     {
                         if (i % 2 == 0) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Enemy);
+                        if (NullscapeInBB.Instance.EnableChaosMode.Value) NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Chaos);
                     }
                     for (int i = goal - 4; i < goal + 1; i++)
                     {

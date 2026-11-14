@@ -79,7 +79,7 @@ namespace NullscapeinBB
             if (currFloor <= 4) {
                 return 60 + currFloor * 20 + GetNumberOfNotebooks() * 6.5f;
             } else {
-                return 60 + (currFloor * 10 + GetNumberOfNotebooks() * 3.5f) * Mathf.Clamp(1 - Mathf.Floor(currFloor / 8f)*0.05f,0.01f,1f);
+                return 60 + (currFloor * 10 + GetNumberOfNotebooks() * 5f) * Mathf.Clamp(1 - Mathf.Floor(currFloor / 8f)*0.05f,0.01f,0.85f);
             }
 
 
@@ -108,7 +108,7 @@ namespace NullscapeinBB
         }
         public static IntVector2 GetLevelSize() {
             NullscapeInBB main = NullscapeInBB.Instance;
-            var num = Mathf.Clamp((7 + Mathf.FloorToInt(main.FloorCounter / 4.5f)) * Mathf.FloorToInt(main.FloorCounter / (3.1415f + main.FloorCounter / 5.2f)  ),0,239);
+            var num = Mathf.Clamp((7 + Mathf.FloorToInt(main.FloorCounter / 4.5f)) * Mathf.FloorToInt(main.FloorCounter / (3.1415f + main.FloorCounter / 5.2f)  ),0,239) / ((main.FloorCounter / 15)+1);
             return  new(14 + num, 14 + num);
         }
 

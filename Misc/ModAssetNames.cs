@@ -155,6 +155,8 @@ namespace NullscapeinBB.Misc
         #endregion
 
 
+        public const string SkyboxPrefab = "skyboxPre";
+
 
     }
 }

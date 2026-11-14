@@ -1373,6 +1373,19 @@ namespace NullscapeinBB
             scene.levelTitle = "G";
             scene.nextLevel = F1;
             scene.usesMap = false;
+            var mat = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Transparent" && x.IsPrefab() && x.isReadable);
+            scene.levelAsset.rooms[0].ceilTex = mat;
+            scene.levelAsset.lights[0].prefab = null;
+            Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.rooms[0].ceilTex = mat;
+            Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.rooms[1].ceilTex = mat;
+            Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.tbos.RemoveAt(1);
+            Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.roomAssetPlacements.RemoveAt(0);
+            Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.tile.FirstOrDefault(x => x.pos == new IntVector2(30, 7))?.type = 8;
+            foreach (var item in Resources.FindObjectsOfTypeAll<SceneObject>().First(x => x.name == "Pitstop").levelAsset.lights.ToList())
+            {
+                item.prefab = null;
+            }
+            
 
             yield return "adding misc. stuff 2 (editor stuff and activities)";
             var gcactgameobj = new GameObject("Act_giftCollection");
@@ -1426,6 +1439,15 @@ namespace NullscapeinBB
             foreach (var room in GiftsActivityRooms) {
                 room.color = UsefulHelpers.GetColorFromRgb(194, 0, 255);
             }
+
+
+
+            Am.Add(ModAssetNames.SkyboxPrefab, AssetLoader.ModelFromModManualMaterials(this, new() {
+                { "StudioSkybox1Mtl", ObjectCreation.CreateMaterial(MaterialTypes.Unlit,AssetLoader.TextureFromMod(this,"IdontKnowBro","StudioSkybox1_diff.png")) }
+            }, "IdontKnowBro", "NullscapeSkybox.obj"));
+            Am.Get<GameObject>(ModAssetNames.SkyboxPrefab).ConvertToPrefab(true);
+            Am.Get<GameObject>(ModAssetNames.SkyboxPrefab).transform.GetChild(0).GetComponent<MeshRenderer>().material.shader = Shader.Find("Sprites/Default");
+
         }
 
         public void GetAssets()
@@ -1810,6 +1832,9 @@ namespace NullscapeinBB
                 .Build();
                 EventsList.Clear();
                 EventsList.Add(Resources.FindObjectsOfTypeAll<RandomEvent>().First(x => x is FogEvent));
+
+                
+
                 if (scene.levelTitle == "F1")
                 {
                     F1 = scene;
@@ -1953,6 +1978,7 @@ namespace NullscapeinBB
                 AssetManager miscman = new AssetManager();
                 miscman.AddFromResourcesNoClones<NPC>();
                 CustomLevelObject[] customLevelObjects = scene.GetCustomLevelObjects();
+                var mat = Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "Transparent" && x.IsPrefab() && x.isReadable);
                 foreach (CustomLevelObject cuslevob in customLevelObjects)
                 {
                     foreach (WeightedItemObject witem in cuslevob.potentialItems)
@@ -1975,6 +2001,18 @@ namespace NullscapeinBB
                         }
                     }
 
+                    cuslevob.hallCeilingTexs = [new() {
+                        selection = mat,
+                        weight = 11
+                    }];
+
+                    foreach (var item in cuslevob.roomGroup)
+                    {
+                        item.ceilingTexture = [new() {
+                        selection = mat,
+                        weight = 11
+                    }];
+                    }
 
                     foreach (var rg in cuslevob.roomGroup)
                     {
