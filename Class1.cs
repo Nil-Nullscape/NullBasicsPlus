@@ -148,7 +148,7 @@ namespace NullscapeinBB
 
             foreach (IngameSong song in list)
             {
-                if (floor >= song.SongFloorRange.x && floor <= song.SongFloorRange.z)
+                if (floor >= song.SongFloorRange.x && floor <= song.SongFloorRange.z && song != NullscapeInBB.Instance.LastSong)
                 {
                     validSongs.Add(song);
                 }
@@ -160,7 +160,9 @@ namespace NullscapeinBB
             }
 
             int randomIndex = UnityEngine.Random.Range(0, validSongs.Count);
-            return validSongs[randomIndex];
+            var sng = validSongs[randomIndex];
+            NullscapeInBB.Instance.LastSong = sng;
+            return sng;
         }
 
         public static BaldiRoomAsset[] LoadFolderRooms(string folderPath)
@@ -249,7 +251,7 @@ namespace NullscapeinBB
         Student,
         Prisoner,
         Grappler,
-        Spirit,
+        Dasher,
         TimeController,
         Greedy // scrapped due to how bad the idea was
     }
@@ -341,10 +343,12 @@ namespace NullscapeinBB
     [BepInPlugin("Nil.NullscapeinBB", "Nullscape in BB", "2.0.0.0")]
     public class NullscapeInBB : BaseUnityPlugin
     {
-        static bool GetCheatingMods() {
+        public static bool GetCheatingMods() {
             foreach(var item in Chainloader.PluginInfos)
             {
                 if (item.Value.Metadata.GUID == "alexbw145.baldiplus.pinedebug") return true;
+                if (item.Value.Metadata.GUID == "com.sinai.unityexplorer") return true;
+
             }
             return false;
         }
@@ -371,6 +375,7 @@ namespace NullscapeinBB
         public IntVector2 levelsize;
         public int plotcount;
         public int mapprice;
+        public IngameSong LastSong = null;
         public int freeRerolls = 3;
         public int rerollPrice = 100;
         public int cursebreakerprice = 5000;
@@ -686,6 +691,25 @@ namespace NullscapeinBB
             .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
             .SetItemComponent<Item>()
             .Build()
+
+            });
+            CheckIfItemSpriteExistsOtherwiseAutomaticallyAddPlaceholderImageToFile("ClassDasher");
+            Classes.Add(new()
+            {
+                NameKey = "tClass_Dasher",
+                DescKey = "dClass_Dasher",
+                icon = AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassDasher.png"),
+                classEnum = NullscapeinBB.Classes.Dasher,
+                usesAbilityKey = true,
+                item = new ItemBuilder(this.Info)
+            .SetAsInstantUse()
+            .SetNameAndDescription($"itm_unused", $"Loading..")
+            .SetSprites(AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassDasher.png"), AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_ClassDasher.png"))
+            .SetEnum($"itmClass")
+            .SetPickupSound(Am.Get<SoundObject>("snd_purchase"))
+            .SetItemComponent<Item>()
+            .Build()
+
             });
 
 
@@ -909,6 +933,7 @@ namespace NullscapeinBB
         void AddCategory(OptionsMenu __instance, CustomOptionsHandler handler) {
             if (Singleton<CoreGameManager>.Instance != null) return;
             handler.AddCategory<NullbasicsSettings>("Nullbasics Settings");
+            handler.AddCategory<NullbasicsStats>("Nullbasics Stats");
         }
         IEnumerator PostLoad()
         {
@@ -1052,6 +1077,8 @@ namespace NullscapeinBB
 
             Am.Add<Texture2D>("tex_poster1", AssetLoader.TextureFromMod(this, "posters", "cadencebutdontcare.png"));
             Am.Add<Texture2D>("tex_poster2", AssetLoader.TextureFromMod(this, "posters", "mart.png"));
+
+            Am.Add<Texture2D>("tex_poster3", AssetLoader.TextureFromMod(this, "posters", "SomePeopleSaidThisToMeLmao.png"));
             Am.Add<Sprite>("spr_mart", AssetLoader.SpriteFromMod(this,Vector2.one/2,20, "newenemies", "mart.png"));
             Am.Add<Sprite>("spr_icbmmarker", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBM_Marker.png"));
             Am.Add<Sprite>("spr_icbm", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 10, "newenemies", "ICBMAnimated.png"));
@@ -1149,7 +1176,7 @@ namespace NullscapeinBB
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_inescapable"), Am.Get<SoundObject>("mus_collapse_inescapable"), 20, 9999));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_TWWC"), Am.Get<SoundObject>("mus_collapse_TWWC"), 30, 9999));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Cognition"), Am.Get<SoundObject>("mus_collapse_Cognition"), 25, 40));
-            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Conviction"), Am.Get<SoundObject>("mus_collapse_Conviction"), 20, 50));
+            IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_Conviction"), Am.Get<SoundObject>("mus_collapse_Conviction"), 20, 10000000));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_CYBT"), Am.Get<SoundObject>("mus_collapse_CYBT"), 10, 19));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_FoS"), Am.Get<SoundObject>("mus_collapse_FoS"), 10, 25));
             IngameSongs.Add(new(Am.Get<SoundObject>("mus_normal_IA"), Am.Get<SoundObject>("mus_collapse_IA"), 30, 9999));
@@ -1200,6 +1227,8 @@ namespace NullscapeinBB
                 }
             ]));
             Am.Add("pst_poster2", ObjectCreators.CreatePosterObject(Am.Get<Texture2D>("tex_poster2"), []));
+
+            Am.Add("pst_poster3", ObjectCreators.CreatePosterObject(Am.Get<Texture2D>("tex_poster3"), []));
             yield return "Making new NPCs";
             Am.Add("npc_Mart", new NPCBuilder<MartNPC>(this.Info)
                 .AddTrigger()
@@ -1874,6 +1903,11 @@ namespace NullscapeinBB
                             selection = Am.Get<PosterObject>("pst_poster2"),
                             weight = 75
                         });
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
+                        {
+                            selection = Am.Get<PosterObject>("pst_poster3"),
+                            weight = 50
+                        });
                         cuslevob.maxPlots = plotcount + 1;
                         cuslevob.minPlots = plotcount - 1;
                         cuslevob.randomEvents.Clear();
@@ -1963,6 +1997,12 @@ namespace NullscapeinBB
                         {
                             selection = Am.Get<PosterObject>("pst_poster2"),
                             weight = 75
+                        });
+
+                        cuslevob.posters = cuslevob.posters.AddToArray(new()
+                        {
+                            selection = Am.Get<PosterObject>("pst_poster3"),
+                            weight = 50
                         });
                     }
                 }

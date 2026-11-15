@@ -300,7 +300,13 @@ namespace NullscapeinBB
                 AbilityGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_slowtime"), 10f);
                 SlowMo = new(0.1f, 0.1f, 1f);
             }
-            base.BeginPlay();
+            if (NullscapeInBB.Instance.SelectedClass == Classes.Dasher)
+            {
+                AbilityGaugeMaxTime = 2;
+                AbilityTimeLeft = 0;
+                AbilityGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_slowtime"), 2f);
+            }
+                base.BeginPlay();
         }
         bool ShouldForceOpenExit = false;
         protected override void VirtualUpdate()
@@ -354,12 +360,27 @@ namespace NullscapeinBB
                 AbilityEnabled = false;
             }
             if (AbilityEnabled) {
-                if ( NullscapeInBB.Instance.SelectedClass == Classes.TimeController) {
+                if (NullscapeInBB.Instance.SelectedClass == Classes.TimeController)
+                {
                     AbilityTimeLeft -= Time.deltaTime;
-                    if (!isSlowed) {
+                    if (!isSlowed)
+                    {
                         isSlowed = true;
                         ec.AddTimeScale(SlowMo);
                     }
+                }
+                if (NullscapeInBB.Instance.SelectedClass == Classes.Dasher)
+                {
+                    AbilityTimeLeft = -1f;
+                    var ee = Singleton<CoreGameManager>.Instance.GetPlayer(0);
+                    var force = new Force(ee.transform.forward, 60,60, -15f);
+                    ee.plm.Entity.AddForce(force);
+                    UsefulHelpers.delay(() =>
+                    {
+                        ee.plm.Entity.RemoveForce(force);
+
+                    }, 0.5f);
+
                 }
             } else {
                 if (NullscapeInBB.Instance.SelectedClass == Classes.TimeController)
@@ -370,7 +391,11 @@ namespace NullscapeinBB
                         ec.RemoveTimeScale(SlowMo);
                     }
                 }
-            }
+                if (NullscapeInBB.Instance.SelectedClass == Classes.Dasher)
+                {
+                    AbilityTimeLeft = Mathf.Clamp(AbilityTimeLeft + Time.deltaTime * 1.5f,0,2);
+                }
+                }
 
             if (AbilityGauge)
             {
@@ -378,6 +403,7 @@ namespace NullscapeinBB
             }
             if (Input.GetKeyDown(NullscapeInBB.Instance.KeyAbility.Value)) {
                 if (AbilityTimeLeft > 0 && NullscapeInBB.Instance.SelectedClass == Classes.TimeController) AbilityEnabled = !AbilityEnabled;
+                if (AbilityTimeLeft >= 2 && NullscapeInBB.Instance.SelectedClass == Classes.Dasher) AbilityEnabled = !AbilityEnabled;
             }
 
 

@@ -9,6 +9,7 @@ using MTM101BaldAPI.UI;
 using NilLib;
 using NilLib.Builders;
 using NilLib.Creators;
+using NullscapeinBB.Save;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -371,10 +372,7 @@ namespace NullscapeinBB
                 var extraNPCIntermission = 0;
                 var extraCurseIntermission = 0;
                 extraNPCIntermission += NullscapeInBB.GreaterCurseCount(GreaterCurses.TwiceMoreNpcs);
-                if (NullscapeInBB.CurrentSave.GetInt("MaxLevelNormalReached",0) < NullscapeInBB.Instance.FloorCounter) {
-                    NullscapeInBB.CurrentSave.SetData("MaxLevelNormalReached", NullscapeInBB.Instance.FloorCounter);
-                    NullscapeInBB.CurrentSave.Save();
-                }
+                
                 if (NullscapeInBB.Instance.FloorCounter + 1 >= 50)
                 {
                     extraNPCIntermission += 1;
@@ -819,6 +817,12 @@ namespace NullscapeinBB
             }
             if (__instance is MainInfiniteGameManager) {
                 var goal = 0;
+
+                if (NullscapeInBB.CurrentSave.GetInt(SaveHelper.GetSaveKeyCurrentMode(), 0) < NullscapeInBB.Instance.FloorCounter)
+                {
+                    NullscapeInBB.CurrentSave.SetData(SaveHelper.GetSaveKeyCurrentMode(), NullscapeInBB.Instance.FloorCounter);
+                    NullscapeInBB.CurrentSave.Save();
+                }
                 if (NullscapeInBB.Instance.EnableQuickStart.Value && NullscapeInBB.Instance.FloorCounter == 1)
                 {
                     goal = 4;

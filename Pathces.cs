@@ -52,7 +52,7 @@ namespace NullscapeinBB
         static bool ByebyeSkyboxesIg(Skybox __instance) {
             foreach (var item in __instance.gameObject.GetComponentsInChildren<Renderer>())
             {
-                item.enabled = false;
+                item.gameObject.SetActive(false);
             }
             return false;
         }
@@ -72,28 +72,29 @@ namespace NullscapeinBB
 
     public class SkySphereAnimation : MonoBehaviour {
         Color color = new Color(1, 1, 1, 1);
+        public readonly int FloorCounter = Singleton<BaseGameManager>.Instance is PitstopGameManager ? NullscapeInBB.Instance.FloorCounter + 1 : NullscapeInBB.Instance.FloorCounter;
         void LateUpdate() {
             transform.GetChild(0).GetComponent<MeshRenderer>().material.color = color;
             transform.localScale = new(-0.1f, 0.1f, 0.1f);
             if (Singleton<CoreGameManager>.Instance.GetPlayer(0)) {
                 transform.position = Singleton<CoreGameManager>.Instance.GetPlayer(0).transform.position;
                 var rot = Singleton<CoreGameManager>.Instance.GetPlayer(0).cameraBase.rotation;
-                transform.rotation = Quaternion.Euler(rot.eulerAngles.x + Time.time * (NullscapeInBB.Instance.FloorCounter * 0.1156f) * 8.0145f, rot.eulerAngles.y + Time.time * (NullscapeInBB.Instance.FloorCounter * 0.3116f) * 6.67966f, rot.eulerAngles.z + Time.time * (NullscapeInBB.Instance.FloorCounter * 0.225f) * 7.14568f);
+                transform.rotation = Quaternion.Euler(rot.eulerAngles.x + Time.time * (FloorCounter * 0.1156f) * 8.0145f, rot.eulerAngles.y + Time.time * (FloorCounter * 0.3116f) * 6.67966f, rot.eulerAngles.z + Time.time * (FloorCounter * 0.225f) * 7.14568f);
 
             }
-            if (NullscapeInBB.Instance.FloorCounter < 10)
+            if (FloorCounter < 10)
             {
                 color = Color.Lerp(new Color(0f, 0.7f, 1.4f), new Color(0f, 1.4f, 1.6f), Mathf.Sin(Time.time * 1.5f) / 2f);
             }
-            else if (NullscapeInBB.Instance.FloorCounter >= 10 && NullscapeInBB.Instance.FloorCounter < 30)
+            else if (FloorCounter >= 10 && FloorCounter < 30)
             {
                 color = Color.Lerp(new Color(0.5f, 0, 0.5f), new Color(1.5f, 0, 1.5f), Mathf.Sin(Time.time * 1.5f) / 2f);
             }
-            else if (NullscapeInBB.Instance.FloorCounter >= 30 && NullscapeInBB.Instance.FloorCounter < 40)
+            else if (FloorCounter >= 30 && FloorCounter < 40)
             {
                 color = Color.Lerp(new Color(0f, 0, 1.4f), new Color(0f, 0, 2.5f), Mathf.Sin(Time.time * 1.5f) / 2f);
             }
-            else if (NullscapeInBB.Instance.FloorCounter >= 40 && NullscapeInBB.Instance.FloorCounter < 100)
+            else if (FloorCounter >= 40)
             {
                 color = Color.Lerp(new Color(0.25f, 0.25f, 0.25f), new Color(1.5f, 1.5f, 1.5f), Mathf.Sin(Time.time * 0.75f) / 2f);
             }
