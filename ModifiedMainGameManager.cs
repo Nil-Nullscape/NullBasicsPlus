@@ -60,6 +60,7 @@ namespace NullscapeinBB
         public float shieldtimeleft = 0f;
         private HudGauge ShieldGauge;
         private HudGauge AbilityGauge;
+        static SoundObject Wind;
         public float AbilityGaugeMaxTime = 0f;
         public float AbilityTimeLeft = 0f;
         public bool AbilityEnabled = false;
@@ -99,7 +100,7 @@ namespace NullscapeinBB
         {
             
             var baseAngerValue = 6.5f / ec.notebookTotal;
-            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.25f));
+            base.AngerBaldi(val * baseAngerValue * (1 + NullscapeInBB.CurseCount(Curses.AngrierBaldi) * 0.25f) * (1 +NullscapeInBB.UpgradesCount(Upgrades.SlowerBaldi) * 0.15f));
         }
 
         public bool canDie(Baldi inst) {
@@ -145,6 +146,9 @@ namespace NullscapeinBB
             defaultLives = 0;
             Song = NullscapeInBB.Instance.IngameSongs.ToArray().GetRandomSongInRange(NullscapeInBB.Instance.FloorCounter);
             TempShieldRemaining = NullscapeInBB.UpgradesCount(Upgrades.TempShield);
+            if (Wind == null) {
+                Wind = Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "CampfireToss");
+            }
             base.AwakeFunction();
         }
         public override void BeginSpoopMode()
@@ -193,6 +197,10 @@ namespace NullscapeinBB
                 
             }
 
+            if (NullscapeInBB.CurseCount(Curses.Lap2) >= 1) {
+                NullscapeInBB.Instance.YtpMultipliers.Add(2f + 2f * NullscapeInBB.DelusionsCount(Delusions.ForcedLap2ButMoreYTPs));
+            } 
+
             foreach (var item in ec.Npcs)
             {
                 if (item is MartNPC mart && mart.CurrentState == MartNPC.MartState.Idle) {
@@ -229,6 +237,11 @@ namespace NullscapeinBB
                     AbilityTimeLeft = Mathf.Clamp(AbilityTimeLeft + 1.5f, 0, AbilityGaugeMaxTime);
                 }
             }
+            if (!correct && NullscapeInBB.CurseCount(Curses.IncorrectActivityMeansLessYTPs) > 0) {
+                NullscapeInBB.Instance.YtpMultipliers.Add(-(0.15f * NullscapeInBB.CurseCount(Curses.IncorrectActivityMeansLessYTPs)));
+            }
+
+
             if (allNotebooksFound && NullscapeInBB.CurseCount(Curses.Lap2) >= 1) {
                 BonusactivitiesLeft -= 1;
                 if (BonusactivitiesLeft <= 0) {
@@ -304,13 +317,16 @@ namespace NullscapeinBB
             {
                 AbilityGaugeMaxTime = 2;
                 AbilityTimeLeft = 0;
-                AbilityGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_slowtime"), 2f);
+                AbilityGauge = Singleton<CoreGameManager>.Instance.GetHud(0).gaugeManager.ActivateNewGauge(NullscapeInBB.Am.Get<Sprite>("spr_dashability"), 2f);
             }
                 base.BeginPlay();
         }
         bool ShouldForceOpenExit = false;
         protected override void VirtualUpdate()
         {
+            Singleton<CoreGameManager>.Instance.GetHud(0).UpdateNotebookText(0, $"{ (NullscapeInBB.GreaterCurseCount(GreaterCurses.IforgotHowManyNotebooksIHad) >= 1 ? "??" : FoundNotebooks)}/{(NullscapeInBB.GreaterCurseCount(GreaterCurses.IforgotHowManyNotebooksIHad) >= 2 ? "??" : NotebookTotal)}\n<color=blue><size=12>{Mathf.Round(Singleton<CoreGameManager>.Instance.YtpMultiplier * 100) / 100f}x YTPs</size></color>", false);
+
+
             if (spoopmode) Singleton<MusicManager>.Instance.StopMidi();
             var plr = Singleton<CoreGameManager>.Instance.GetPlayer(0);
             if (NullscapeInBB.GreaterCurseCount(GreaterCurses.OmniscientBaldi) > 0)
@@ -371,10 +387,12 @@ namespace NullscapeinBB
                 }
                 if (NullscapeInBB.Instance.SelectedClass == Classes.Dasher)
                 {
-                    AbilityTimeLeft = -1f;
+                    AbilityTimeLeft = -0.1f;
                     var ee = Singleton<CoreGameManager>.Instance.GetPlayer(0);
                     var force = new Force(ee.transform.forward, 60,60, -15f);
                     ee.plm.Entity.AddForce(force);
+                    NewStatusEffect(StatusEffectsTypes.Invicibility, 0.5f);
+                    Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Wind);
                     UsefulHelpers.delay(() =>
                     {
                         ee.plm.Entity.RemoveForce(force);
@@ -393,7 +411,7 @@ namespace NullscapeinBB
                 }
                 if (NullscapeInBB.Instance.SelectedClass == Classes.Dasher)
                 {
-                    AbilityTimeLeft = Mathf.Clamp(AbilityTimeLeft + Time.deltaTime * 1.5f,0,2);
+                    AbilityTimeLeft = Mathf.Clamp(AbilityTimeLeft + Time.deltaTime * 1.75f,0,2);
                 }
                 }
 

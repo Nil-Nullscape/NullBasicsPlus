@@ -23,11 +23,12 @@ namespace NullscapeinBB.Structures
         }
         public override void OnActivate()
         {
-            NullscapeInBB.Instance.YtpMultipliers.Add(2.5f);
-            NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Purgatory_Spawned"));
+            var multiplier = 1.5f + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 10f) * 0.5f;
+            NullscapeInBB.Instance.YtpMultipliers.Add(multiplier);
+            NullscapeInBB.AltarEventNotifier(string.Format(Singleton<LocalizationManager>.Instance.GetLocalizedText("Purgatory_Spawned"),multiplier*100));
             NullscapeInBB.SetCooldown(AltarTypes.Purgatory,2);
             var ec = Singleton<BaseGameManager>.Instance.Ec;
-                var numberOfNpcs = 4 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 7f);
+                var numberOfNpcs = 3 + Mathf.FloorToInt(NullscapeInBB.Instance.FloorCounter / 6f);
                 for (int i = 0; i < numberOfNpcs; i++)
                 {
                     var randomCell = ec.RandomCell(false, false, true);
@@ -40,7 +41,7 @@ namespace NullscapeinBB.Structures
                     var allNpcsL = NullscapeInBB.Instance.AllEnemies.Values.ToList();
                     allNpcsL.RemoveAll(x => x.Enemy == EnumExtensions.GetFromExtendedName<Character>("???"));
                     var allNpcs = allNpcsL.ToArray();
-                    var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].NPCToUse;
+                    var randomNPC = allNpcs[UnityEngine.Random.Range(0, allNpcs.Length)].NPCToUse;  
                     ec.SpawnNPC(randomNPC, randomCell.position);
                 }
             itemRenderer.enabled = false;

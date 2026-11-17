@@ -15,6 +15,7 @@ namespace NullscapeinBB
                 Cost = () => {
                     return Mathf.RoundToInt(750 * (NullscapeInBB.UpgradesCount(Upgrades.MoreYtps) * 0.5f + 1) * GetInflationPercentage());
                 },
+                canGetExtraStacks = true,
                 curse = Upgrades.MoreYtps,
                 MaxUpgrades = 10,
                 MinFloor = 0
@@ -28,6 +29,7 @@ namespace NullscapeinBB
                 },
                 curse = Upgrades.MoreSpeed,
                 MaxUpgrades = 6,
+                canGetExtraStacks = true,
                 MinFloor = 0,
                 Requirements = () => {
                     return NullscapeInBB.Instance.SelectedClass != Classes.Prisoner;
@@ -41,6 +43,7 @@ namespace NullscapeinBB
                     return Mathf.RoundToInt(500 * (NullscapeInBB.UpgradesCount(Upgrades.BaldiPraise) + 1) * GetInflationPercentage());
                 },
                 curse = Upgrades.BaldiPraise,
+                canGetExtraStacks = true,
                 MaxUpgrades = 8,
                 MinFloor = 0
 
@@ -54,6 +57,7 @@ namespace NullscapeinBB
                 curse = Upgrades.PlusOneInventorySlot,
                 MaxUpgrades = 4,
                 MinFloor = 0,
+                canGetExtraStacks = false,
                 OnUpgradeBought = () => {
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.UpdateTargetInventorySize();
                 },
@@ -69,6 +73,7 @@ namespace NullscapeinBB
                     return Mathf.CeilToInt(15000 * (NullscapeInBB.UpgradesCount(Upgrades.TempShield) + 1) * GetInflationPercentage()) ;
                 },
                 curse = Upgrades.TempShield,
+                canGetExtraStacks = true,
                 MaxUpgrades = 2,
                 MinFloor = 9,
                 OnUpgradeBought = () => {
@@ -85,6 +90,7 @@ namespace NullscapeinBB
                     return Mathf.CeilToInt(1250 * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) + 1) * (NullscapeInBB.UpgradesCount(Upgrades.LongerReach) / 10f + 1) * GetInflationPercentage());
                 },
                 curse = Upgrades.LongerReach,
+                canGetExtraStacks = true,
                 MaxUpgrades = 10,
                 MinFloor = 9,
                 OnUpgradeBought = () => {
@@ -101,7 +107,8 @@ namespace NullscapeinBB
                 Cost = () => {
                     return Mathf.CeilToInt(5000 * (NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) + 1) * GetInflationPercentage());
                 },
-                curse = Upgrades.LongerReach,
+                curse = Upgrades.ExtraMoreYtps,
+                canGetExtraStacks = true,
                 MaxUpgrades = 10,
                 MinFloor = 19,
                 OnUpgradeBought = () => {
@@ -148,6 +155,21 @@ namespace NullscapeinBB
                     return Mathf.CeilToInt(Mathf.Pow(1500, 1.1f + NullscapeInBB.UpgradesCount(Upgrades.SlowerBaldi) * 0.1f) * GetInflationPercentage());
                 },
                 curse = Upgrades.SlowerBaldi,
+                canGetExtraStacks = true,
+                MaxUpgrades = 5,
+                MinFloor = 24,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.LessNotebooks, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(Mathf.Pow(1500, 1.1f + NullscapeInBB.UpgradesCount(Upgrades.LessNotebooks) * 0.05f) * GetInflationPercentage());
+                },
+                curse = Upgrades.LessNotebooks,
+                canGetExtraStacks = true,
                 MaxUpgrades = 5,
                 MinFloor = 24,
                 OnUpgradeBought = () => {

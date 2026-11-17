@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MTM101BaldAPI;
 using NullscapeinBB.Misc;
+using NullscapeinBB.Save;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,12 +50,25 @@ namespace NullscapeinBB
         }
         [HarmonyPatch(typeof(Skybox), "InitializeMaterials")]
         [HarmonyPrefix]
-        static bool ByebyeSkyboxesIg(Skybox __instance) {
+        static bool ByebyeSkyboxesIg(Skybox __instance)
+        {
             foreach (var item in __instance.gameObject.GetComponentsInChildren<Renderer>())
             {
                 item.gameObject.SetActive(false);
             }
             return false;
+        }
+
+        [HarmonyPatch(typeof(CoreGameManager), "AddPoints",[typeof(int), typeof(int), typeof(bool), typeof(bool), typeof(bool)])]
+        [HarmonyPostfix]
+        static void AddPointsStat(CoreGameManager __instance, int points, int player, bool playAnimation, bool includeInLevelTotal, bool multiply)
+        {
+            if (points > 0) {
+                SaveHelper.SetMiscData(0, SaveHelper.GetMiscData(0) + points);
+                
+            } else {
+                SaveHelper.SetMiscData(1, SaveHelper.GetMiscData(1) - points);
+            }
         }
 
         [HarmonyPatch(typeof(BaseGameManager),"Start")]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NullscapeinBB.Save;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,9 @@ namespace NullscapeinBB
                             });
                         }
                     }
+                },
+                OnCurseRemove = () => {
+                    NullscapeInBB.Instance.rooms.RemoveAll(x => x.selection.activity.prefab is MathMachine);
                 }
             });
             NullscapeInBB.Instance.AllCurses.Add(Curses.GiftActivity, new()
@@ -48,6 +52,9 @@ namespace NullscapeinBB
                         });
 
                     }
+                },
+                OnCurseRemove = () => {
+                    NullscapeInBB.Instance.rooms.RemoveAll(x => x.selection.activity.prefab is GiftCollectionActivity);
                 }
             });
             NullscapeInBB.Instance.AllCurses.Add(Curses.BalloonBuster, new()
@@ -69,6 +76,9 @@ namespace NullscapeinBB
                             });
                         }
                     }
+                },
+                OnCurseRemove = () => {
+                    NullscapeInBB.Instance.rooms.RemoveAll(x => x.selection.activity.prefab is BalloonBuster);
                 }
             });
             NullscapeInBB.Instance.AllCurses.Add(Curses.MatchMachine, new()
@@ -90,6 +100,9 @@ namespace NullscapeinBB
                             });
                         }
                     }
+                },
+                OnCurseRemove = () => {
+                    NullscapeInBB.Instance.rooms.RemoveAll(x => x.selection.activity.prefab is MatchActivity);
                 }
             });
 
@@ -127,7 +140,7 @@ namespace NullscapeinBB
                 CurseValue = 150,
                 CursesAction = () =>
                 {
-
+                   
                 }
             });
             NullscapeInBB.Instance.AllCurses.Add(Curses.BiggerBlast, new()
@@ -284,6 +297,26 @@ namespace NullscapeinBB
                 Requirements = () =>
                 {
                     return NullscapeInBB.EnemyCount(NullscapeInBB.Am.Get<CadenceNPC>("npc_Cadence").Character) >= 1;
+
+                }
+            });
+            NullscapeInBB.Instance.AllCurses.Add(Curses.IncorrectActivityMeansLessYTPs, new()
+            {
+                curse = Curses.IncorrectActivityMeansLessYTPs,
+                MaxCurses = 3,
+                MinFloor = 9,
+                CurseValue = 0,
+                Icon = Resources.FindObjectsOfTypeAll<Sprite>().First(),
+                CursesAction = () =>
+                {
+
+                },
+                Requirements = () =>
+                {
+                    return NullscapeInBB.CurseCount(Curses.MathMachine) >= 1 
+                    || NullscapeInBB.CurseCount(Curses.BalloonBuster) >= 1 
+                    || NullscapeInBB.CurseCount(Curses.MatchMachine) >= 1 
+                    || NullscapeInBB.GreaterCurseCount(GreaterCurses.TimedActivities) >= 1;
 
                 }
             });

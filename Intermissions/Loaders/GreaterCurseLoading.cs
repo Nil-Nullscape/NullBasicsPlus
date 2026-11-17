@@ -184,6 +184,15 @@ namespace NullscapeinBB
                     return NullscapeInBB.EnemyCount(NullscapeInBB.Am.Get<NPC>("npc_Operator").Character) > 0;
                 }
             });
+            NullscapeInBB.Instance.AllGreaterCurses.Add(GreaterCurses.IforgotHowManyNotebooksIHad, new()
+            {
+                curse = GreaterCurses.IforgotHowManyNotebooksIHad,
+                MaxCurses = 2,
+                MinFloor = 0,
+                CursesAction = () =>
+                {
+                }
+            });
         }
     }
 }

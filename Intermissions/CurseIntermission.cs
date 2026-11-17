@@ -21,7 +21,9 @@ namespace NullscapeinBB
             // Record that this curse was picked so PickThreeCurses respects MaxCurses
             try
             {
+                CURSETOEXECUTE.GotCurseAtLevel = NullscapeInBB.Instance.FloorCounter;
                 NullscapeInBB.Instance.CursesPicked.Add(CURSETOEXECUTE);
+                
             }
             catch { }
             CURSETOEXECUTE.CursesAction();

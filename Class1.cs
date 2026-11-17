@@ -51,7 +51,9 @@ namespace NullscapeinBB
         public Sprite Icon = null;
         // used for cursebreaker
         public int CurseValue = value;
+        public int GotCurseAtLevel = 0; 
         public Action CursesAction = action;
+        public Action OnCurseRemove;
         public bool ExecuteActionOnLoad = true;
     }
 
@@ -82,11 +84,13 @@ namespace NullscapeinBB
         public Upgrades curse = Upgrade;
         public int MinFloor = minFloor;
         public int MaxUpgrades = StackSize;
+        public bool canGetExtraStacks = true;
         public Func<int> Cost = cost;
         public Func<bool> Requirements = null;
         public Sprite Icon = null;
         public Action OnUpgradeBought = action;
         public bool ExecuteActionOnLoad = true;
+        
     }
 
     public struct ClassData() {
@@ -164,7 +168,10 @@ namespace NullscapeinBB
             NullscapeInBB.Instance.LastSong = sng;
             return sng;
         }
-
+        public static int GetRealMaxUpgrades(this UpgradeData UD) {
+            if (UD.MaxUpgrades > 1 && UD.canGetExtraStacks) return UD.MaxUpgrades + NullscapeInBB.Instance.ExtraUpgradeStack;
+            else return UD.MaxUpgrades;
+        }
         public static BaldiRoomAsset[] LoadFolderRooms(string folderPath)
         {
             var files = Directory.GetFiles(folderPath);
@@ -203,6 +210,7 @@ namespace NullscapeinBB
         ExtraMoreYtps,
         AllNotebooksPower,
         SlowerBaldi ,
+        LessNotebooks,
         Blossom // Please do NOT mention this
     }
     public enum Curses
@@ -213,6 +221,7 @@ namespace NullscapeinBB
         AngrierBaldi,
         OneMinutePomp,
         OneMoreProblem,
+        IncorrectActivityMeansLessYTPs,
         FasterTimedActivities,
         Lap2,
         GiftActivity,
@@ -241,6 +250,7 @@ namespace NullscapeinBB
         LessShield,
         SilentNpcs,
         byebyestickystickers,
+        IforgotHowManyNotebooksIHad,
         MartWaterPlanet,
         Malfunction
 
@@ -258,7 +268,9 @@ namespace NullscapeinBB
     public enum Delusions {
         baldihappybutapplebye,
         MoreShieldButLessShield,
-        MoreplaytimeYTPSButForcedPlaytimeMinigame
+        MoreplaytimeYTPSButForcedPlaytimeMinigame,
+        ForcedLap2ButMoreYTPs,
+        StackableUpgradesOneMoreStackButRandomizedChoices
     }
     public class IntermissionSong(SoundObject song, int minFloor, int maxFloor)
     {
@@ -334,7 +346,45 @@ namespace NullscapeinBB
             {
                 Debug.LogWarning($"Couldnt add a curse to the choices.");
             }
+
         }
+        /// <summary>
+        /// Creates an upgrade, requires extending the <see cref="Upgrades"/> enum. needs to be done before the final loading state
+        /// </summary>
+        /// <param name="ExtendedUpgrades">The extended enum upgrade</param>
+        /// <param name="data"></param>
+        public static void CreateNewUpgradeToChoicesList(Upgrades ExtendedUpgrades, UpgradeData data)
+        {
+
+            if (!NullscapeInBB.Instance.AllUpgrades.ContainsKey(ExtendedUpgrades))
+            {
+                NullscapeInBB.Instance.AllUpgrades.Add(ExtendedUpgrades, data);
+            }
+            else
+            {
+                Debug.LogWarning($"Couldnt add an upgrade to the choices.");
+            }
+        }
+        /// <summary>
+        /// Creates a delusion, requires extending the <see cref="Delusions"/> enum. needs to be done before the final loading state
+        /// </summary>
+        /// <param name="ExtendedDelusion">The extended enum delusion</param>
+        /// <param name="data"></param>
+        public static void CreateNewDelusionToChoicesList(Delusions ExtendedDelusion, DelusionData data)
+        {
+
+            if (!NullscapeInBB.Instance.AllDelusions.ContainsKey(ExtendedDelusion))
+            {
+                NullscapeInBB.Instance.AllDelusions.Add(ExtendedDelusion, data);
+            }
+            else
+            {
+                Debug.LogWarning($"Couldnt add a delusion to the choices.");
+            }
+        }
+
+
+
     }
 
     [BepInDependency("Nil.Library", BepInDependency.DependencyFlags.HardDependency)]
@@ -344,6 +394,9 @@ namespace NullscapeinBB
     public class NullscapeInBB : BaseUnityPlugin
     {
         public static bool GetCheatingMods() {
+#if DEBUG
+            return false;
+            #endif
             foreach(var item in Chainloader.PluginInfos)
             {
                 if (item.Value.Metadata.GUID == "alexbw145.baldiplus.pinedebug") return true;
@@ -375,6 +428,7 @@ namespace NullscapeinBB
         public IntVector2 levelsize;
         public int plotcount;
         public int mapprice;
+        public int ExtraUpgradeStack => DelusionsCount(Delusions.StackableUpgradesOneMoreStackButRandomizedChoices);
         public IngameSong LastSong = null;
         public int freeRerolls = 3;
         public int rerollPrice = 100;
@@ -422,6 +476,8 @@ namespace NullscapeinBB
         public ConfigEntry<bool> EnableQuickStart;
         public ConfigEntry<bool> EnableQuickStartPlus;
         public ConfigEntry<KeyCode> KeyAbility;
+        public ConfigEntry<KeyCode> KeyMouseUnlock;
+
         public List<RoomAsset> GiftsActivityRooms = new();
         public List<AltarData> Altars = new();
         public List<float> YtpMultipliers = new();
@@ -555,7 +611,7 @@ namespace NullscapeinBB
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllGreaterCurses[curse].Icon != null ? AllGreaterCurses[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
-                    .SetEnum($"itmgreatercurse_{curse.ToString()}")
+                    .SetEnum($"itmgreatercurse_{curse.ToStringExtended()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_pickgcurse"))
                     .SetItemComponent<GreaterCurseItem>()
                     .Build();
@@ -570,7 +626,7 @@ namespace NullscapeinBB
                     .SetAsInstantUse()
                     .SetNameAndDescription($"itm_{curse.ToStringExtended()}", $"desc_{curse.ToStringExtended()}")
                     .SetSprites(AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"), AllDelusions[curse].Icon != null ? AllDelusions[curse].Icon : AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", $"spr_{curse.ToStringExtended()}.png"))
-                    .SetEnum($"itmdelusions_{curse.ToString()}")
+                    .SetEnum($"itmdelusions_{curse.ToStringExtended()}")
                     .SetPickupSound(Am.Get<SoundObject>("snd_pickdelusion"))
                     .SetItemComponent<DelusionsItem>()
                     .Build();
@@ -903,6 +959,7 @@ namespace NullscapeinBB
             EnableQuickStartPlus = Config.Bind("Gameplay stuff", "EnableQuickStartPlus", false, "Basically quick start but infinite");
             DisableCopyright = Config.Bind("Misc stuff", "DisableCopyrightedStuff", false, "This switches most sounds or music to smth else or mute them (currently does nothing)");
             KeyAbility = Config.Bind("Keybinds", "AbilityKey", KeyCode.R);
+            KeyMouseUnlock = Config.Bind("Keybinds", "UnlockMousePitstop", KeyCode.LeftAlt);
             Am = new AssetManager();
             AssetLoader.LocalizationFromMod(this);
             LoadingEvents.RegisterOnAssetsLoaded(this.Info, Preload(), LoadingEventOrder.Pre);
@@ -912,7 +969,7 @@ namespace NullscapeinBB
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
             if (PlaytestBuild) {
 
-                MTM101BaldiDevAPI.AddWarningScreen("Hello, this is a playtester build so many things are subject to change, and a lot of placeholders are still in here", false);
+                MTM101BaldiDevAPI.AddWarningScreen("Hello, this is a playtester build so many things are subject to change, and a lot of placeholders are still in here, (this is due that rn i have no one to make the art and models..)", false);
                 MTM101BaldiDevAPI.AddWarningScreen("If there are bugs, report it to the github repo, If you have a feedback then send it in the discord channel made for it.", false);
                 MTM101BaldiDevAPI.AddWarningScreen("Again, be aware this is early access, so lots of unfinished stuff and unpolished stuff, thanks for playing!", false);
             }
@@ -934,6 +991,7 @@ namespace NullscapeinBB
             if (Singleton<CoreGameManager>.Instance != null) return;
             handler.AddCategory<NullbasicsSettings>("Nullbasics Settings");
             handler.AddCategory<NullbasicsStats>("Nullbasics Stats");
+            handler.AddCategory<NullbasicsAchivement>("Nullbasics\nAchivements");
         }
         IEnumerator PostLoad()
         {
@@ -1009,12 +1067,12 @@ namespace NullscapeinBB
             Am.Add("snd_OperatorSuccess", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Success.ogg"), "snd_operatorSuccess", SoundType.Effect, UnityEngine.Color.green));
             Am.Add("snd_OperatorKill", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Operator_Fail.ogg"), "snd_operatorFail", SoundType.Effect, UnityEngine.Color.green));
 
-            Am.Add("snd_VboTick", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Tick.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
-            Am.Add("snd_VboSpawn", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Spawn.ogg"), "snd_vboperatorSpawn", SoundType.Effect, UnityEngine.Color.green));
-            Am.Add("snd_VboGood1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Success.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
-            Am.Add("snd_VboGood2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Cleared.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
-            Am.Add("snd_VboAttack", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Attacking.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
-            Am.Add("snd_VboFail", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Fail.ogg"), "snd_vboperatorTick", SoundType.Effect, UnityEngine.Color.green));
+            Am.Add("snd_VboTick", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Tick.ogg"), "snd_vboperatorTick", SoundType.Effect, new(0.5f, 0, 0.5f)));
+            Am.Add("snd_VboSpawn", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Spawn.ogg"), "snd_vboperatorSpawn", SoundType.Effect, new(0.5f, 0, 0.5f)));
+            Am.Add("snd_VboGood1", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Success.ogg"), "snd_vboperatorSuccess", SoundType.Effect, new(0.5f, 0, 0.5f)));
+            Am.Add("snd_VboGood2", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Cleared.ogg"), "snd_vboperatorWin", SoundType.Effect, new(0.5f, 0, 0.5f)));
+            Am.Add("snd_VboAttack", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Attacking.ogg"), "snd_vboperatorWarning", SoundType.Effect, new(1, 0, 0.5f)));
+            Am.Add("snd_VboFail", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Voidbound_Operator_Fail.ogg"), "snd_vboperatorTick", SoundType.Effect, new(0.5f, 0, 0.5f)));
 
 
             Am.Add("snd_pickcurse", MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Pick-Curse.ogg"), "mus_intermission", SoundType.Effect, UnityEngine.Color.black, 0.01f));
@@ -1141,6 +1199,8 @@ namespace NullscapeinBB
             Am.Add("spr_cadencestring", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 30, "newenemies", "Cadence_new_chain.png"));
             Am.Add("spr_brokenshield", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_brokenshield.png"));
             Am.Add("spr_slowtime", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_timeability.png"));
+
+            Am.Add("spr_dashability", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "items", "spr_dashability.png"));
             Am.Add("spr_hudlist", AssetLoader.SpriteFromMod(this, Vector2.one / 2, 35, "textures", "HUD_ListOf.png"));
 
 
@@ -1804,7 +1864,11 @@ namespace NullscapeinBB
             {
                 bool meetsFloor = FloorCounter >= x.MinFloor;
                 int currentCount = UpgradesCount(x.curse);
-                bool underMax = currentCount < x.MaxUpgrades;
+
+
+
+
+                bool underMax = currentCount < x.GetRealMaxUpgrades();
                 bool extrarequirement = false;
                 if (x.Requirements != null)
                 {

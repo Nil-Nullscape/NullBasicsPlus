@@ -90,7 +90,7 @@ namespace NullscapeinBB
             if (main.FloorCounter <= 4) {
                 return 1 + (main.FloorCounter - 1) * 2;
             } else {
-                return 7 + Mathf.FloorToInt((main.FloorCounter - 4) / 2.5f);
+                return 7 + Mathf.FloorToInt((main.FloorCounter - 4) / 2.5f * (1 - NullscapeInBB.UpgradesCount(Upgrades.LessNotebooks)));
             }
         }
         public static int GetNumberOfFaculty() {

@@ -20,6 +20,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace NullscapeinBB
 {
@@ -195,6 +196,7 @@ namespace NullscapeinBB
         }
         public static void CreateCurseBreakerPickup()
         {
+            if (NullscapeInBB.DelusionsCount(Delusions.ForcedLap2ButMoreYTPs) >= 1) return;
             GameObject PickupPrefab = Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name == "Pickup" && x.GetInstanceID() > 0);
 
             var Cursebreaker = Object.Instantiate(PickupPrefab, new Vector3(60, -0f, -45f), Quaternion.identity);
@@ -384,7 +386,51 @@ namespace NullscapeinBB
                     extraCurseIntermission += 1;
                 }
                 extraNPCIntermission += NullscapeInBB.Instance.extraenemyintermission;
+                if (NullscapeInBB.DelusionsCount(Delusions.StackableUpgradesOneMoreStackButRandomizedChoices) >= 1) {
+                    var cnt = NullscapeInBB.Instance.potentialNPCs.Count;
+                    var AE = NullscapeInBB.Instance.AllEnemies.ToList();
+                    NullscapeInBB.Instance.selectedNPCCounts.Clear();
+                    NullscapeInBB.Instance.potentialNPCs.Clear();
+                    for (int i = 0; i < cnt; i++)
+                    {
+                        var randomNPC = AE[Random.Range(0, AE.Count)].Value;
 
+                        while (NullscapeInBB.EnemyCount(randomNPC.Enemy) >= randomNPC.MaxEnemies) {
+                            randomNPC = AE[Random.Range(0, AE.Count)].Value;
+                        }
+
+                        if (!NullscapeInBB.Instance.selectedNPCCounts.TryGetValue(randomNPC.Enemy, out _)) {
+                            NullscapeInBB.Instance.selectedNPCCounts.Add(randomNPC.Enemy, 1);
+                        } else {
+                            NullscapeInBB.Instance.selectedNPCCounts[randomNPC.Enemy] += 1;
+                        }
+                        NullscapeInBB.Instance.potentialNPCs.Add(randomNPC.NPCToUse);
+
+                    }
+                    cnt = NullscapeInBB.Instance.CursesPicked.Count;
+                    foreach (var item in NullscapeInBB.Instance.CursesPicked.ToList())
+                    {
+                        item.OnCurseRemove?.Invoke();
+                    }
+                    NullscapeInBB.Instance.CursesPicked.Clear();
+                    var AC = NullscapeInBB.Instance.AllCurses.ToList();
+                    for (int i = 0; i < cnt; i++)
+                    {
+                        var RandomCurse = AC[Random.Range(0, AC.Count)];
+                        while (NullscapeInBB.CurseCount(RandomCurse.Value.curse) >= RandomCurse.Value.MaxCurses && (RandomCurse.Value.Requirements?.Invoke() == false) )
+                        {
+                            RandomCurse = AC[Random.Range(0, AC.Count)];
+                        }
+
+                        NullscapeInBB.Instance.CursesPicked.Add(RandomCurse.Value);
+                        RandomCurse.Value.CursesAction?.Invoke();
+                        
+
+
+                        
+
+                    }
+                }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 2 == 0)
                 {
                     for (int i = 0; i < 1 + extraNPCIntermission; i++)
@@ -423,6 +469,24 @@ namespace NullscapeinBB
                 }
                 if (NullscapeInBB.Instance.EnableChaosMode.Value) {
                     NullscapeInBB.Instance.Intermissions.Add(IntermissionType.Chaos);
+                }
+                if (SaveHelper.CanGetAchivement(SaveHelper.LevelAchivement.High))
+                {
+                    if (!SaveHelper.IsAchivementCompleted(SaveHelper.AchivementsNullBasics.Level25) && NullscapeInBB.Instance.FloorCounter >= 25)
+                    {
+                        SaveHelper.SetAchivement(SaveHelper.AchivementsNullBasics.Level25, true);
+                        ProgEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Completed")}<size=14><color=#6e00ff>{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Level25")}</color></size>");
+                    }
+                    if (!SaveHelper.IsAchivementCompleted(SaveHelper.AchivementsNullBasics.Level50) && NullscapeInBB.Instance.FloorCounter >= 50)
+                    {
+                        SaveHelper.SetAchivement(SaveHelper.AchivementsNullBasics.Level50, true);
+                        ProgEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Completed")}<size=14><color=#ff6600>{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Level50")}</color></size>");
+                    }
+                    if (!SaveHelper.IsAchivementCompleted(SaveHelper.AchivementsNullBasics.Lap3) && NullscapeInBB.Instance.FloorCounter >= 34 && NullscapeInBB.Instance.CursesPicked.FirstOrDefault(x => x.curse == Curses.Lap2 && x.GotCurseAtLevel <= 15).MaxCurses != 0)
+                    {
+                        SaveHelper.SetAchivement(SaveHelper.AchivementsNullBasics.Lap3, true);
+                        ProgEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Completed")}<size=14><color=#F100FF>{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Lap3")}</color></size>");
+                    }
                 }
                 int[] BaldifasterEvents = [10, 15,20,30,40,50,60,80,100,125,150,175,200,250,300,400,500,600];
                 if (BaldifasterEvents.Contains(NullscapeInBB.Instance.FloorCounter + 1))
@@ -472,10 +536,10 @@ namespace NullscapeinBB
                         x => !NullscapeInBB.Instance.EventsList.Contains(x)
                     ).Take(1).Single());
                 }
+                
 
 
-
-                if (NullscapeInBB.Instance.FloorCounter + 1 - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3)
+                if (NullscapeInBB.Instance.FloorCounter + 1 - NullscapeInBB.Instance.LastTimeCursebreakerUsed >= 4 && NullscapeInBB.Instance.PickThreeExistingCursesByValue().Count >= 3 && !NullscapeInBB.Instance.QueuedIntermission.Contains(IntermissionType.Delusions))
                 {
                     Extras.CreateCurseBreakerPickup();
                 }
@@ -508,7 +572,7 @@ namespace NullscapeinBB
             }
 
             if (__instance is MainInfiniteGameManager) {
-                if (((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) || NullscapeInBB.Instance.EnableQuickStartPlus.Value) NullscapeInBB.Instance.YtpMultipliers.Add(3.5f);
+                if (((NullscapeInBB.Instance.FloorCounter == 1 || NullscapeInBB.Instance.FloorCounter == 5 || NullscapeInBB.Instance.FloorCounter == 10 || NullscapeInBB.Instance.FloorCounter == 15) && NullscapeInBB.Instance.EnableQuickStart.Value) || NullscapeInBB.Instance.EnableQuickStartPlus.Value) NullscapeInBB.Instance.YtpMultipliers.Add(Mathf.Clamp(3.6f-(NullscapeInBB.Instance.FloorCounter)*0.1f,0,3.5f));
             }
 
             if (NullscapeInBB.Instance.SelectedClass == Classes.Student)
@@ -543,11 +607,11 @@ namespace NullscapeinBB
         [HarmonyPostfix]
         static void Deez(ref float __result)
         {
-            __result *= 1 + NullscapeInBB.CurseCount(Curses.Lap2);
-            __result *= 1 + NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*(0.05f + NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) * 0.02f);
+            
+            __result += NullscapeInBB.UpgradesCount(Upgrades.MoreYtps)*(0.10f + NullscapeInBB.UpgradesCount(Upgrades.ExtraMoreYtps) * 0.02f);
             foreach (var item in NullscapeInBB.Instance.YtpMultipliers)
             {
-                __result *= item;
+                __result += item;
             }
         }
         [HarmonyPatch(typeof(PlayerClick), "Reach", MethodType.Getter)]

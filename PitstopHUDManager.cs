@@ -28,7 +28,7 @@ namespace NullscapeinBB
         TextMeshProUGUI text;
         Image[] Slots = [];
 
-        KeyCode cursorToggleKey = KeyCode.LeftAlt;
+        KeyCode cursorToggleKey = NullscapeInBB.Instance.KeyMouseUnlock.Value;
 
         bool cursorUnlocked;
         GraphicRaycaster raycaster;
@@ -290,46 +290,83 @@ namespace NullscapeinBB
         {
             UpdateContent();
 
-            int pages = -1;
-            bool skipLoop = false;
-
-            if (currentIntermission >= 0)
+            int totalContentLists = ListsWithContent();
+            if (totalContentLists == 0)
             {
-                pages = Mathf.FloorToInt(ListOf[IntermissionsSeeable[currentIntermission]].Count / 9f);
-
-                if (CurrentPage < pages) skipLoop = true;
+                currentIntermission = -1;
+                CurrentPage = 0;
+                if (text != null)
+                    text.text = "You have nothing.";
+                foreach (var slot in Slots)
+                    slot.gameObject.SetActive(false);
+                return;
             }
 
-            if (Done.Count >= ListsWithContent())
+            if (Done.Count >= totalContentLists)
                 Done.Clear();
 
-            for (int i = 0; i < IntermissionsSeeable.Length; i++)
+            bool needsSwitch = currentIntermission < 0;
+
+            if (!needsSwitch)
             {
-                if (skipLoop) continue;
+                IntermissionType currentType = IntermissionsSeeable[currentIntermission];
+                int totalItems = ListOf[currentType].Count;
+                int maxPage = Mathf.Max(0, Mathf.CeilToInt(totalItems / 9f) - 1);
 
-                if (ListOf[IntermissionsSeeable[i]].Count > 0 && currentIntermission != i && !Done.Contains(IntermissionsSeeable[i]))
+                if (totalItems == 0 || CurrentPage > maxPage)
                 {
+                    needsSwitch = true;
                     CurrentPage = 0;
-                    currentIntermission = i;
-                    Done.Add(IntermissionsSeeable[i]);
-
-                    text.text = Singleton<LocalizationManager>.Instance.GetLocalizedText($"title_{IntermissionsSeeable[i].ToString()}");
-
-                    break;
                 }
             }
 
-            if (currentIntermission >= 0)
+            if (needsSwitch)
             {
-                pages = Mathf.FloorToInt(ListOf[IntermissionsSeeable[currentIntermission]].Count / 9f);
+                bool found = false;
+                for (int i = 0; i < IntermissionsSeeable.Length; i++)
+                {
+                    IntermissionType type = IntermissionsSeeable[i];
+                    if (ListOf[type].Count > 0 && !Done.Contains(type))
+                    {
+                        currentIntermission = i;
+                        CurrentPage = 0;
+                        Done.Add(type);
+                        found = true;
+                        break;
+                    }
+                }
 
+                if (!found && Done.Count > 0)
+                {
+                    Done.Clear();
+                    for (int i = 0; i < IntermissionsSeeable.Length; i++)
+                    {
+                        IntermissionType type = IntermissionsSeeable[i];
+                        if (ListOf[type].Count > 0)
+                        {
+                            currentIntermission = i;
+                            CurrentPage = 0;
+                            Done.Add(type);
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (currentIntermission >= 0 && currentIntermission < IntermissionsSeeable.Length)
+            {
+                IntermissionType currentType = IntermissionsSeeable[currentIntermission];
+                text.text = Singleton<LocalizationManager>.Instance.GetLocalizedText($"title_{currentType.ToString()}");
+
+                int startIndex = 9 * CurrentPage;
                 int currentSlot = 0;
 
-                for (int i = 9 * CurrentPage; i < 9 + 9 * CurrentPage; i++)
+                for (int i = startIndex; i < startIndex + 9; i++)
                 {
-                    if (i < ListOf[IntermissionsSeeable[currentIntermission]].Count)
+                    if (i < ListOf[currentType].Count)
                     {
-                        var item = ListOf[IntermissionsSeeable[currentIntermission]][i];
+                        var item = ListOf[currentType][i];
 
                         Slots[currentSlot].gameObject.SetActive(true);
                         Slots[currentSlot].sprite = item.icon;
@@ -347,10 +384,9 @@ namespace NullscapeinBB
                     currentSlot++;
                 }
 
-                CurrentPage = (CurrentPage + 1) % (pages + 1);
+                CurrentPage++;
             }
         }
-
         void Update()
         {
             if (Input.GetKeyDown(cursorToggleKey))
