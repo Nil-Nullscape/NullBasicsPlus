@@ -102,7 +102,7 @@ namespace NullscapeinBB.Structures
 
 
                 },
-                weight = 85
+                weight = 40
              }
              ,new() {
                 selection = () => {
@@ -115,9 +115,16 @@ namespace NullscapeinBB.Structures
              }
 
         };
+
+        public override void InitializeMisc()
+        {
+            base.InitializeMisc();
+            if (NullscapeInBB.Instance.SelectedClass == Classes.Prisoner) actions[7].weight = -1;
+        }
         public override void OnActivate()
         {
             base.OnActivate();
+            
             WeightedActions.RandomSelection(actions)();
 
             

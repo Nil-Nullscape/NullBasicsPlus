@@ -56,7 +56,7 @@ namespace NullscapeinBB
                 },
                 curse = Upgrades.PlusOneInventorySlot,
                 MaxUpgrades = 4,
-                MinFloor = 0,
+                MinFloor = 9,
                 canGetExtraStacks = false,
                 OnUpgradeBought = () => {
                     Singleton<CoreGameManager>.Instance.GetPlayer(0).itm.UpdateTargetInventorySize();
@@ -172,6 +172,21 @@ namespace NullscapeinBB
                 canGetExtraStacks = true,
                 MaxUpgrades = 5,
                 MinFloor = 24,
+                OnUpgradeBought = () => {
+                }
+
+
+            });
+
+            NullscapeInBB.Instance.AllUpgrades.Add(Upgrades.RadarNPCs, new()
+            {
+                Cost = () => {
+                    return Mathf.CeilToInt(12500 * GetInflationPercentage());
+                },
+                curse = Upgrades.RadarNPCs,
+                canGetExtraStacks = false,
+                MaxUpgrades = 1,
+                MinFloor = 19,
                 OnUpgradeBought = () => {
                 }
 

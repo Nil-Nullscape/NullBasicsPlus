@@ -339,18 +339,14 @@ namespace NullscapeinBB
                 hud.GetComponent<RectTransform>().anchorMin = new(0.5f, 1.1f);
                 hud.GetComponent<RectTransform>().anchoredPosition = new(0, 0);
                 hud.AddComponent<PitstopHUDManager>();
-                foreach (var item in NullscapeInBB.Instance.Cooldowns.Keys.ToList())
-                {
-                    NullscapeInBB.Instance.Cooldowns[item] -= 1;
-                    Debug.Log($"Lowered {item.ToStringExtended()} to {NullscapeInBB.Instance.Cooldowns[item]} ");
-                }
+                
                 var level = NullscapeInBB.Instance.FloorCounter + 1;
                 var poster = ObjectCreators.CreatePosterObject(Resources.FindObjectsOfTypeAll<Texture2D>().First(x => x.name == "chk_blank"), [
                 new() {
                     alignment = TMPro.TextAlignmentOptions.Center,
                     color = Color.white,
                     font = BaldiFonts.ComicSans24.FontAsset(),
-                    fontSize = 24,
+                    fontSize = 20,
                     position = new(0,174),
                     size = new(256,32),
                     style = TMPro.FontStyles.Normal,
@@ -407,17 +403,18 @@ namespace NullscapeinBB
                         NullscapeInBB.Instance.potentialNPCs.Add(randomNPC.NPCToUse);
 
                     }
-                    cnt = NullscapeInBB.Instance.CursesPicked.Count;
+                    cnt = NullscapeInBB.Instance.CursesPicked.Count - NullscapeInBB.CurseCount(Curses.AngrierBaldi);
                     foreach (var item in NullscapeInBB.Instance.CursesPicked.ToList())
                     {
+                        if (item.curse == Curses.AngrierBaldi) continue;
                         item.OnCurseRemove?.Invoke();
                     }
-                    NullscapeInBB.Instance.CursesPicked.Clear();
+                    NullscapeInBB.Instance.CursesPicked.RemoveAll(x => x.curse != Curses.AngrierBaldi);
                     var AC = NullscapeInBB.Instance.AllCurses.ToList();
                     for (int i = 0; i < cnt; i++)
                     {
                         var RandomCurse = AC[Random.Range(0, AC.Count)];
-                        while (NullscapeInBB.CurseCount(RandomCurse.Value.curse) >= RandomCurse.Value.MaxCurses && (RandomCurse.Value.Requirements?.Invoke() == false) )
+                        while (NullscapeInBB.CurseCount(RandomCurse.Value.curse) >= RandomCurse.Value.MaxCurses && (RandomCurse.Value.Requirements?.Invoke() == false) && RandomCurse.Value.curse ==Curses.AngrierBaldi )
                         {
                             RandomCurse = AC[Random.Range(0, AC.Count)];
                         }
@@ -481,6 +478,15 @@ namespace NullscapeinBB
                     {
                         SaveHelper.SetAchivement(SaveHelper.AchivementsNullBasics.Level50, true);
                         ProgEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Completed")}<size=14><color=#ff6600>{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Level50")}</color></size>");
+
+
+                    }
+                    if (!SaveHelper.IsAchivementCompleted(SaveHelper.AchivementsNullBasics.Level50Prisoner) && NullscapeInBB.Instance.FloorCounter >= 50 && NullscapeInBB.Instance.SelectedClass == Classes.Prisoner)
+                    {
+                        SaveHelper.SetAchivement(SaveHelper.AchivementsNullBasics.Level50Prisoner, true);
+                        ProgEvents.Add($"{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Completed")}<size=14><color=#ff6600>{Singleton<LocalizationManager>.Instance.GetLocalizedText("achivement_Level50Prisoner")}</color></size>");
+
+
                     }
                     if (!SaveHelper.IsAchivementCompleted(SaveHelper.AchivementsNullBasics.Lap3) && NullscapeInBB.Instance.FloorCounter >= 34 && NullscapeInBB.Instance.CursesPicked.FirstOrDefault(x => x.curse == Curses.Lap2 && x.GotCurseAtLevel <= 15).MaxCurses != 0)
                     {
@@ -504,9 +510,9 @@ namespace NullscapeinBB
                     });
 
                 }
-                if ((NullscapeInBB.Instance.FloorCounter + 1) >= 10 && (NullscapeInBB.Instance.FloorCounter + 1) % 5 == 0)
+                if ((NullscapeInBB.Instance.FloorCounter + 1) == 30)
                 {
-
+                    ProgEvents.Add("pevent_moreexits");
 
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 12 == 0)
@@ -518,9 +524,15 @@ namespace NullscapeinBB
                 }
                 if ((NullscapeInBB.Instance.FloorCounter + 1) % 10 == 0)
                 {
-                    ProgEvents.Add("pevent_freeshield");
+                    if (NullscapeInBB.Instance.SelectedClass != Classes.Prisoner)
+                    {
+                        ProgEvents.Add("pevent_freeshield");
+                        NullscapeInBB.Instance.shields += 1 + NullscapeInBB.DelusionsCount(Delusions.MoreShieldButLessShield) * 2;
+                    } else {
+                        ProgEvents.Add("pevent_nofreeshield");
+                    }
                     ProgEvents.Add("pevent_inflation");
-                    NullscapeInBB.Instance.shields += 1 + NullscapeInBB.DelusionsCount(Delusions.MoreShieldButLessShield) * 2;
+                    
 
                 }
 
@@ -543,7 +555,9 @@ namespace NullscapeinBB
                 {
                     Extras.CreateCurseBreakerPickup();
                 }
-                Extras.CreateShieldPickup();
+
+                // You dont get to have shields prisoner.
+                if (NullscapeInBB.Instance.SelectedClass != Classes.Prisoner) Extras.CreateShieldPickup();
                 foreach (var item in NullscapeInBB.Instance.QueuedIntermission)
                 {
                     NullscapeInBB.Instance.Intermissions.Add(item);

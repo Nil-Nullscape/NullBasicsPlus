@@ -300,6 +300,30 @@ namespace NullscapeinBB
 
                 }
             });
+            NullscapeInBB.Instance.AllCurses.Add(Curses.SmallerMap, new()
+            {
+                curse = Curses.SmallerMap,
+                MaxCurses = 3,
+                MinFloor = 14,
+                CurseValue = 0,
+                Icon = Resources.FindObjectsOfTypeAll<Sprite>().First(),
+                CursesAction = () =>
+                {
+
+                }
+            });
+            NullscapeInBB.Instance.AllCurses.Add(Curses.OneMoreSlap, new()
+            {
+                curse = Curses.OneMoreSlap,
+                MaxCurses = 4,
+                MinFloor = 14,
+                CurseValue = 0,
+                Icon = Resources.FindObjectsOfTypeAll<Sprite>().First(),
+                CursesAction = () =>
+                {
+
+                }
+            });
             NullscapeInBB.Instance.AllCurses.Add(Curses.IncorrectActivityMeansLessYTPs, new()
             {
                 curse = Curses.IncorrectActivityMeansLessYTPs,

@@ -55,21 +55,13 @@ namespace NullscapeinBB
                     });
                 }
 
-                if (main.FloorCounter >= 30)
+                if (main.FloorCounter < 30)
                 {
-                    cuslevob.exitCount = 4;
-                }
-                else if (main.FloorCounter >= 20)
-                {
-                    cuslevob.exitCount = 3;
-                }
-                else if (main.FloorCounter >= 10)
-                {
-                    cuslevob.exitCount = 2;
+                    cuslevob.exitCount = 1 +Mathf.FloorToInt(main.FloorCounter / 10f);
                 }
                 else
                 {
-                    cuslevob.exitCount = 1;
+                    cuslevob.exitCount = 4 + Mathf.FloorToInt((main.FloorCounter-30) / 5f);
                 }
 
             }
@@ -109,6 +101,7 @@ namespace NullscapeinBB
         public static IntVector2 GetLevelSize() {
             NullscapeInBB main = NullscapeInBB.Instance;
             var num = Mathf.Clamp((7 + Mathf.FloorToInt(main.FloorCounter / 4.5f)) * Mathf.FloorToInt(main.FloorCounter / (3.1415f + main.FloorCounter / 5.2f)  ),0,239) / ((main.FloorCounter / 15)+1);
+            num = Mathf.FloorToInt(num * (1 - NullscapeInBB.CurseCount(Curses.SmallerMap) * 0.15f));
             return  new(14 + num, 14 + num);
         }
 

@@ -117,7 +117,7 @@ namespace NullscapeinBB.NPCs
                     currentRound++;
 
                     if (currentRound >= 3) {
-                        Operator.behaviorStateMachine.ChangeState(new VBOperator_Cooldown(15, Operator));
+                        Operator.behaviorStateMachine.ChangeState(new VBOperator_Cooldown(Random.Range(5f,30f), Operator));
 
                     }
                     CurrentTick = 0;

@@ -22,6 +22,7 @@ namespace NullscapeinBB.Save
         {
             Level25,
             Level50,
+            Level50Prisoner,
             Lap3
 
         }

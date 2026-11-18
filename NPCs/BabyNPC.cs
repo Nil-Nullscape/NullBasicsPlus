@@ -15,7 +15,7 @@ namespace NullscapeinBB.NPCs
     public class BabyNPC : NPC
     {
         public AudioManager AudMan;
-
+        public GameObject[] Lines;
         public AnimatorBBP Anim;
         public override void Initialize()
         {
@@ -25,7 +25,15 @@ namespace NullscapeinBB.NPCs
             Anim.AddAnimationToStorage("Dash", NullscapeInBB.Am.Get<Sprite[]>(ModAssetNames.SprSheetBabyDash), 12.5f);
             Anim.AddAnimationToStorage("Locked", NullscapeInBB.Am.Get<Sprite[]>(ModAssetNames.SprSheetBabyLocked), 12.5f);
             Anim.AddAnimationToStorage("Trans", NullscapeInBB.Am.Get<Sprite[]>(ModAssetNames.SprSheetBabyTrans), 12.5f);
-
+            Lines = new GameObject[Baby_Dash.AmountOfLine];
+            for (int i = 0; i < Lines.Length; i++)
+            {
+                var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Billboard), true, "line");
+                renderer.sprite = NullscapeInBB.Am.Get<Sprite>(ModAssetNames.tex_WhiteTex);
+                renderer.transform.localScale = Vector3.one * 0.025f;
+                renderer.color = new(1.5f, 0, 0, 0.5f);
+                Lines[i] = renderer.gameObject;
+            }
             behaviorStateMachine.ChangeState(new Baby_Cooldown(this));
         }
     }
@@ -71,12 +79,9 @@ namespace NullscapeinBB.NPCs
 
             for (int i = 0; i < AmountOfLine; i++)
             {
-                var renderer = ObjectCreation.MakeRenderer(UsefulHelpers.GetLayerFromEnum(UsefulHelpers.Layers.Billboard), true, "line");
-                renderer.sprite = NullscapeInBB.Am.Get<Sprite>(ModAssetNames.tex_WhiteTex);
+                var renderer = baby.Lines[i].gameObject;
+                renderer.SetActive(true);
                 renderer.transform.position = Vector3.Lerp(Oldpos + Vector3.down * 2.5f, NewPos + Vector3.down * 2.5f, (float)i / AmountOfLine);
-                renderer.transform.localScale = Vector3.one * 0.015f;
-                renderer.color = new(1, 0, 0, 0.5f);
-                Line.Add(renderer.gameObject);
             }
 
             Debug.Log("Dashing");
@@ -107,9 +112,10 @@ namespace NullscapeinBB.NPCs
         public override void Exit()
         {
             base.Exit();
-            foreach (var item in Line)
+            for (int i = 0; i < AmountOfLine; i++)
             {
-                UnityEngine.Object.Destroy(item.gameObject);
+                var renderer = baby.Lines[i].gameObject;
+                renderer.SetActive(false);
             }
             Line.Clear();
             baby.Anim.QueueAnimation("Trans", true, true);

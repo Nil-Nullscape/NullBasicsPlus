@@ -17,8 +17,9 @@ namespace NullscapeinBB
         {
             AddAchivement(AchivementsNullBasics.Level25, 1);
             AddAchivement(AchivementsNullBasics.Level50, 2);
+            AddAchivement(AchivementsNullBasics.Level50Prisoner, 3);
 
-            AddAchivement(AchivementsNullBasics.Lap3, 3);
+            AddAchivement(AchivementsNullBasics.Lap3, 4);
         }
 
         

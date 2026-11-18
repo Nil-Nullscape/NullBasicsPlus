@@ -130,7 +130,6 @@ namespace NullscapeinBB
             } else {
                 Singleton<BaseGameManager>.Instance.PleaseBaldi(5.5f, true);
             }
-            Completed(player);
         }
         public override void SetBonusMode(bool val)
         {

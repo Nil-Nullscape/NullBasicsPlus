@@ -193,6 +193,15 @@ namespace NullscapeinBB
                 {
                 }
             });
+            NullscapeInBB.Instance.AllGreaterCurses.Add(GreaterCurses.ActualLap2, new()
+            {
+                curse = GreaterCurses.ActualLap2,
+                MaxCurses =1,
+                MinFloor = 19,
+                CursesAction = () =>
+                {
+                }
+            });
         }
     }
 }

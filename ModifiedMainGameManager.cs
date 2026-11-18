@@ -179,9 +179,27 @@ namespace NullscapeinBB
             yield return new WaitForSeconds(45);
             Singleton<CoreGameManager>.Instance.GetPlayer(0).GetMovementStatModifier().RemoveModifier(speed);
         }
-
+        bool Lapped = false;
+        public Notebook lastNB;
+        public override void CollectNotebook(Notebook notebook)
+        {
+            lastNB = notebook;
+            base.CollectNotebook(notebook);
+        }
         protected override void AllNotebooks()
         {
+            if (!Lapped && NullscapeInBB.GreaterCurseCount(GreaterCurses.ActualLap2) >= 1) {
+                Lapped = true;
+                foreach (var item in ec.notebooks)
+                {
+                    if (item != lastNB) {
+                        item.activity.ReInit();
+                        AddNotebookTotal(1);
+                    }
+                }
+                return;
+            }
+
             if (!allNotebooksFound && spoopmode && !FindyourflameIsPlaying) {
                 Singleton<CoreGameManager>.Instance.musicMan.FlushQueue(true);
                 Singleton<CoreGameManager>.Instance.musicMan.QueueAudio(Song.allnbSongAsset, true);

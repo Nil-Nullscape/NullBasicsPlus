@@ -211,6 +211,7 @@ namespace NullscapeinBB
         AllNotebooksPower,
         SlowerBaldi ,
         LessNotebooks,
+        RadarNPCs,
         Blossom // Please do NOT mention this
     }
     public enum Curses
@@ -233,16 +234,18 @@ namespace NullscapeinBB
         ThreeStrikesPrincipal,
         RandomTilesAreSilenced,
         OldChalkface,
-        CadenceOneInstrument
+        CadenceOneInstrument,
+        SmallerMap,
+        OneMoreSlap
     }
-
+    
     public enum GreaterCurses
     {
         OmniscientBaldi,
         Maintenance,
         TimedActivities,
         HarderPlaytime,
-        NoMorePraise,
+        NoMorePraise, 
         TwiceMoreNpcs,
         Nothing,
         Tantrum,
@@ -251,6 +254,7 @@ namespace NullscapeinBB
         SilentNpcs,
         byebyestickystickers,
         IforgotHowManyNotebooksIHad,
+        ActualLap2, // heh im evil
         MartWaterPlanet,
         Malfunction
 
@@ -410,6 +414,7 @@ namespace NullscapeinBB
         public static AssetManager Am;
         public List<IntermissionSong> IntermissionSongs = new List<IntermissionSong>();
         public List<IngameSong> IngameSongs = new List<IngameSong>();
+        public List<SoundObject> ThunderSounds = new List<SoundObject>();
         public SceneObject F1;
         public int shields = 1;
         public int shieldcost = 5000;
@@ -846,8 +851,14 @@ namespace NullscapeinBB
         static public int GetCooldown(AltarTypes altar) {
             return Instance.Cooldowns[altar];
         }
+
+        /// <summary>
+        /// Sets the cooldown for an altar
+        /// </summary>
+        /// <param name="altar"></param>
+        /// <param name="cooldown">After how many level should it respawn</param>
         static public void SetCooldown(AltarTypes altar,int cooldown) {
-            NullscapeInBB.Instance.Cooldowns[altar] = cooldown;
+            NullscapeInBB.Instance.Cooldowns[altar] = Instance.FloorCounter + cooldown;
         }
         static public void ShieldEventNotifier(string enemykey, int tempShieldRemaining = 0, bool lostTempShield = false)
         {
@@ -1112,6 +1123,12 @@ namespace NullscapeinBB
             Am.Get<SoundObject>("snd_NilLoop").volumeMultiplier = 0.5f;
             Am.Get<SoundObject>("snd_NilLoop").subtitle = false;
 
+            for (int i = 0; i < 4; i++)
+            {
+                var thunder = MTM101BaldAPI.ObjectCreators.CreateSoundObject(MTM101BaldAPI.AssetTools.AssetLoader.AudioClipFromMod(this, "sounds", "Thunders", $"thunder{i+1}.wav"), "", SoundType.Effect, UsefulHelpers.GetColorFromRgb(128, 0, 128));
+                thunder.subtitle = false;
+                ThunderSounds.Add(thunder);
+            }
 
             foreach (var item in Am.GetAll<SoundObject>())
             {
@@ -1446,6 +1463,20 @@ namespace NullscapeinBB
             AltarRoom.category = RoomCategory.Null;
             AltarRoom.color = UsefulHelpers.GetColorFromRgb(250, 255, 0);
             AltarRoom.doorMats = ObjectCreators.CreateDoorDataObject("dor", AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Opened.png"), AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Closed.png"));
+            AltarRoom.doorMats.openPosterData = ScriptableObject.CreateInstance<PosterObject>();
+            AltarRoom.doorMats.shutPosterData = ScriptableObject.CreateInstance<PosterObject>();
+            AltarRoom.doorMats.openPosterData.baseTexture = (Texture2D)AltarRoom.doorMats.open.mainTexture;
+            AltarRoom.doorMats.shutPosterData.baseTexture = (Texture2D)AltarRoom.doorMats.shut.mainTexture;
+            AltarRoom.doorMats.shutPosterData.textData = [
+                new() {
+                    alignment = TextAlignmentOptions.Center,
+                    color = Color.black,
+                    font = BaldiFonts.ComicSans18.FontAsset(),
+                    size = new(102,64),
+                    position = new(77,128),
+                    textKey = "door_altar",
+                    fontSize = 18
+                }];
             s.GetComponent<Structure_AltarBuilder>().AltarRoom = AltarRoom;
             Am.Add("altar", s.GetComponent<Structure_AltarBuilder>());
 

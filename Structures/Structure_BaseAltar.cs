@@ -37,6 +37,10 @@ namespace NullscapeinBB.Structures
                 return ThisAltar.HasBeenActivated;
             }
 
+            public void ClickableInSight(int player)
+            {
+            }
+
             public bool ClickableRequiresNormalHeight()
             {
                 return true;
@@ -158,7 +162,7 @@ namespace NullscapeinBB.Structures
                 var index = WeightedGameObject.ControlledRandomIndex(parameters.prefab, rng);
                 GameObject chosenAltar = parameters.prefab[index].selection;
 
-                while ((Altars[index].Count >= parameters.minMax[index].z || NullscapeInBB.Instance.FloorCounter < parameters.prefab[index].selection.GetComponent<BaseAltar>().MinFloor || NullscapeInBB.GetCooldown(chosenAltar.GetComponent<BaseAltar>().Type) > 0 ) && retries < 10)
+                while ((Altars[index].Count >= parameters.minMax[index].z || NullscapeInBB.Instance.FloorCounter < parameters.prefab[index].selection.GetComponent<BaseAltar>().MinFloor || NullscapeInBB.GetCooldown(chosenAltar.GetComponent<BaseAltar>().Type) > NullscapeInBB.Instance.FloorCounter ) && retries < 10)
                 {
                     index = WeightedGameObject.ControlledRandomIndex(parameters.prefab, rng);
                     chosenAltar = parameters.prefab[index].selection;

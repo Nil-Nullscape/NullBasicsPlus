@@ -15,6 +15,7 @@ namespace NullscapeinBB.Structures
             NullscapeInBB.Instance.QueuedIntermission.Add(IntermissionType.Delusions);
             NullscapeInBB.AltarEventNotifier(Singleton<LocalizationManager>.Instance.GetLocalizedText("Delusion_Activated"));
             NullscapeInBB.SetCooldown(AltarTypes.Duality,5);
+
             base.OnActivate();
         }
     }
