@@ -324,6 +324,22 @@ namespace NullscapeinBB
 
                 }
             });
+
+            NullscapeInBB.Instance.AllCurses.Add(Curses.QuickMath, new()
+            {
+                curse = Curses.QuickMath,
+                MaxCurses = 5,
+                MinFloor = 14,
+                CurseValue = 0,
+                Icon = Resources.FindObjectsOfTypeAll<Sprite>().First(),
+                CursesAction = () =>
+                {
+
+                },
+                Requirements = () => {
+                    return NullscapeInBB.GreaterCurseCount(GreaterCurses.TimedActivities) >= 1; 
+                }
+            });
             NullscapeInBB.Instance.AllCurses.Add(Curses.IncorrectActivityMeansLessYTPs, new()
             {
                 curse = Curses.IncorrectActivityMeansLessYTPs,

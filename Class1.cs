@@ -236,7 +236,8 @@ namespace NullscapeinBB
         OldChalkface,
         CadenceOneInstrument,
         SmallerMap,
-        OneMoreSlap
+        OneMoreSlap,
+        QuickMath
     }
     
     public enum GreaterCurses
@@ -980,7 +981,7 @@ namespace NullscapeinBB
             MTM101BaldAPI.AssetTools.AssetLoader.LoadLocalizationFolder(Path.Combine(MTM101BaldAPI.AssetTools.AssetLoader.GetModPath(this), "Lang"), Language.English);
             if (PlaytestBuild) {
 
-                MTM101BaldiDevAPI.AddWarningScreen("Hello, this is a playtester build so many things are subject to change, and a lot of placeholders are still in here, (this is due that rn i have no one to make the art and models..)", false);
+                MTM101BaldiDevAPI.AddWarningScreen("Hello, this is a public playtest build so many things are subject to change, and a lot of placeholders are still in here, (this is due that rn i have no one to make the art and models..)", false);
                 MTM101BaldiDevAPI.AddWarningScreen("If there are bugs, report it to the github repo, If you have a feedback then send it in the discord channel made for it.", false);
                 MTM101BaldiDevAPI.AddWarningScreen("Again, be aware this is early access, so lots of unfinished stuff and unpolished stuff, thanks for playing!", false);
             }

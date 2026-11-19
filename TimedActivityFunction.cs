@@ -16,6 +16,7 @@ namespace NullscapeinBB
         bool IsActivityDone = false;
         bool timed = false;
         Activity actt;
+        public int[] YtpsCost = [0, 1, 2, 5, 10, 25];
         IEnumerator TimeTi()
         {
             foreach (var act in Singleton<BaseGameManager>.Instance.Ec.activities)
@@ -30,6 +31,9 @@ namespace NullscapeinBB
             {
                 yield return new WaitForSeconds(1f - (NullscapeInBB.CurseCount(Curses.FasterTimedActivities) * 0.2f));
                 var timerstring = Timer.ToString();
+                if (YtpsCost[NullscapeInBB.CurseCount(Curses.QuickMath)] > 0) {
+                    Singleton<CoreGameManager>.Instance.AddPoints(-YtpsCost[NullscapeInBB.CurseCount(Curses.QuickMath)], 0, true, false, false);
+                }
                 if (Timer>=10) {
                     if(tmptimer) {
                         tmptimer.text = $"<sprite={timerstring[0]}><sprite={timerstring[1]}>";
