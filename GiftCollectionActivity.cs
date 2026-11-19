@@ -113,7 +113,6 @@ namespace NullscapeinBB
             Singleton<CoreGameManager>.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().First(x => x.name == "Activity_Correct"));
             
             Singleton<CoreGameManager>.Instance.GetPlayer(player).plm.AddStamina(3000f, true);
-            Singleton<BaseGameManager>.Instance.ActivityCompleted(correct, this);
             
             base.Completed(player);
         }

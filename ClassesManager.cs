@@ -78,7 +78,7 @@ namespace NullscapeinBB
                     classs.item.descKey += $"\n{Singleton<LocalizationManager>.Instance.GetLocalizedText("desc_AbilityKeyWarning")}{NullscapeInBB.Instance.KeyAbility.Value.ToString()}";
                     
                 }
-                PickUp1.transform.position = ec.rooms[0].objectObject.transform.GetChild(i).transform.position + (Vector3.up * 5);
+                PickUp1.transform.position = ec.mainHall.objectObject.transform.GetChild(i).transform.position + (Vector3.up * 5);
                 pickups.Add(PickUp1.GetComponent<Pickup>());
                 PickUp1.GetComponent<Pickup>().OnItemCollected += (pk, plr) =>
                 {

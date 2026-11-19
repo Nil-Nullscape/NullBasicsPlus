@@ -1462,21 +1462,7 @@ namespace NullscapeinBB
             AltarRoom.roomFunctionContainer = RoomFunctionContainerBuilder.CreateBaseObject().Build();
             AltarRoom.category = RoomCategory.Null;
             AltarRoom.color = UsefulHelpers.GetColorFromRgb(250, 255, 0);
-            AltarRoom.doorMats = ObjectCreators.CreateDoorDataObject("dor", AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Opened.png"), AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Closed.png"));
-            AltarRoom.doorMats.openPosterData = ScriptableObject.CreateInstance<PosterObject>();
-            AltarRoom.doorMats.shutPosterData = ScriptableObject.CreateInstance<PosterObject>();
-            AltarRoom.doorMats.openPosterData.baseTexture = (Texture2D)AltarRoom.doorMats.open.mainTexture;
-            AltarRoom.doorMats.shutPosterData.baseTexture = (Texture2D)AltarRoom.doorMats.shut.mainTexture;
-            AltarRoom.doorMats.shutPosterData.textData = [
-                new() {
-                    alignment = TextAlignmentOptions.Center,
-                    color = Color.black,
-                    font = BaldiFonts.ComicSans18.FontAsset(),
-                    size = new(102,64),
-                    position = new(77,128),
-                    textKey = "door_altar",
-                    fontSize = 18
-                }];
+            AltarRoom.doorMats = ObjectCreators.CreateDoorDataObject("dor", AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Opened.png"), AssetLoader.TextureFromMod(this, "textures", "DoorAltar_Closed.png"),"door_altar");
             s.GetComponent<Structure_AltarBuilder>().AltarRoom = AltarRoom;
             Am.Add("altar", s.GetComponent<Structure_AltarBuilder>());
 
